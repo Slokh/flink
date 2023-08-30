@@ -1,0 +1,32 @@
+// schema.prisma
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+    directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+    fid     Int     @id
+    fname   String?
+    pfp     String?
+    display String?
+    bio     String?
+}
+
+model Address {
+    fid     Int
+    address String
+
+    @@id([fid, address])
+}
+
+model Reputation {
+    address         String @id
+    twitterUsername String
+    twitterSource   String
+}
