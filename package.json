@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "start:indexer": "ts-node -P tsconfig.server.json -r dotenv/config indexer/index.ts"
+    "start:indexer": "ts-node -P tsconfig.server.json -r dotenv/config indexer/index.ts",
+    "start:migrate": "ts-node -P tsconfig.server.json -r dotenv/config indexer/migrate.ts"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.10.5",

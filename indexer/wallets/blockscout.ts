@@ -1,10 +1,8 @@
-import { fetchWithRetry } from "./util";
+import { fetchWithRetry } from "../util";
 
 const BLOCKSCOUT_URL = "https://base.blockscout.com/api/v2/addresses";
 
-export const fetchRelatedWallets = async (
-  address: string
-): Promise<string[]> => {
+export const getRelatedWallets = async (address: string): Promise<string[]> => {
   const data = await fetchWithRetry(
     `${BLOCKSCOUT_URL}/${address}/transactions?filter=from`
   );

@@ -1,20 +1,11 @@
 import {
   HubRpcClient,
-  LinkBody,
   UserDataBody,
   VerificationAddEthAddressBody,
   getSSLHubRpcClient,
 } from "@farcaster/hub-nodejs";
-
-export type FarcasterUser = {
-  fid: number;
-  fname?: string;
-  display?: string;
-  pfp?: string;
-  bio?: string;
-  addresses: string[];
-  following: number[];
-};
+import { Farcaster } from "../db/farcaster";
+import { Ethereum } from "../db/ethereum";
 
 export class Client {
   public client: HubRpcClient;
@@ -44,37 +35,16 @@ export class Client {
     return await this.client.subscribe(args);
   }
 
-  public async getFarcasterUsers(fids: number[]): Promise<FarcasterUser[]> {
-    return await Promise.all(
-      fids.map((fid) => this.getFarcasterUser(fid, false))
-    );
-  }
-
-  public async getFarcasterUser(
-    fid: number,
-    includeLinks = true
-  ): Promise<FarcasterUser> {
-    const promises = [];
-    promises.push(this.getUserDataMessages(fid));
-    promises.push(this.getVerificationMessages(fid));
-    if (includeLinks) {
-      promises.push(this.getLinkMessages(fid));
+  public async getFarcasterUser(fid: number): Promise<Farcaster | undefined> {
+    const userDataMessages = await this.getUserDataMessages(fid);
+    if (userDataMessages === undefined) {
+      return undefined;
     }
-
-    const results = await Promise.all(promises);
-    const userDataMessages = results[0] as UserDataBody[];
-    const verificationMessages = results[1] as VerificationAddEthAddressBody[];
-    const linkMessages = (results[2] || []) as LinkBody[];
 
     const pfp = userDataMessages.find(({ type }) => type === 1)?.value;
     const display = userDataMessages.find(({ type }) => type === 2)?.value;
     const bio = userDataMessages.find(({ type }) => type === 3)?.value;
     const fname = userDataMessages.find(({ type }) => type === 6)?.value;
-    const addresses = this.getAddresses(verificationMessages);
-
-    const following = linkMessages
-      .map(({ targetFid }) => targetFid)
-      .filter(Boolean) as number[];
 
     return {
       fid,
@@ -82,14 +52,25 @@ export class Client {
       pfp,
       display,
       bio,
-      addresses,
-      following,
+      source: "FARCASTER",
+      verified: true,
     };
   }
 
-  private async getUserDataMessages(fid: number): Promise<UserDataBody[]> {
+  public async getVerifiedAddresses(fid: number): Promise<Ethereum[]> {
+    const verificationMessages = await this.getVerificationMessages(fid);
+    if (!verificationMessages.length) return [];
+
+    const addresses = this.getAddresses(verificationMessages);
+
+    return addresses;
+  }
+
+  private async getUserDataMessages(
+    fid: number
+  ): Promise<UserDataBody[] | undefined> {
     const userData = await this.client.getUserDataByFid({ fid });
-    if (!userData.isOk()) return [];
+    if (!userData.isOk()) return undefined;
 
     const userDataMessages = userData.value.messages
       .map(({ data }) => data?.userDataBody)
@@ -111,28 +92,25 @@ export class Client {
     return verificationMessages;
   }
 
-  private async getLinkMessages(fid: number): Promise<LinkBody[]> {
-    const linkData = await this.client.getLinksByFid({ fid });
-    if (!linkData.isOk()) return [];
-
-    const linkMessages = linkData.value.messages
-      .map(({ data }) => data?.linkBody)
-      .filter(Boolean) as LinkBody[];
-
-    return linkMessages;
-  }
-
-  private getAddresses(
+  public getAddresses(
     verificationMessages: VerificationAddEthAddressBody[]
-  ): string[] {
+  ): Ethereum[] {
     const addresses = verificationMessages
-      .map(
-        ({ address }) =>
-          `0x${Buffer.from(address).toString("hex").toLowerCase()}`
-      )
+      .map(this.getAddress)
       .filter((v, i, a) => a.indexOf(v) === i);
 
     return addresses;
+  }
+
+  public getAddress({ address }: VerificationAddEthAddressBody): Ethereum {
+    const hexAddress = `0x${Buffer.from(address)
+      .toString("hex")
+      .toLowerCase()}`;
+    return {
+      address: hexAddress,
+      source: "FARCASTER",
+      verified: true,
+    };
   }
 }
 

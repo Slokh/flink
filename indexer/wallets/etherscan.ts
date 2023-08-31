@@ -1,10 +1,8 @@
-import { fetchWithRetry } from "./util";
+import { fetchWithRetry } from "../util";
 
 const BASESCAN_URL = "https://api.basescan.org/api";
 
-export const fetchRelatedWallets = async (
-  address: string
-): Promise<string[]> => {
+export const getRelatedWallets = async (address: string): Promise<string[]> => {
   const params = new URLSearchParams({
     module: "account",
     action: "txlist",
