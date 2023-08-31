@@ -21,7 +21,6 @@ export const getTwitterFromAddress = async (
   if (!twitter) {
     return;
   }
-
   await upsertTwitter(twitter, entityId);
   return twitter;
 };

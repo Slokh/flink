@@ -28,6 +28,10 @@ export const getTwitterFromEns = async (
 
   const usernames = await getUsernames(ensName, twitterRecords);
 
+  if (!usernames?.length) {
+    return;
+  }
+
   return {
     username: usernames[0],
     source: "ENS",
