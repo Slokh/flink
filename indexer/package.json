@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "npx prisma generate && ts-node -P tsconfig.json -r dotenv/config index.ts"
+    "generate": "npx prisma generate",
+    "backfill": "MODE=backfill ts-node -P tsconfig.json -r dotenv/config index.ts",
+    "live": "MODE=live ts-node -P tsconfig.json -r dotenv/config index.ts",
+    "start": "npm run backfill & npm run live"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.10.5",

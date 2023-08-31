@@ -11,6 +11,18 @@ export interface Farcaster {
   source: Source;
 }
 
+export const getLastFid = async () => {
+  const farcaster = await prisma.farcaster.findFirst({
+    orderBy: { fid: "desc" },
+  });
+
+  if (!farcaster) {
+    return 1;
+  }
+
+  return farcaster.fid;
+};
+
 export const getFarcasterEntity = async (fid: number) => {
   const farcaster = await prisma.farcaster.findFirst({
     where: { fid },

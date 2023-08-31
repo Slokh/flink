@@ -1,17 +1,26 @@
 import { HubEventType } from "@farcaster/hub-nodejs";
 import { getHubClient, Client } from "./hub";
-import { upsertFarcaster } from "../db/farcaster";
+import { getLastFid, upsertFarcaster } from "../db/farcaster";
 import { upsertEthereum } from "../db/ethereum";
 import { getTwitterFromAddress, getTwitterFromRaw } from "../twitter";
 
 export const indexFarcaster = async () => {
   const client = await getHubClient();
+  const mode = process.env.MODE;
 
-  await Promise.all([backfill(client), live(client)]);
+  if (mode === "backfill") {
+    await backfill(client);
+  } else if (mode === "live") {
+    await live(client);
+  } else {
+    console.error("Invalid mode");
+    process.exit(1);
+  }
 };
 
 const backfill = async (client: Client) => {
-  for (let fid = 1; ; fid++) {
+  const lastFid = await getLastFid();
+  for (let fid = lastFid; ; fid++) {
     if (!(await handleFidChange("backfill", client, fid))) {
       break;
     }
