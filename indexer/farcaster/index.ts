@@ -11,11 +11,10 @@ export const indexFarcaster = async () => {
 };
 
 const backfill = async (client: Client) => {
-  for (let fid = 643; ; fid++) {
+  for (let fid = 1; ; fid++) {
     if (!(await handleFidChange("backfill", client, fid))) {
       break;
     }
-    break;
   }
 
   console.log("[backfill] complete");
