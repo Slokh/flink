@@ -43,13 +43,13 @@ const live = async (client: Client) => {
       event.mergeMessageBody.message.data?.verificationAddEthAddressBody;
     const userData = event.mergeMessageBody.message.data?.userDataBody;
 
-    if (!(verificationData || userData)) continue;
-
-    await handleFidChange(
-      "live",
-      client,
-      userData?.fid || verificationData?.fid
-    );
+    if (verificationData || userData) {
+      await handleFidChange(
+        "live",
+        client,
+        event.mergeMessageBody.message.data.fid
+      );
+    }
   }
 };
 
