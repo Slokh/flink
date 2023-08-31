@@ -12,8 +12,9 @@ export const indexFarcaster = async () => {
 
 const backfill = async (client: Client) => {
   for (let fid = 1; ; fid++) {
-    await handleFidChange("backfill", client, fid);
-    break;
+    if (!(await handleFidChange("backfill", client, fid))) {
+      break;
+    }
   }
 
   console.log("[backfill] complete");
@@ -82,4 +83,6 @@ const handleFidChange = async (
       );
     }
   }
+
+  return farcasterUser;
 };
