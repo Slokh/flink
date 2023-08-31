@@ -1,6 +1,6 @@
 import { HubEventType } from "@farcaster/hub-nodejs";
 import { getHubClient, Client } from "./hub";
-import { getLastFid, upsertFarcaster } from "../db/farcaster";
+import { upsertFarcaster } from "../db/farcaster";
 import { upsertEthereum } from "../db/ethereum";
 import { getTwitterFromAddress, getTwitterFromRaw } from "../twitter";
 
@@ -19,7 +19,7 @@ export const indexFarcaster = async () => {
 };
 
 const backfill = async (client: Client) => {
-  const lastFid = await getLastFid();
+  const lastFid = 7229;
   for (let fid = lastFid; ; fid++) {
     if (!(await handleFidChange("backfill", client, fid))) {
       break;
