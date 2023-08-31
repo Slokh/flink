@@ -30,7 +30,7 @@ export default function RootLayout({
                   flink
                 </a>
                 <div className="text-sm text-slate-400">
-                  eth ♥ farcaster ♥ twitter
+                  farcaster ♥ twitter ♥ eth
                 </div>
               </div>
               <div className="flex flex-row space-x-2 items-center">

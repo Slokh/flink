@@ -9,15 +9,23 @@ export const SearchInput = () => {
   const [search, setSearch] = useState<string>("");
 
   const handleClick = () => {
-    router.push(`/user/${search}`);
+    router.push(`/${search}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleClick();
+    }
   };
 
   return (
-    <div className="flex w-full max-w-sm items-center space-x-2">
+    <div className="flex w-full items-center space-x-2">
       <Input
         id="name"
-        placeholder="slokh.eth"
+        placeholder="Search by farcaster, twitter, eth address, ens, etc."
         onChange={(e) => setSearch(e.target.value)}
+        onKeyDown={handleKeyDown}
+        autoFocus
       />
       <Button onClick={handleClick}>Search</Button>
     </div>
