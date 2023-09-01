@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex flex-col min-h-screen items-start">
+          <div className="flex flex-col min-h-screen items-start bg-[#0a0a0b]">
             <div className="flex flex-row border-b p-2 justify-between items-center w-full">
               <div className="flex flex-col">
                 <a href="/" className="font-bold">
