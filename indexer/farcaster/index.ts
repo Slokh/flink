@@ -26,7 +26,7 @@ export const runForFid = async (fid: number) => {
 };
 
 const backfill = async (client: Client) => {
-  const lastFid = 1;
+  const lastFid = 1780;
   for (let fid = lastFid; ; fid++) {
     if (!(await handleFidChange("backfill", client, fid))) {
       break;
