@@ -32,7 +32,7 @@ export const getOpenSeaFromAddress = async (
     const website: Website = {
       url: response.data.website_url,
       source: "OPENSEA",
-      verified: response.data.config || false,
+      verified: response.data.config === "true" ? true : false,
     };
     await upsertWebsite(website, entityId);
   }
@@ -41,7 +41,7 @@ export const getOpenSeaFromAddress = async (
     address,
     username: response.data.user?.username,
     pfp: response.data.profile_image_url,
-    isVerified: response.data.config || false,
+    isVerified: response.data.config === "true" ? true : false,
     source: "OPENSEA",
     verified: true,
   };
