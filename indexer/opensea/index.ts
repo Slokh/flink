@@ -1,5 +1,5 @@
 import { Twitter, upsertTwitter } from "../db/twitter";
-import { OpenSea } from "../db/opensea";
+import { OpenSea, upsertOpenSea } from "../db/opensea";
 import { Website, upsertWebsite } from "../db/website";
 import { fetchWithRetry } from "../util";
 
@@ -37,7 +37,7 @@ export const getOpenSeaFromAddress = async (
     await upsertWebsite(website, entityId);
   }
 
-  return {
+  const opensea: OpenSea = {
     address,
     username: response.data.user?.username,
     pfp: response.data.profile_image_url,
@@ -45,4 +45,8 @@ export const getOpenSeaFromAddress = async (
     source: "OPENSEA",
     verified: true,
   };
+
+  await upsertOpenSea(opensea, entityId);
+
+  return opensea;
 };
