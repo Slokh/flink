@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import { headers } from "next/headers";
 
-type FarcasterAccount = {
+type Farcaster = {
   fid: number;
   fname: string;
   display?: string;
@@ -12,15 +12,39 @@ type FarcasterAccount = {
   bio?: string;
 };
 
-type EthereumAccount = {
+type OpenSea = {
+  username: string;
+  pfp?: string;
+};
+
+type Address = {
   address: string;
   ensName?: string;
 };
 
+type Lens = {
+  username: string;
+  bio?: string;
+  address: string;
+  display?: string;
+  metadata?: string;
+};
+
 type Entity = {
-  farcasterAccounts: FarcasterAccount[];
-  twitterAccounts: string[];
-  ethereumAccounts: EthereumAccount[];
+  accounts: {
+    farcaster?: Farcaster;
+    opensea?: OpenSea[];
+    lensProfiles?: Lens[];
+  };
+  addresses?: Address[];
+  websites?: string[];
+  socials: {
+    twitter?: string;
+    discord?: string;
+    telegram?: string;
+    github?: string;
+    reddit?: string;
+  };
 };
 
 const getEntity = async (id: string): Promise<Entity> => {
@@ -31,39 +55,49 @@ const getEntity = async (id: string): Promise<Entity> => {
 };
 
 const Overview = ({ entity }: { entity: Entity }) => {
-  const mainIdentity = entity.farcasterAccounts[0];
-  const mainTwitter = entity.twitterAccounts[0];
+  const farcaster = entity.accounts.farcaster;
+  const twitter = entity.socials.twitter;
+  const lensProfiles = entity.accounts.lensProfiles;
+
+  const displayName =
+    farcaster?.display ||
+    farcaster?.fname ||
+    lensProfiles?.find((a) => a.display)?.display;
+  const pfp =
+    farcaster?.pfp || entity.accounts.opensea?.find((a) => a.pfp)?.pfp;
 
   return (
     <>
       <Avatar>
-        <AvatarImage src={mainIdentity?.pfp} />
+        <AvatarImage src={pfp} className="object-cover" />
         <AvatarFallback>?</AvatarFallback>
       </Avatar>
-      <div className="font-semibold text-2xl">{mainIdentity?.display}</div>
+      <div className="font-semibold text-2xl">{displayName}</div>
       <div className="flex flex-row text-slate-400 space-x-6">
-        {mainIdentity?.fname && (
+        {farcaster?.fname && (
           <a
-            href={`https://warpcast.com/${mainIdentity?.fname}`}
+            href={`https://warpcast.com/${farcaster.fname}`}
             className="flex flex-row items-center space-x-1"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/farcaster.png" alt="farcaster" className="w-5 h-5" />
-            <span>{mainIdentity?.fname}</span>
+            <span>{farcaster.fname}</span>
           </a>
         )}
-        {mainTwitter && (
+        {twitter && (
           <a
-            href={`https://twitter.com/${mainTwitter}`}
+            href={`https://twitter.com/${twitter}`}
             className="flex flex-row items-center space-x-1"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/x.png" alt="twitter" className="w-4 h-4" />
-            <span>{mainTwitter}</span>
+            <span>{twitter}</span>
           </a>
         )}
       </div>
-      <div className="text-center">{mainIdentity?.bio}</div>
+      <div className="text-center">
+        {farcaster?.bio || lensProfiles?.find((a) => a.bio)?.bio}
+      </div>
     </>
   );
 };
@@ -77,7 +111,7 @@ const CardItem = ({
   identity: string;
   url: string;
 }) => (
-  <a className="flex flex-col" href={url}>
+  <a className="flex flex-col" href={url} target="_blank">
     <div className="font-semibold whitespace-normal break-words	">
       {identity}
     </div>
@@ -87,48 +121,111 @@ const CardItem = ({
 
 export default async function User({ params }: { params: { id: string } }) {
   const entity = await getEntity(params.id);
+  const {
+    accounts: { farcaster, opensea, lensProfiles },
+    addresses,
+    websites,
+    socials,
+  } = entity;
+
+  const { twitter, discord, telegram, github, reddit } = socials;
+
   return (
     <div className="flex flex-col items-center w-full p-4">
       <div className="flex flex-col items-center w-full max-w-sm space-y-4">
         <Overview entity={entity} />
         <Card className="w-full">
-          <CardHeader>Accounts</CardHeader>
+          <CardHeader>Links</CardHeader>
           <CardContent>
             <div className="flex flex-col space-y-4">
-              {entity.farcasterAccounts.map((account) => (
+              {farcaster && (
                 <CardItem
-                  key={account.fid}
+                  key={farcaster.fid}
                   platform="Farcaster"
-                  identity={account.fname}
-                  url={`https://warpcast.com/${account.fname}`}
+                  identity={farcaster.fname}
+                  url={`https://warpcast.com/${farcaster.fname}`}
                 />
-              ))}
-              {entity.twitterAccounts.map((account) => (
+              )}
+              {twitter && (
                 <CardItem
-                  key={account}
+                  key={twitter}
                   platform="Twitter"
-                  identity={account}
-                  url={`https://twitter.com/${account}`}
+                  identity={twitter}
+                  url={`https://twitter.com/${twitter}`}
+                />
+              )}
+              {opensea?.map((account) => (
+                <CardItem
+                  key={account.username}
+                  platform="OpenSea"
+                  identity={account.username}
+                  url={`https://opensea.io/${account.username}`}
                 />
               ))}
-              {entity.ethereumAccounts.map((account) => {
-                const formattedAddress = `${account.address.substring(
+              {discord && (
+                <CardItem
+                  key={discord}
+                  platform="Discord"
+                  identity={discord}
+                  url={`https://discord.com/${discord}`}
+                />
+              )}
+              {telegram && (
+                <CardItem
+                  key={telegram}
+                  platform="Telegram"
+                  identity={telegram}
+                  url={`https://telegram.org/${telegram}`}
+                />
+              )}
+              {github && (
+                <CardItem
+                  key={github}
+                  platform="GitHub"
+                  identity={github}
+                  url={`https://github.com/${github}`}
+                />
+              )}
+              {reddit && (
+                <CardItem
+                  key={reddit}
+                  platform="Reddit"
+                  identity={reddit}
+                  url={`https://reddit.com/u/${reddit}`}
+                />
+              )}
+              {addresses?.map(({ address, ensName }) => {
+                const formattedAddress = `${address.substring(
                   0,
                   6
-                )}...${account.address.substring(account.address.length - 4)}`;
+                )}...${address.substring(address.length - 4)}`;
                 return (
                   <CardItem
-                    key={account.address}
+                    key={address}
                     platform={
-                      account.ensName
-                        ? `Ethereum (${formattedAddress})`
-                        : "Ethereum"
+                      ensName ? `Ethereum (${formattedAddress})` : "Ethereum"
                     }
-                    identity={account.ensName || formattedAddress}
-                    url={`https://etherscan.io/address/${account.address}`}
+                    identity={ensName || formattedAddress}
+                    url={`https://etherscan.io/address/${address}`}
                   />
                 );
               })}
+              {websites?.map((website) => (
+                <CardItem
+                  key={website}
+                  platform="Website"
+                  identity={website}
+                  url={website}
+                />
+              ))}
+              {lensProfiles?.map((lensProfile) => (
+                <CardItem
+                  key={lensProfile.username}
+                  platform="Lens"
+                  identity={lensProfile.username}
+                  url={`https://buttrfly.app/profile/${lensProfile.username}`}
+                />
+              ))}
             </div>
           </CardContent>
         </Card>

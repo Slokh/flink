@@ -15,6 +15,8 @@ model Entity {
     farcasterAccounts Farcaster[]
     ethereumAccounts  Ethereum[]
     twitterAccounts   Twitter[]
+    openseaAccounts   OpenSea[]
+    websites          Website[]
 }
 
 model Farcaster {
@@ -48,4 +50,28 @@ model Twitter {
 
     Entity   Entity? @relation(fields: [entityId], references: [id])
     entityId Int?
+}
+
+model OpenSea {
+    address    String  @id
+    username   String?
+    pfp        String?
+    isVerified Boolean
+    source     String
+    verified   Boolean
+
+    Entity   Entity? @relation(fields: [entityId], references: [id])
+    entityId Int?
+}
+
+model Website {
+    id       Int     @id @default(autoincrement())
+    url      String
+    source   String
+    verified Boolean
+
+    Entity   Entity? @relation(fields: [entityId], references: [id])
+    entityId Int?
+
+    @@unique([url, entityId])
 }
