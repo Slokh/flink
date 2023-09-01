@@ -19,6 +19,7 @@ export const getTwitterFromFriendTech = async (
       return {
         username: data.twitterUsername,
         source: "FRIEND_TECH",
+        sourceInput: address,
         verified: true,
       };
     }

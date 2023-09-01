@@ -1,2 +1,2 @@
-import { indexFarcaster } from "./farcaster";
-indexFarcaster();
+import { runFarcasterIndexer } from "./farcaster";
+runFarcasterIndexer();

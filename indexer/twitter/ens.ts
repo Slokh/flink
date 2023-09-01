@@ -35,6 +35,7 @@ export const getTwitterFromEns = async (
   return {
     username: usernames[0],
     source: "ENS",
+    sourceInput: address,
     verified: false,
   };
 };

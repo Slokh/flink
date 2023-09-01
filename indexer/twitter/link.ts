@@ -1,9 +1,9 @@
 import { Twitter } from "../db/twitter";
 
-export const getTwitterFromBio = async (
-  bio: string
+export const getTwitterFromLink = async (
+  link: string
 ): Promise<Twitter | undefined> => {
-  const match1 = bio?.match(/(\w+)\.twitter/);
+  const match1 = link.match(/(\w+)\.twitter/);
   if (match1?.length) {
     const username = match1[1];
     return {
@@ -13,12 +13,13 @@ export const getTwitterFromBio = async (
     };
   }
 
-  const match2 = bio?.match(/twitter\.com\/(\w+)/);
+  const match2 = link.match(/twitter\.com\/(\w+)/);
   if (match2?.length) {
     const username = match2[1];
     return {
       username,
       source: "FARCASTER",
+      sourceInput: link,
       verified: false,
     };
   }

@@ -5,6 +5,7 @@ export interface Twitter {
   username: string;
   verified: boolean;
   source: Source;
+  sourceInput?: string;
 }
 
 export const getTwitterEntity = async (username: string) => {
@@ -19,9 +20,9 @@ export const getTwitterEntity = async (username: string) => {
   return twitter.entityId;
 };
 
-export const getTwitterBySource = async (source: string) => {
+export const getTwitterBySource = async (sourceInput: string) => {
   return await prisma.twitter.findFirst({
-    where: { source },
+    where: { sourceInput },
   });
 };
 

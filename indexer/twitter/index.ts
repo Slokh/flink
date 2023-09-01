@@ -1,13 +1,12 @@
 import { getTwitterBySource, upsertTwitter } from "../db/twitter";
 import { getTwitterFromFriendTech } from "./friendtech";
-import { getTwitterFromOpenSea } from "./opensea";
 import { getTwitterFromEns } from "./ens";
-import { getTwitterFromBio } from "./bio";
+import { getTwitterFromLink } from "./link";
 import { getTwitterFromNftd } from "./nftd";
 
 export const getTwitterFromAddress = async (
-  address: string,
-  entityId?: number
+  entityId: number,
+  address: string
 ) => {
   if (await getTwitterBySource(address)) {
     return;
@@ -15,7 +14,6 @@ export const getTwitterFromAddress = async (
 
   const twitter =
     (await getTwitterFromFriendTech(address)) ||
-    (await getTwitterFromOpenSea(address)) ||
     (await getTwitterFromEns(address));
 
   if (!twitter) {
@@ -25,13 +23,13 @@ export const getTwitterFromAddress = async (
   return twitter;
 };
 
-export const getTwitterFromRaw = async (raw: string, entityId?: number) => {
-  if (await getTwitterBySource(raw)) {
+export const getTwitterFromURL = async (entityId: number, link: string) => {
+  if (await getTwitterBySource(link)) {
     return;
   }
 
   const twitter =
-    (await getTwitterFromBio(raw)) || (await getTwitterFromNftd(raw));
+    (await getTwitterFromLink(link)) || (await getTwitterFromNftd(link));
 
   if (!twitter) {
     return;
@@ -39,15 +37,4 @@ export const getTwitterFromRaw = async (raw: string, entityId?: number) => {
 
   await upsertTwitter(twitter, entityId);
   return twitter;
-};
-
-export const getTwitter = async (
-  address: string,
-  raw?: string,
-  entityId?: number
-) => {
-  return (
-    (await getTwitterFromAddress(address, entityId)) ||
-    (raw && (await getTwitterFromRaw(raw, entityId)))
-  );
 };

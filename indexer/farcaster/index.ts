@@ -2,12 +2,14 @@ import { HubEventType } from "@farcaster/hub-nodejs";
 import { getHubClient, Client } from "./hub";
 import { upsertFarcaster } from "../db/farcaster";
 import { upsertEthereum } from "../db/ethereum";
-import { getTwitterFromAddress, getTwitterFromRaw } from "../twitter";
+import { getTwitterFromAddress, getTwitterFromURL } from "../twitter";
+import { getOpenSeaFromAddress } from "../opensea";
+import { upsertWebsite } from "../db/website";
+import { URL_REGEX } from "../util";
 
-export const indexFarcaster = async () => {
+export const runFarcasterIndexer = async () => {
   const client = await getHubClient();
   const mode = process.env.MODE;
-
   if (mode === "backfill") {
     await backfill(client);
   } else if (mode === "live") {
@@ -18,8 +20,13 @@ export const indexFarcaster = async () => {
   }
 };
 
+export const runForFid = async (fid: number) => {
+  const client = await getHubClient();
+  await handleFidChange("manual", client, fid);
+};
+
 const backfill = async (client: Client) => {
-  const lastFid = 7229;
+  const lastFid = 1;
   for (let fid = lastFid; ; fid++) {
     if (!(await handleFidChange("backfill", client, fid))) {
       break;
@@ -54,7 +61,7 @@ const live = async (client: Client) => {
 };
 
 const handleFidChange = async (
-  mode: "backfill" | "live",
+  mode: "backfill" | "live" | "manual",
   client: Client,
   fid: number
 ) => {
@@ -75,7 +82,17 @@ const handleFidChange = async (
 
     console.log(`[${mode}] [${entityId}] added address ${address.address}`);
 
-    const twitter = await getTwitterFromAddress(address.address, entityId);
+    const opensea = await getOpenSeaFromAddress(entityId, address.address);
+
+    if (opensea) {
+      console.log(
+        `[${mode}] [${entityId}] added opensea ${
+          opensea.username || opensea.address
+        }`
+      );
+    }
+
+    const twitter = await getTwitterFromAddress(entityId, address.address);
 
     if (!twitter) continue;
 
@@ -85,10 +102,22 @@ const handleFidChange = async (
   }
 
   if (farcasterUser.bio) {
-    const twitter = await getTwitterFromRaw(farcasterUser.bio, entityId);
-    if (twitter) {
-      console.log(
-        `[${mode}] [${entityId}] added twitter ${twitter.username} from ${twitter.source}`
+    const links = farcasterUser.bio.match(URL_REGEX) || [];
+    for (const link of links) {
+      const twitter = await getTwitterFromURL(entityId, link);
+      if (twitter) {
+        console.log(
+          `[${mode}] [${entityId}] added twitter ${twitter.username} from ${twitter.source}`
+        );
+      }
+
+      await upsertWebsite(
+        {
+          url: link,
+          verified: false,
+          source: "FARCASTER",
+        },
+        entityId
       );
     }
   }

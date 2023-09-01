@@ -4,9 +4,9 @@ import { fetchWithRetry } from "../util";
 const NFTD_URL = "https://nf.td/api/public/v1/user";
 
 export const getTwitterFromNftd = async (
-  bio: string
+  link: string
 ): Promise<Twitter | undefined> => {
-  const match = bio?.match(/nf\.td\/(\w+)/);
+  const match = link?.match(/nf\.td\/(\w+)/);
   if (!match?.length) {
     return;
   }
@@ -49,6 +49,7 @@ export const getTwitterFromNftd = async (
   return {
     username: twitterLinks[0].split("/").pop() as string,
     source: "NFTD",
+    sourceInput: link,
     verified: false,
   };
 };
