@@ -32,8 +32,7 @@ export const generateMetadata = async ({
   return {
     title: display.value || params.id,
     description:
-      bio?.value ||
-      `Check out ${display?.value || params.id}'s unified profile`,
+      bio?.value || `Check out ${display?.value || params.id}'s profile`,
     icons: {
       icon: "/favicon.ico",
     },
@@ -43,8 +42,7 @@ export const generateMetadata = async ({
       url: `https://flink.vercel.app/${params.id}`,
       title: display?.value || params.id,
       description:
-        bio?.value ||
-        `Check out ${display?.value || params.id}'s unified profile`,
+        bio?.value || `Check out ${display?.value || params.id}'s profile`,
       images: [
         {
           url: pfp?.value || "/favicon.ico",
