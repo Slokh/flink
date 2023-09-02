@@ -185,6 +185,7 @@ const parseLinks = (
         platform: platformLink ? RELEVANT_PLATFORMS[platformLink] : undefined,
       };
     })
+    .filter((link, i, self) => self.findIndex((l) => l.url === link.url) === i)
     .sort((a, b) => {
       const aIndex = PLATFORM_ORDER.indexOf(a.platform || "");
       const bIndex = PLATFORM_ORDER.indexOf(b.platform || "");
