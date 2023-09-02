@@ -37,6 +37,10 @@ export const getEnsLinks = async (address: string): Promise<Link[]> => {
 };
 
 const getEnsTextRecords = async (ensName: string): Promise<EnsRecord[]> => {
+  if (ensName.includes("[") || ensName.includes("]")) {
+    return [];
+  }
+
   const { data } = await fetchWithRetry(
     "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
     {
