@@ -1,5 +1,5 @@
 import { HubEventType } from "@farcaster/hub-nodejs";
-import { getHubClient, Client } from "./hub";
+import { Client } from "./hub";
 import { upsertFarcaster } from "../db/farcaster";
 import { upsertEthereum } from "../db/ethereum";
 import { URL_REGEX } from "../util";
@@ -12,25 +12,11 @@ import { getLensLinks } from "../links/lens";
 import prisma from "../lib/prisma";
 import { getAddressForENS } from "../links/ens";
 
-export const runFarcasterIndexer = async () => {
-  const client = await getHubClient();
-  const mode = process.env.MODE;
-  if (mode === "backfill") {
-    await backfill(client);
-  } else if (mode === "live") {
-    await live(client);
-  } else {
-    console.error("Invalid mode");
-    process.exit(1);
-  }
-};
-
-export const runForFid = async (fid: number) => {
-  const client = await getHubClient();
+export const runFarcasterManual = async (client: Client, fid: number) => {
   await handleFidChange("manual", client, fid);
 };
 
-const backfill = async (client: Client) => {
+export const runFarcasterBackfill = async (client: Client) => {
   const lastFidRecord = await prisma.backfill.findFirst({
     orderBy: { fid: "desc" },
     select: { fid: true },
@@ -47,7 +33,7 @@ const backfill = async (client: Client) => {
   console.log("[backfill] complete");
 };
 
-const live = async (client: Client) => {
+export const runFarcasterLive = async (client: Client) => {
   const subscribtion = await client.subscribe({
     eventTypes: [HubEventType.MERGE_MESSAGE],
   });
@@ -150,7 +136,7 @@ const handleFidChange = async (
 
   const normalizedLinkResults = linkResults.map((link) => {
     // normalize link.url
-    let url = link.url.trim();
+    let url = link.url.trim().toLowerCase();
     if (url.startsWith("http://")) {
       url = url.replace("http://", "");
     }
@@ -175,6 +161,7 @@ const handleFidChange = async (
     (link, index, self) =>
       index ===
         self.findIndex((l) => l.url === link.url && l.source === link.source) &&
+      !link.url.includes(" ") &&
       link.url.match(URL_REGEX) &&
       link.url.length > 5
   );
