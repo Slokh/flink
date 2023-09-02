@@ -160,7 +160,8 @@ const handleFidChange = async (
     (link, index, self) =>
       index ===
         self.findIndex((l) => l.url === link.url && l.source === link.source) &&
-      link.url.match(URL_REGEX)
+      link.url.match(URL_REGEX) &&
+      link.url.length > 5
   );
 
   await upsertLinks(entityId, dedupedLinkResults);
