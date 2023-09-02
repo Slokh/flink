@@ -1,1 +1,7 @@
-export type Source = "OPENSEA" | "FRIEND_TECH" | "NFTD" | "ENS" | "FARCASTER";
+export type Source =
+  | "OPENSEA"
+  | "FRIEND_TECH"
+  | "NFTD"
+  | "ENS"
+  | "FARCASTER"
+  | "LENS";

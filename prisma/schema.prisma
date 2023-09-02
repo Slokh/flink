@@ -14,9 +14,7 @@ model Entity {
     id                Int         @id @default(autoincrement())
     farcasterAccounts Farcaster[]
     ethereumAccounts  Ethereum[]
-    twitterAccounts   Twitter[]
-    openseaAccounts   OpenSea[]
-    websites          Website[]
+    links             Link[]
 }
 
 model Farcaster {
@@ -39,39 +37,22 @@ model Ethereum {
     sourceInput String?
 
     Entity   Entity? @relation(fields: [entityId], references: [id])
-    entityId Int?
+    entityId Int
 }
 
-model Twitter {
-    username    String  @id
+model Link {
+    url         String
+    metadata    Json?
     source      String
     verified    Boolean
     sourceInput String?
 
     Entity   Entity? @relation(fields: [entityId], references: [id])
-    entityId Int?
+    entityId Int
+
+    @@id([url, entityId, source])
 }
 
-model OpenSea {
-    address    String  @id
-    username   String?
-    pfp        String?
-    isVerified Boolean
-    source     String
-    verified   Boolean
-
-    Entity   Entity? @relation(fields: [entityId], references: [id])
-    entityId Int?
-}
-
-model Website {
-    id       Int     @id @default(autoincrement())
-    url      String
-    source   String
-    verified Boolean
-
-    Entity   Entity? @relation(fields: [entityId], references: [id])
-    entityId Int?
-
-    @@unique([url, entityId])
+model Backfill {
+    fid Int @id
 }

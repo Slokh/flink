@@ -7,8 +7,11 @@ import { useState } from "react";
 export const SearchInput = () => {
   const router = useRouter();
   const [search, setSearch] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleClick = () => {
+    if (!search) return;
+    setLoading(true);
     router.push(`/${search}`);
   };
 
@@ -22,12 +25,18 @@ export const SearchInput = () => {
     <div className="flex w-full items-center space-x-2">
       <Input
         id="name"
-        placeholder="Search by farcaster, twitter, eth address, ens, etc."
+        placeholder="Search by farcaster, twitter, address, ens, lens, etc."
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={handleKeyDown}
         autoFocus
       />
-      <Button onClick={handleClick}>Search</Button>
+      <Button className="w-32" disabled={loading} onClick={handleClick}>
+        {loading ? (
+          <img src="/loading.svg" alt="loading" className="w-5 h-5" />
+        ) : (
+          "Search"
+        )}
+      </Button>
     </div>
   );
 };

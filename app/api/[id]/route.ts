@@ -1,14 +1,45 @@
 import { NextResponse } from "next/server";
+import { getIdentityForInput } from "@/lib/identity";
+import { getAddressesWithEnsNames, getENSForAddress } from "@/lib/ens";
 import prisma from "@/lib/prisma";
-import { createPublicClient, http, isAddress } from "viem";
-import { normalize } from "viem/ens";
-import { mainnet } from "viem/chains";
-import { fetchWithRetry } from "@/indexer/util";
+import { Account, Entity, EntityText, RelatedLink } from "@/lib/types";
+import { getLensLinks } from "@/indexer/links/lens";
+import {
+  getOpenSeaLinks,
+  getOpenSeaLinksByUser,
+} from "@/indexer/links/opensea";
+import { getEnsLinks } from "@/indexer/links/ens";
+import { Farcaster } from "@/indexer/db/farcaster";
+import { Ethereum } from "@/indexer/db/ethereum";
+import { Link } from "@/indexer/db/link";
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http(process.env.ETH_RPC_ENDPOINT as string),
-});
+const RELEVANT_PLATFORMS: { [key: string]: string } = {
+  "warpcast.com": "Farcaster",
+  "twitter.com": "Twitter",
+  "opensea.io": "OpenSea",
+  "github.com": "GitHub",
+  "discord.com": "Discord",
+  "reddit.com": "Reddit",
+  "linkedin.com": "LinkedIn",
+  "t.me": "Telegram",
+  "telegram.org": "Telegram",
+  "lensfrens.xyz": "Lens",
+  "friend.tech": "FriendTech",
+};
+
+const PLATFORM_ORDER = [
+  "Farcaster",
+  "Twitter",
+  "OpenSea",
+  "GitHub",
+  "Discord",
+  "Reddit",
+  "LinkedIn",
+  "Telegram",
+  "Lens",
+  "FriendTech",
+  "",
+];
 
 export async function GET(
   request: Request,
@@ -16,448 +47,204 @@ export async function GET(
 ) {
   const { id } = params;
 
-  let address;
-  if (id.endsWith(".lens")) {
-    address = await getAddressFromLensHandle(id);
-  } else if (id.includes(".")) {
-    address = await client.getEnsAddress({
-      name: id,
-    });
-  } else if (id.startsWith("0x") && isAddress(id)) {
-    address = id;
+  const identity = await getIdentityForInput(id);
+
+  let entity: Entity | undefined;
+  let address = identity?.address;
+  const entityId = identity?.entityId;
+
+  if (entityId) {
+    entity = await handleEntity(entityId);
+  } else {
+    entity = await buildEntity(id, address);
   }
 
-  let entityId;
-  if (address) {
-    const entity = await prisma.ethereum.findFirst({
-      where: { address: address.toLowerCase() },
-      select: { entityId: true },
-    });
-    entityId = entity?.entityId;
+  if (entity) {
+    return NextResponse.json(entity);
   }
 
-  if (!entityId) {
-    const entity = await prisma.farcaster.findFirst({
-      where: { fname: id },
-      select: { entityId: true },
-    });
-    entityId = entity?.entityId;
-
-    if (!entityId) {
-      const entity = await prisma.twitter.findFirst({
-        where: { username: id },
-        select: { entityId: true },
-      });
-      entityId = entity?.entityId;
-    }
-
-    if (!entityId) {
-      const entity = await prisma.openSea.findFirst({
-        where: { username: id },
-        select: { entityId: true },
-      });
-      entityId = entity?.entityId;
-    }
-  }
-
-  if (!entityId) {
-    // handle only lens
-    if (id.endsWith(".lens") && address) {
-      const profiles = await getLensProfiles([address]);
-      if (profiles) {
-        const profile = profiles.find((profile) => profile.twitter);
-        const websites = profiles
-          .map((profile) => profile.website)
-          .filter(Boolean);
-        const addresses = profiles
-          .map((profile) => profile.address)
-          .filter(
-            (account, i, self) =>
-              self.findIndex((a) => a.address === account.address) === i
-          );
-        return NextResponse.json({
-          accounts: {
-            lensProfiles: profiles.map(({ username, bio, display }) => ({
-              username,
-              bio,
-              display,
-            })),
-          },
-          addresses: addresses?.length
-            ? await getAddressesWithEnsNames(addresses)
-            : undefined,
-          websites: websites?.length ? websites : undefined,
-          socials: {
-            twitter: profile?.twitter,
-          },
-        });
-      }
-    } else if (address) {
-      const data = await fetchWithRetry(
-        `https://api.opensea.io/api/v1/account/${address}`,
-        {
-          headers: {
-            "X-API-KEY": process.env.OPENSEA_API_KEY,
-          },
-        }
-      );
-
-      if (data?.data.profile_image_url) {
-        return NextResponse.json({
-          accounts: {
-            opensea: [
-              {
-                username: data.data.user.username,
-                pfp: data.data.profile_image_url,
-              },
-            ],
-          },
-          addresses: await getAddressesWithEnsNames([data.data.address]),
-          socials: {
-            twitter: data.data.twitter_username,
-          },
-        });
-      }
-    } else {
-      const data = await fetchWithRetry(
-        `https://api.opensea.io/api/v1/user/${id}`,
-        {
-          headers: {
-            "X-API-KEY": process.env.OPENSEA_API_KEY,
-          },
-        }
-      );
-
-      if (data?.username) {
-        return NextResponse.json({
-          accounts: {
-            opensea: [
-              {
-                username: data.username,
-                pfp: data.account.profile_image_url,
-              },
-            ],
-          },
-          addresses: await getAddressesWithEnsNames([data.account.address]),
-          socials: {
-            twitter: data.account.twitter_username,
-          },
-        });
-      }
-    }
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  const entity = await getEntity(entityId);
-
-  return NextResponse.json(entity);
+  return NextResponse.json({ error: "User not found" }, { status: 404 });
 }
-
-const getEntity = async (entityId: number) => {
-  const [
-    farcasterAccounts,
-    twitterAccounts,
-    ethereumAccounts,
-    openSeaAccounts,
-    websites,
-  ] = await Promise.all([
-    getEntityFarcasterAccounts(entityId),
-    getEntityTwitterAccounts(entityId),
-    getEntityEthereumAccounts(entityId),
-    getEntityOpenSeaAccounts(entityId),
-    getEntityWebsites(entityId),
+export const handleEntity = async (entityId: number): Promise<Entity> => {
+  const [farcaster, addresses, links] = await Promise.all([
+    prisma.farcaster.findFirst({
+      where: { entityId },
+    }),
+    prisma.ethereum.findMany({
+      where: { entityId },
+    }),
+    prisma.link.findMany({
+      where: { entityId },
+    }),
   ]);
 
-  const addresses = ethereumAccounts.map((account) => account.address);
-  const ensNames = ethereumAccounts
-    .map((account) => account.ensName)
-    .filter(Boolean) as string[];
+  const addressList = addresses.map((address) => address.address);
+  const addressesWithEnsNames = await getAddressesWithEnsNames(addressList);
+  const ethereum = addressesWithEnsNames.map((address, i) => ({
+    chain: "Ethereum",
+    address: address.address,
+    ensName: address.ensName,
+    verified: addresses[i].verified,
+  }));
 
-  const [ensTextRecords, lensProfiles] = await Promise.all([
-    getEnsTextRecords(ensNames),
-    getLensProfiles(addresses),
-  ]);
-  const discord = ensTextRecords.find((record) => record.key === "com.discord");
-  const github = ensTextRecords.find((record) => record.key === "com.github");
-  const reddit = ensTextRecords.find((record) => record.key === "com.reddit");
-  const telegram = ensTextRecords.find(
-    (record) => record.key === "org.telegram"
-  );
+  const { pfps, bios, displays, accounts, relatedLinks } = parseLinks(links);
 
-  let twitter = twitterAccounts[0];
-  if (!twitter && lensProfiles) {
-    const profile = lensProfiles.find((profile) => profile.twitter);
-    twitter = profile?.twitter;
+  if (farcaster?.pfp) {
+    pfps.unshift({
+      value: farcaster.pfp,
+      platform: "Farcaster",
+    });
   }
 
-  const lensWebistes = lensProfiles.map((profile) => profile.website);
-  const allWebsites = websites
-    .concat(lensWebistes)
-    .filter(Boolean)
-    .filter((website, i, self) => self.indexOf(website) === i);
+  if (farcaster?.bio) {
+    bios.unshift({
+      value: farcaster.bio,
+      platform: "Farcaster",
+    });
+  }
 
-  const lensAddresses = await getAddressesWithEnsNames(
-    lensProfiles.map((profile) => profile.address)
-  );
-  const allAddresses = ethereumAccounts
-    .concat(lensAddresses)
-    .filter(
-      (account, i, self) =>
-        self.findIndex((a) => a.address === account.address) === i
-    );
+  if (farcaster?.fname) {
+    displays.unshift({
+      value: farcaster.fname,
+      platform: "Farcaster",
+    });
+  }
+
+  if (farcaster?.display) {
+    displays.unshift({
+      value: farcaster.display,
+      platform: "Farcaster",
+    });
+  }
+
+  if (farcaster?.fname) {
+    accounts.unshift({
+      platform: "Farcaster",
+      username: farcaster.fname,
+      verified: true,
+      link: `warpcast.com/${farcaster.fname}`,
+    });
+  }
 
   return {
-    accounts: {
-      farcaster: farcasterAccounts[0],
-      opensea: openSeaAccounts?.length ? openSeaAccounts : undefined,
-      lensProfiles: lensProfiles?.length
-        ? lensProfiles.map(({ username, bio, display }) => ({
-            username,
-            bio,
-            display,
-          }))
-        : undefined,
-    },
-    addresses: ethereumAccounts?.length ? allAddresses : undefined,
-    websites: allWebsites?.length ? allWebsites : undefined,
-    socials: {
-      twitter: twitterAccounts[0],
-      discord,
-      github,
-      reddit,
-      telegram,
-    },
+    pfps,
+    bios,
+    displays,
+    ethereum,
+    accounts,
+    relatedLinks,
   };
 };
 
-const getEntityFarcasterAccounts = async (entityId: number) => {
-  const farcasterAccounts = await prisma.farcaster.findMany({
-    where: { entityId },
-  });
-
-  return farcasterAccounts.map((farcasterAccount) => ({
-    fid: farcasterAccount.fid,
-    fname: farcasterAccount.fname,
-    display: farcasterAccount.display,
-    pfp: farcasterAccount.pfp,
-    bio: farcasterAccount.bio,
-  }));
-};
-
-const getEntityTwitterAccounts = async (entityId: number) => {
-  const twitterAccounts = await prisma.twitter.findMany({
-    where: { entityId },
-  });
-
-  return twitterAccounts.map((twitterAccount) => twitterAccount.username);
-};
-
-const getEntityEthereumAccounts = async (entityId: number) => {
-  const ethereumAccounts = await prisma.ethereum.findMany({
-    where: { entityId },
-  });
-
-  const addresses = ethereumAccounts.map(
-    (ethereumAccount) => ethereumAccount.address
-  );
-
-  return await getAddressesWithEnsNames(addresses);
-};
-
-const getAddressesWithEnsNames = async (addresses: string[]) => {
-  const ensNames = await Promise.all(
-    addresses.map((address) =>
-      client.getEnsName({ address: address as `0x${string}` })
-    )
-  );
-
-  return addresses.map((address, i) => ({
-    address,
-    ensName: ensNames[i] || undefined,
-  }));
-};
-
-const getEntityOpenSeaAccounts = async (entityId: number) => {
-  const openseaAccounts = await prisma.openSea.findMany({
-    where: { entityId },
-  });
-
-  return openseaAccounts
-    .map((openseaAccount) => ({
-      username: openseaAccount.username,
-      pfp: openseaAccount.pfp,
-    }))
-    .filter(({ username }) => username !== null);
-};
-
-const getEntityWebsites = async (entityId: number) => {
-  const websites = await prisma.website.findMany({
-    where: { entityId },
-  });
-
-  return websites
-    .map((website) => website.url)
-    .filter((s) => !s.includes("twitter"));
-};
-
-const getEnsTextRecords = async (ensNames: string[]) => {
-  const textRecords = (await Promise.all(ensNames.map(getEnsTextRecord)))
-    .flat()
-    .filter(Boolean);
-  const uniqueTextRecords = textRecords.filter(
-    (textRecord, i, self) =>
-      self.findIndex((t) => t.key === textRecord.key && t.value === "") === i
-  );
-
-  return uniqueTextRecords;
-};
-
-const getEnsTextRecord = async (ensName: string) => {
-  const { data } = await fetchWithRetry(
-    "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        query: `
-            query($domain: String!) {
-              domains(where:{name: $domain}) { 
-                resolver {
-                  texts
-                }
-              }
-            }
-          `,
-        variables: {
-          domain: ensName,
-        },
-      }),
+const buildEntity = async (id: string, address?: string) => {
+  const links = [];
+  if (!address) {
+    const response = await getOpenSeaLinksByUser(id);
+    if (response) {
+      address = response.address;
+      links.push(...response.links);
     }
-  );
-
-  if (!data?.domains?.length) {
-    return [];
   }
-
-  const records = data?.domains[0]?.resolver?.texts?.filter(
-    (s: string) => !s.includes("twitter")
-  );
-  if (!records?.length) {
-    return [];
+  if (address) {
+    const promises = [getLensLinks(address), getEnsLinks(address)];
+    if (!links?.length) {
+      promises.push(getOpenSeaLinks(address));
+    }
+    const results = await Promise.all(promises);
+    const [lensLinks, ensLinks, openseaLinks] = results;
+    links.push(...lensLinks, ...ensLinks);
+    if (openseaLinks) {
+      links.push(...openseaLinks);
+    }
+    const ensName = await getENSForAddress(address);
+    return {
+      ...parseLinks(links),
+      ethereum: [
+        {
+          chain: "Ethereum",
+          address,
+          ensName: ensName ? (ensName as string) : undefined,
+          verified: true,
+        },
+      ],
+    };
   }
-
-  const values = await Promise.all(
-    records.map((record: string) =>
-      client.getEnsText({
-        name: normalize(ensName),
-        key: record,
-      })
-    )
-  );
-
-  return records.map((record: string, i: number) => ({
-    key: record,
-    value: values[i],
-  }));
 };
 
-const getLensProfiles = async (addresses: string[]) => {
-  const profiles = await Promise.all(
-    addresses.map((address) => getLensProfileByAddress(address))
-  );
-  return profiles.flat().filter(Boolean);
-};
-
-const getLensProfileByAddress = async (address: string) => {
-  const data = await fetchWithRetry("https://api.lens.dev/", {
-    method: "POST",
-    body: JSON.stringify({
-      query: `
-        query($address: EthereumAddress!) {
-          profiles(request:{ownedBy:[$address]}) {
-            items{
-              handle
-              bio
-              metadata
-              ownedBy
-              name
-            }
-          }
-        }`,
-      variables: {
-        address,
-      },
-    }),
-    headers: {
-      "content-type": "application/json",
-    },
-  });
-
-  if (!data?.data?.profiles?.items?.length) {
-    return;
-  }
-
-  const items = data.data.profiles.items;
-
-  return await Promise.all(
-    items.map(async (item: any) => {
-      let website;
-      let twitter;
-      if (item.metadata) {
-        const url = item.metadata
-          .replace("ar://", "https://arweave.dev/")
-          .replace("https://arweave.net", "https://arweave.dev");
-        const data = await fetchWithRetry(url);
-        if (data) {
-          website =
-            data?.attributes.find((attr: any) => attr.key === "website")
-              ?.value || undefined;
-          twitter =
-            data?.attributes.find((attr: any) => attr.key === "twitter")
-              ?.value || undefined;
-        }
-      }
-
+const parseLinks = (
+  links: { url: string; verified: boolean; metadata?: any }[]
+) => {
+  const relevantPlatforms = Object.keys(RELEVANT_PLATFORMS);
+  const linksWithPlatforms = links
+    .map((link) => {
+      const platformLink = relevantPlatforms.find((platform) =>
+        link.url.includes(platform)
+      );
       return {
-        username: item.handle,
-        bio: item.bio || undefined,
-        address: item.ownedBy,
-        display: item.name || undefined,
-        website,
-        twitter,
+        ...link,
+        platform: platformLink ? RELEVANT_PLATFORMS[platformLink] : undefined,
       };
     })
-  );
-};
+    .sort((a, b) => {
+      const aIndex = PLATFORM_ORDER.indexOf(a.platform || "");
+      const bIndex = PLATFORM_ORDER.indexOf(b.platform || "");
+      return aIndex - bIndex;
+    });
 
-const getAddressFromLensHandle = async (handle: string) => {
-  const data = await fetchWithRetry("https://api.lens.dev/", {
-    method: "POST",
-    body: JSON.stringify({
-      query: `
-        query($handle: Handle!) {
-          profiles(request:{handles:[$handle]}) {
-            items{
-              ownedBy
-            }
-          }
-        }`,
-      variables: {
-        handle,
-      },
-    }),
-    headers: {
-      "content-type": "application/json",
-    },
-  });
+  const accounts: Account[] = [];
+  const relatedLinks: RelatedLink[] = [];
+  const seenLinks = new Set();
+  for (const link of linksWithPlatforms) {
+    if (seenLinks.has(link.url)) {
+      continue;
+    }
 
-  if (!data?.data?.profiles?.items?.length) {
-    return;
+    if (!link.platform) {
+      relatedLinks.push({
+        link: link.url,
+        verified: link.verified,
+      });
+      continue;
+    }
+
+    let username = link.url.split("/").pop();
+    if (["FriendTech", "OpenSea"].includes(link.platform)) {
+      // @ts-ignore
+      username = link.metadata?.display;
+    }
+
+    if (!username) {
+      continue;
+    }
+
+    accounts.push({
+      platform: link.platform,
+      username: username || link.platform,
+      link: link.url,
+      verified: link.verified,
+    });
+
+    seenLinks.add(link.url);
   }
 
-  const item = data.data.profiles.items[0];
-  if (!item) {
-    return;
-  }
+  const getFieldList = (field: string) =>
+    linksWithPlatforms
+      .map(({ metadata, platform }: any) => {
+        if (metadata?.[field]) {
+          return {
+            value: metadata[field],
+            platform: platform,
+          };
+        }
+        return undefined;
+      })
+      .filter(Boolean) as EntityText[];
 
-  return item.ownedBy;
+  return {
+    pfps: getFieldList("pfp"),
+    bios: getFieldList("bio"),
+    displays: getFieldList("display"),
+    accounts,
+    relatedLinks,
+  };
 };

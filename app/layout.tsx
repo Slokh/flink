@@ -6,11 +6,28 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Flink",
+  title: "flink",
   description:
-    "Automatically link your Ethereum, Farcaster, and Twitter accounts",
+    "Automatically unite your identities across platforms and protocols",
   icons: {
     icon: "/favicon.ico",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://flink.vercel.app",
+    title: "flink",
+    description:
+      "Automatically unite your identities across platforms and protocols",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 1200,
+        height: 630,
+        alt: "flink",
+      },
+    ],
+    siteName: "flink",
   },
 };
 
@@ -23,33 +40,7 @@ export default function RootLayout({
     <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex flex-col min-h-screen items-start bg-[#0a0a0b]">
-            <div className="flex flex-row border-b p-2 justify-between items-center w-full">
-              <div className="flex flex-col">
-                <a href="/" className="font-bold">
-                  flink
-                </a>
-                <div className="text-sm text-slate-400">
-                  farcaster ♥ twitter ♥ eth
-                </div>
-              </div>
-              <div className="flex flex-row space-x-2 items-center">
-                <div className="flex flex-col text-sm font-medium items-end">
-                  <a href="https://twitter.com/Slokh">
-                    slokh{" "}
-                    <span className="text-slate-400 font-normal">
-                      on twitter
-                    </span>
-                  </a>
-                  <a href="https://warpcast.com/slokh">
-                    slokh{" "}
-                    <span className="text-slate-400 font-normal">
-                      on farcaster
-                    </span>
-                  </a>
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-col items-start bg-[#0a0a0b]">
             {children}
           </div>
         </ThemeProvider>

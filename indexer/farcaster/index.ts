@@ -2,10 +2,14 @@ import { HubEventType } from "@farcaster/hub-nodejs";
 import { getHubClient, Client } from "./hub";
 import { upsertFarcaster } from "../db/farcaster";
 import { upsertEthereum } from "../db/ethereum";
-import { getTwitterFromAddress, getTwitterFromURL } from "../twitter";
-import { getOpenSeaFromAddress } from "../opensea";
-import { upsertWebsite } from "../db/website";
 import { URL_REGEX } from "../util";
+import { getOpenSeaLinks } from "../links/opensea";
+import { getFriendTechLinks } from "../links/friendtech";
+import { getEnsLinks } from "../links/ens";
+import { Link, upsertLinks } from "../db/link";
+import { getNftdLinks } from "../links/nftd";
+import { getLensLinks } from "../links/lens";
+import prisma from "../lib/prisma";
 
 export const runFarcasterIndexer = async () => {
   const client = await getHubClient();
@@ -26,11 +30,17 @@ export const runForFid = async (fid: number) => {
 };
 
 const backfill = async (client: Client) => {
-  const lastFid = 1780;
-  for (let fid = lastFid; ; fid++) {
+  const lastFidRecord = await prisma.backfill.findFirst({
+    orderBy: { fid: "desc" },
+    select: { fid: true },
+  });
+
+  const lastFid = lastFidRecord?.fid || 0;
+  for (let fid = lastFid + 1; ; fid++) {
     if (!(await handleFidChange("backfill", client, fid))) {
       break;
     }
+    await prisma.backfill.create({ data: { fid } });
   }
 
   console.log("[backfill] complete");
@@ -65,7 +75,10 @@ const handleFidChange = async (
   client: Client,
   fid: number
 ) => {
-  const farcasterUser = await client.getFarcasterUser(fid);
+  const [farcasterUser, addresses] = await Promise.all([
+    client.getFarcasterUser(fid),
+    client.getVerifiedAddresses(fid),
+  ]);
   if (!farcasterUser) {
     return;
   }
@@ -76,50 +89,85 @@ const handleFidChange = async (
     `[${mode}] [${entityId}] processing fid ${fid} ${farcasterUser.fname}`
   );
 
-  const addresses = await client.getVerifiedAddresses(fid);
+  const links: Link[] = [];
+
+  const linkPromises = [];
+
+  if (farcasterUser.bio) {
+    const parsedLinks = farcasterUser.bio.match(URL_REGEX) || [];
+    for (const parsedLink of parsedLinks) {
+      const link = parsedLink.trim();
+      if (!link || link.includes(" ")) {
+        continue;
+      }
+      links.push({
+        url: link,
+        source: "FARCASTER",
+        verified: false,
+        sourceInput: farcasterUser.fid.toString(),
+        metadata: {
+          bio: farcasterUser.bio,
+        },
+      });
+
+      const match = link?.match(/nf\.td\/(\w+)/);
+      if (match?.length) {
+        const name = match[1];
+        linkPromises.push(getNftdLinks(name));
+      }
+    }
+  }
+
   for (const address of addresses) {
     await upsertEthereum(address, entityId);
 
     console.log(`[${mode}] [${entityId}] added address ${address.address}`);
 
-    const opensea = await getOpenSeaFromAddress(entityId, address.address);
-
-    if (opensea) {
-      console.log(
-        `[${mode}] [${entityId}] added opensea ${
-          opensea.username || opensea.address
-        }`
-      );
-    }
-
-    const twitter = await getTwitterFromAddress(entityId, address.address);
-
-    if (!twitter) continue;
-
-    console.log(
-      `[${mode}] [${entityId}] added twitter ${twitter.username} from ${twitter.source}`
-    );
+    linkPromises.push(getOpenSeaLinks(address.address));
+    linkPromises.push(getFriendTechLinks(address.address));
+    linkPromises.push(getEnsLinks(address.address));
+    linkPromises.push(getLensLinks(address.address));
   }
 
-  if (farcasterUser.bio) {
-    const links = farcasterUser.bio.match(URL_REGEX) || [];
-    for (const link of links) {
-      const twitter = await getTwitterFromURL(entityId, link);
-      if (twitter) {
-        console.log(
-          `[${mode}] [${entityId}] added twitter ${twitter.username} from ${twitter.source}`
-        );
-      }
+  const linkResults = (await Promise.all(linkPromises))
+    .flat()
+    .concat(links)
+    .filter(({ url }) => url);
 
-      await upsertWebsite(
-        {
-          url: link,
-          verified: false,
-          source: "FARCASTER",
-        },
-        entityId
-      );
+  const normalizedLinkResults = linkResults.map((link) => {
+    // normalize link.url
+    let url = link.url.trim();
+    if (url.startsWith("http://")) {
+      url = url.replace("http://", "");
     }
+    if (url.startsWith("https://")) {
+      url = url.replace("https://", "");
+    }
+    if (url.startsWith("www.")) {
+      url = url.replace("www.", "");
+    }
+    if (url.endsWith("/")) {
+      url = url.slice(0, -1);
+    }
+    return {
+      ...link,
+      url,
+    };
+  });
+
+  // deduplicate linkResults by url and source
+  const dedupedLinkResults = normalizedLinkResults.filter(
+    (link, index, self) =>
+      index ===
+        self.findIndex((l) => l.url === link.url && l.source === link.source) &&
+      link.url.match(URL_REGEX)
+  );
+
+  await upsertLinks(entityId, dedupedLinkResults);
+  for (const link of dedupedLinkResults) {
+    console.log(
+      `[${mode}] [${entityId}] added link ${link.url} ${link.source}`
+    );
   }
 
   return farcasterUser;
