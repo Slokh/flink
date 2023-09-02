@@ -8,7 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Account, Entity, Ethereum, RelatedLink } from "@/lib/types";
+import { Account, Entity, Ethereum, Link } from "@/lib/types";
 import { Metadata } from "next";
 import { headers } from "next/headers";
 
@@ -174,70 +174,82 @@ const CardItem = ({
   </a>
 );
 
-const Accounts = ({ accounts }: { accounts: Account[] }) => {
-  return (
-    <Card className="w-full">
-      <CardHeader>Accounts</CardHeader>
-      <CardContent>
-        <div className="flex flex-col space-y-4">
-          {accounts?.map(({ platform, username, link, verified }) => (
-            <CardItem
-              key={username}
-              platform={platform}
-              identity={username}
-              url={`https://${link}`}
-              verified={verified}
-            />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const Addresses = ({ ethereum }: { ethereum: Ethereum[] }) => (
+const LinkCard = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
   <Card className="w-full">
-    <CardHeader>Addresses</CardHeader>
+    <CardHeader>{title}</CardHeader>
     <CardContent>
-      <div className="flex flex-col space-y-4">
-        {ethereum?.map(({ address, ensName, verified }) => {
-          const formattedAddress = `${address.substring(
-            0,
-            6
-          )}...${address.substring(address.length - 4)}`;
-          return (
-            <CardItem
-              key={address}
-              platform={ensName ? `Ethereum (${formattedAddress})` : "Ethereum"}
-              identity={ensName || formattedAddress}
-              url={`https://etherscan.io/address/${address}`}
-              verified={verified}
-              image="/ethereum.png"
-            />
-          );
-        })}
-      </div>
+      <div className="flex flex-col space-y-4">{children}</div>
     </CardContent>
   </Card>
 );
 
-const RelatedLinks = ({ relatedLinks }: { relatedLinks: RelatedLink[] }) => (
-  <Card className="w-full">
-    <CardHeader>Related Links</CardHeader>
-    <CardContent>
-      <div className="flex flex-col space-y-4">
-        {relatedLinks?.map(({ link, verified }) => (
-          <CardItem
-            key={link}
-            platform="Website"
-            identity={link.replace(/(^\w+:|^)\/\//, "")}
-            url={`https://${link}`}
-            verified={verified}
-          />
-        ))}
-      </div>
-    </CardContent>
-  </Card>
+const Accounts = ({ accounts }: { accounts: Account[] }) => (
+  <LinkCard title="Accounts">
+    {accounts?.map(({ platform, username, link, verified }) => (
+      <CardItem
+        key={username}
+        platform={platform}
+        identity={username}
+        url={`https://${link}`}
+        verified={verified}
+      />
+    ))}
+  </LinkCard>
+);
+
+const Addresses = ({ ethereum }: { ethereum: Ethereum[] }) => (
+  <LinkCard title="Addresses">
+    {ethereum?.map(({ address, ensName, verified }) => {
+      const formattedAddress = `${address.substring(
+        0,
+        6
+      )}...${address.substring(address.length - 4)}`;
+      return (
+        <CardItem
+          key={address}
+          platform={ensName ? `Ethereum (${formattedAddress})` : "Ethereum"}
+          identity={ensName || formattedAddress}
+          url={`https://etherscan.io/address/${address}`}
+          verified={verified}
+          image="/ethereum.png"
+        />
+      );
+    })}
+  </LinkCard>
+);
+
+const RelatedLinks = ({ relatedLinks }: { relatedLinks: Link[] }) => (
+  <LinkCard title="Related Links">
+    {relatedLinks?.map(({ link, verified }) => (
+      <CardItem
+        key={link}
+        platform="Website"
+        identity={link.replace(/(^\w+:|^)\/\//, "")}
+        url={`https://${link}`}
+        verified={verified}
+      />
+    ))}
+  </LinkCard>
+);
+
+const Emails = ({ emails }: { emails: Link[] }) => (
+  <LinkCard title="Emails">
+    {emails?.map(({ link, verified }) => (
+      <CardItem
+        key={link}
+        platform="Website"
+        identity={link.replace(/(^\w+:|^)\/\//, "")}
+        url={`mailto:${link}`}
+        verified={verified}
+      />
+    ))}
+  </LinkCard>
 );
 
 export default async function User({ params }: { params: { id: string } }) {
@@ -258,7 +270,8 @@ export default async function User({ params }: { params: { id: string } }) {
     );
   }
 
-  const { accounts, ethereum, relatedLinks, bios, pfps, displays } = entity;
+  const { accounts, ethereum, relatedLinks, emails, bios, pfps, displays } =
+    entity;
 
   return (
     <>
@@ -272,6 +285,7 @@ export default async function User({ params }: { params: { id: string } }) {
           {relatedLinks?.length > 0 && (
             <RelatedLinks relatedLinks={relatedLinks} />
           )}
+          {emails?.length > 0 && <Emails emails={emails} />}
           <SearchInput />
         </div>
       </div>

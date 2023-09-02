@@ -17,7 +17,7 @@ export type Account = {
   verified: boolean;
 };
 
-export type RelatedLink = {
+export type Link = {
   link: string;
   verified: boolean;
 };
@@ -28,5 +28,6 @@ export type Entity = {
   bios: EntityText[];
   accounts: Account[];
   ethereum: Ethereum[];
-  relatedLinks: RelatedLink[];
+  relatedLinks: Link[];
+  emails: Link[];
 };

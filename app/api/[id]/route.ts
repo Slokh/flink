@@ -2,20 +2,18 @@ import { NextResponse } from "next/server";
 import { getIdentityForInput } from "@/lib/identity";
 import { getAddressesWithEnsNames, getENSForAddress } from "@/lib/ens";
 import prisma from "@/lib/prisma";
-import { Account, Entity, EntityText, RelatedLink } from "@/lib/types";
+import { Account, Entity, EntityText, Link } from "@/lib/types";
 import { getLensLinks } from "@/indexer/links/lens";
 import {
   getOpenSeaLinks,
   getOpenSeaLinksByUser,
 } from "@/indexer/links/opensea";
 import { getEnsLinks } from "@/indexer/links/ens";
-import { Farcaster } from "@/indexer/db/farcaster";
-import { Ethereum } from "@/indexer/db/ethereum";
-import { Link } from "@/indexer/db/link";
 
 const RELEVANT_PLATFORMS: { [key: string]: string } = {
   "warpcast.com": "Farcaster",
   "twitter.com": "Twitter",
+  "instagram.com": "Instagram",
   "opensea.io": "OpenSea",
   "github.com": "GitHub",
   "discord.com": "Discord",
@@ -30,6 +28,7 @@ const RELEVANT_PLATFORMS: { [key: string]: string } = {
 const PLATFORM_ORDER = [
   "Farcaster",
   "Twitter",
+  "Instagram",
   "OpenSea",
   "GitHub",
   "Discord",
@@ -87,7 +86,8 @@ export const handleEntity = async (entityId: number): Promise<Entity> => {
     verified: addresses[i].verified,
   }));
 
-  const { pfps, bios, displays, accounts, relatedLinks } = parseLinks(links);
+  const { pfps, bios, displays, accounts, relatedLinks, emails } =
+    parseLinks(links);
 
   if (farcaster?.pfp) {
     pfps.unshift({
@@ -133,6 +133,7 @@ export const handleEntity = async (entityId: number): Promise<Entity> => {
     ethereum,
     accounts,
     relatedLinks,
+    emails,
   };
 };
 
@@ -185,7 +186,11 @@ const parseLinks = (
         platform: platformLink ? RELEVANT_PLATFORMS[platformLink] : undefined,
       };
     })
-    .filter((link, i, self) => self.findIndex((l) => l.url === link.url) === i)
+    .filter(
+      (link, i, self) =>
+        self.findIndex((l) => l.url === link.url) === i &&
+        !link.url.startsWith("ipns://")
+    )
     .sort((a, b) => {
       const aIndex = PLATFORM_ORDER.indexOf(a.platform || "");
       const bIndex = PLATFORM_ORDER.indexOf(b.platform || "");
@@ -193,7 +198,8 @@ const parseLinks = (
     });
 
   const accounts: Account[] = [];
-  const relatedLinks: RelatedLink[] = [];
+  const relatedLinks: Link[] = [];
+  const emails: Link[] = [];
   const seenLinks = new Set();
   for (const link of linksWithPlatforms) {
     if (seenLinks.has(link.url)) {
@@ -201,10 +207,17 @@ const parseLinks = (
     }
 
     if (!link.platform) {
-      relatedLinks.push({
-        link: link.url,
-        verified: link.verified,
-      });
+      if (link.url.includes("@")) {
+        emails.push({
+          link: link.url,
+          verified: link.verified,
+        });
+      } else {
+        relatedLinks.push({
+          link: link.url,
+          verified: link.verified,
+        });
+      }
       continue;
     }
 
@@ -247,5 +260,6 @@ const parseLinks = (
     displays: getFieldList("display"),
     accounts,
     relatedLinks,
+    emails,
   };
 };

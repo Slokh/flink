@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { handleEntity } from "../[id]/route";
 import { Entity } from "@/lib/types";
 import { headers } from "next/headers";
 
