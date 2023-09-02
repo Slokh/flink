@@ -24,7 +24,38 @@ export const generateMetadata = async ({
 }: {
   params: { id: string };
 }): Promise<Metadata> => {
-  const { pfps, displays, bios } = await getEntity(params.id);
+  const entity = await getEntity(params.id);
+
+  // @ts-ignore
+  if (entity?.error) {
+    return {
+      title: "flink",
+      description:
+        "Automatically linked identities across platforms and protocols",
+      icons: {
+        icon: "/favicon.ico",
+      },
+      openGraph: {
+        type: "website",
+        locale: "en_US",
+        url: "https://flink.vercel.app",
+        title: "flink",
+        description:
+          "Automatically linked identities across platforms and protocols",
+        images: [
+          {
+            url: "/favicon.ico",
+            width: 1200,
+            height: 630,
+            alt: "flink",
+          },
+        ],
+        siteName: "flink",
+      },
+    };
+  }
+
+  const { pfps, displays, bios } = entity;
   const pfp = pfps[0];
   const display = displays[0];
   const bio = bios[0];
@@ -211,13 +242,31 @@ const RelatedLinks = ({ relatedLinks }: { relatedLinks: RelatedLink[] }) => (
 
 export default async function User({ params }: { params: { id: string } }) {
   const entity = await getEntity(params.id);
-  const { accounts, ethereum, relatedLinks } = entity;
+
+  // @ts-ignore
+  if (entity?.error) {
+    return (
+      <>
+        <Navbar variant="top" />
+        <div className="flex flex-col items-center w-full p-4 min-h-screen mt-4">
+          <div className="flex flex-col items-center w-full max-w-sm space-y-4">
+            <h1>Unknown identity</h1>
+            <SearchInput />
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  const { accounts, ethereum, relatedLinks, bios, pfps, displays } = entity;
 
   return (
     <>
       <div className="flex flex-col items-center w-full p-4 min-h-screen mt-4">
         <div className="flex flex-col items-center w-full max-w-sm space-y-4">
-          <Overview id={params.id} entity={entity} />
+          {(bios?.length > 0 || pfps?.length > 0 || displays?.length > 0) && (
+            <Overview id={params.id} entity={entity} />
+          )}
           {accounts?.length > 0 && <Accounts accounts={accounts} />}
           {ethereum?.length > 0 && <Addresses ethereum={ethereum} />}
           {relatedLinks?.length > 0 && (

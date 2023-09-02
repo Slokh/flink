@@ -7,8 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "flink",
-  description:
-    "Automatically unite your identities across platforms and protocols",
+  description: "Automatically linked identities across platforms and protocols",
   icons: {
     icon: "/favicon.ico",
   },
@@ -18,7 +17,7 @@ export const metadata: Metadata = {
     url: "https://flink.vercel.app",
     title: "flink",
     description:
-      "Automatically unite your identities across platforms and protocols",
+      "Automatically linked identities across platforms and protocols",
     images: [
       {
         url: "/favicon.ico",

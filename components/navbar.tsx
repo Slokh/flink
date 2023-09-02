@@ -1,7 +1,7 @@
 export const Navbar = ({ variant }: { variant: "top" | "bottom" }) => (
   <div
     className={`flex flex-row border-${
-      variant === "top" ? "b" : "t"
+      variant === "top" ? "b-2" : "t-2"
     } p-2 justify-between items-center w-full`}
   >
     <div className="flex flex-col">
