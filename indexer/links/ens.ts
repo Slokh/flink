@@ -27,7 +27,7 @@ export const getEnsLinks = async (address: string): Promise<Link[]> => {
 
   return records
     .map(recordsAsLinks)
-    .filter(({ url }) => url && !url.includes(" "));
+    .filter((link) => link && link.url) as Link[];
 };
 
 const getEnsTextRecords = async (ensName: string): Promise<EnsRecord[]> => {
@@ -80,8 +80,12 @@ const getEnsTextRecords = async (ensName: string): Promise<EnsRecord[]> => {
   }));
 };
 
-const recordsAsLinks = (record: EnsRecord): Link => {
-  let url = record.value;
+const recordsAsLinks = (record: EnsRecord): Link | undefined => {
+  if (!record.value) {
+    return;
+  }
+
+  let url = record.value.split(" ")[0];
   if (record.key === "com.twitter") {
     url = `https://twitter.com/${record.value}`;
   } else if (record.key === "com.github") {

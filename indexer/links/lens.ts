@@ -75,7 +75,7 @@ export const getLensLinks = async (address: string): Promise<Link[]> => {
       )?.value;
       if (website) {
         links.push({
-          url: website,
+          url: website.split(" ")[0],
           verified: false,
           source: "LENS",
           sourceInput: item.handle,

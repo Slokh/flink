@@ -96,8 +96,8 @@ const handleFidChange = async (
   if (farcasterUser.bio) {
     const parsedLinks = farcasterUser.bio.match(URL_REGEX) || [];
     for (const parsedLink of parsedLinks) {
-      const link = parsedLink.trim();
-      if (!link || link.includes(" ")) {
+      const link = parsedLink.trim().split(" ")[0];
+      if (!link) {
         continue;
       }
       links.push({
