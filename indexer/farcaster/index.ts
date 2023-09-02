@@ -10,6 +10,7 @@ import { Link, upsertLinks } from "../db/link";
 import { getNftdLinks } from "../links/nftd";
 import { getLensLinks } from "../links/lens";
 import prisma from "../lib/prisma";
+import { getAddressForENS } from "../links/ens";
 
 export const runFarcasterIndexer = async () => {
   const client = await getHubClient();
@@ -118,6 +119,19 @@ const handleFidChange = async (
     }
   }
 
+  let linksShouldBeUnverified = false;
+  if (!addresses?.length && farcasterUser.display?.endsWith(".eth")) {
+    const address = await getAddressForENS(farcasterUser.display);
+    if (address) {
+      addresses.push({
+        address,
+        verified: false,
+        source: "FARCASTER",
+      });
+      linksShouldBeUnverified = true;
+    }
+  }
+
   for (const address of addresses) {
     await upsertEthereum(address, entityId);
 
@@ -152,6 +166,7 @@ const handleFidChange = async (
     return {
       ...link,
       url,
+      verified: link.verified && !linksShouldBeUnverified,
     };
   });
 

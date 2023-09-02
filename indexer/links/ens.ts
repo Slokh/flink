@@ -14,6 +14,12 @@ const client = createPublicClient({
   transport: http(process.env.ETH_RPC_ENDPOINT as string),
 });
 
+export const getAddressForENS = async (input: string) => {
+  return await client.getEnsAddress({
+    name: input,
+  });
+};
+
 export const getEnsLinks = async (address: string): Promise<Link[]> => {
   const ensName = await client.getEnsName({
     address: address as `0x${string}`,
