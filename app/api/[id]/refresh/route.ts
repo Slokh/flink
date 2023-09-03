@@ -1,4 +1,4 @@
-import { runFarcasterManual } from "@/indexer/farcaster";
+import { handleFidChange } from "@/indexer/farcaster/users";
 import { getIdentityForInput } from "@/lib/identity";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
@@ -26,7 +26,7 @@ export async function GET(
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  await runFarcasterManual(await getHubClient(), farcaster.fid);
+  await handleFidChange("manual", await getHubClient(), farcaster.fid);
 
   return NextResponse.json(await handleEntity(entityId));
 }
