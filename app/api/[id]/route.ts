@@ -183,8 +183,25 @@ const parseLinks = (
       const platformLink = relevantPlatforms.find((platform) =>
         link.url.includes(platform)
       );
+
+      // normalize link.url
+      let url = link.url.trim().toLowerCase();
+      if (url.startsWith("http://")) {
+        url = url.replace("http://", "");
+      }
+      if (url.startsWith("https://")) {
+        url = url.replace("https://", "");
+      }
+      if (url.startsWith("www.")) {
+        url = url.replace("www.", "");
+      }
+      if (url.endsWith("/")) {
+        url = url.slice(0, -1);
+      }
+
       return {
         ...link,
+        url,
         platform: platformLink ? RELEVANT_PLATFORMS[platformLink] : undefined,
       };
     })
