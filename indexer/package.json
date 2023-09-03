@@ -7,7 +7,7 @@
     "backfill": "MODE=backfill ts-node -P tsconfig.json -r dotenv/config index.ts",
     "live": "MODE=live ts-node -P tsconfig.json -r dotenv/config index.ts",
     "manual": "MODE=manual ts-node -P tsconfig.json -r dotenv/config index.ts",
-    "start": "npm run backfill & npm run live"
+    "start": "npm run live"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.10.5",
