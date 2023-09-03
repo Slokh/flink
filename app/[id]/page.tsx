@@ -44,7 +44,7 @@ export const generateMetadata = async ({
           "Automatically linked identities across platforms and protocols",
         images: [
           {
-            url: "/favicon.ico",
+            url: "/flink.png",
             width: 1200,
             height: 630,
             alt: "flink",
