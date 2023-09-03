@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <Navbar variant="top" />
-      <div className="flex flex-col items-center mt-8 md:mt-24 w-full p-4 space-y-4 min-h-screen">
+      <div className="flex flex-col items-center mt-8 md:mt-24 w-full p-4 space-y-4">
         <div className="flex flex-col w-full max-w-xl items-start space-y-2 text-start">
           <div className="text-4xl">flink</div>
           <div className="text-sm md:text-lg text-slate-500">
@@ -18,7 +18,7 @@ export default function Home() {
           </div>
           <SearchInput />
         </div>
-        <RandomEntities />
+        <RandomEntities amount={8} />
       </div>
     </>
   );

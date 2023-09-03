@@ -43,7 +43,7 @@ export const RandomEntities = async ({ amount }: { amount?: number }) => {
   const randomEntities = await getRandomEntities(amount);
 
   return (
-    <div className="w-full pt-32 space-y-8">
+    <div className="w-full max-w-screen-2xl pt-8 space-y-8">
       <div className="text-2xl text-center font-semibold">
         Explore Farcaster Users
       </div>
