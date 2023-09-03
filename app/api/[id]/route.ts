@@ -9,6 +9,7 @@ import {
   getOpenSeaLinksByUser,
 } from "@/indexer/links/opensea";
 import { getEnsLinks } from "@/indexer/links/ens";
+import { URL_REGEX } from "@/indexer/util";
 
 const RELEVANT_PLATFORMS: { [key: string]: string } = {
   "warpcast.com": "Farcaster",
@@ -158,6 +159,7 @@ const buildEntity = async (id: string, address?: string) => {
       links.push(...openseaLinks);
     }
     const ensName = await getENSForAddress(address);
+    console.log(links);
     return {
       ...parseLinks(links),
       ethereum: [
@@ -189,7 +191,10 @@ const parseLinks = (
     .filter(
       (link, i, self) =>
         self.findIndex((l) => l.url === link.url) === i &&
-        !link.url.startsWith("ipns://")
+        !link.url.startsWith("ipns://") &&
+        !link.url.includes(" ") &&
+        link.url.match(URL_REGEX) &&
+        link.url.length > 5
     )
     .sort((a, b) => {
       const aIndex = PLATFORM_ORDER.indexOf(a.platform || "");
