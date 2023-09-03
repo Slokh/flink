@@ -1,10 +1,10 @@
 import {
-  runFarcasterBackfill,
-  runFarcasterLive,
+  backfillFarcasterUsers,
+  watchFarcasterUsers,
   runFarcasterManual,
-} from "./farcaster";
-import { getHubClient } from "./farcaster/hub";
-import prisma from "./lib/prisma";
+} from "../farcaster/users";
+import { getHubClient } from "../farcaster/hub";
+import prisma from "../lib/prisma";
 
 const run = async () => {
   const args = process.argv.slice(2);
@@ -13,9 +13,9 @@ const run = async () => {
 
   if (args.length === 0) {
     if (mode === "backfill") {
-      await runFarcasterBackfill(client);
+      await backfillFarcasterUsers(client);
     } else if (mode === "live") {
-      await runFarcasterLive(client);
+      await watchFarcasterUsers(client);
     }
   } else {
     for (const arg of args) {

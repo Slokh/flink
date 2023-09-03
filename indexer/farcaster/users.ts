@@ -12,11 +12,7 @@ import { getLensLinks } from "../links/lens";
 import prisma from "../lib/prisma";
 import { getAddressForENS } from "../links/ens";
 
-export const runFarcasterManual = async (client: Client, fid: number) => {
-  await handleFidChange("manual", client, fid);
-};
-
-export const runFarcasterBackfill = async (client: Client) => {
+export const backfillFarcasterUsers = async (client: Client) => {
   const lastFidRecord = await prisma.backfill.findFirst({
     orderBy: { fid: "desc" },
     select: { fid: true },
@@ -33,7 +29,7 @@ export const runFarcasterBackfill = async (client: Client) => {
   console.log("[backfill] complete");
 };
 
-export const runFarcasterLive = async (client: Client) => {
+export const watchFarcasterUsers = async (client: Client) => {
   const subscribtion = await client.subscribe({
     eventTypes: [HubEventType.MERGE_MESSAGE],
   });
@@ -57,7 +53,7 @@ export const runFarcasterLive = async (client: Client) => {
   }
 };
 
-const handleFidChange = async (
+export const handleFidChange = async (
   mode: "backfill" | "live" | "manual",
   client: Client,
   fid: number

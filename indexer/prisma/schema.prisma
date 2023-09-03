@@ -46,6 +46,7 @@ model Link {
     source      String
     verified    Boolean
     sourceInput String?
+    deleted     Boolean @default(false)
 
     Entity   Entity? @relation(fields: [entityId], references: [id])
     entityId Int

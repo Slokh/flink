@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "generate": "npx prisma generate",
-    "backfill": "MODE=backfill ts-node -P tsconfig.json -r dotenv/config index.ts",
-    "live": "MODE=live ts-node -P tsconfig.json -r dotenv/config index.ts",
-    "manual": "MODE=manual ts-node -P tsconfig.json -r dotenv/config index.ts",
-    "start": "npm run live"
+    "casts:backfill": "ts-node -P tsconfig.json -r dotenv/config src/casts-backfill.ts",
+    "casts:live": "ts-node -P tsconfig.json -r dotenv/config src/casts-live.ts",
+    "users:backfill": "ts-node -P tsconfig.json -r dotenv/config src/users-backfill.ts",
+    "users:live": "ts-node -P tsconfig.json -r dotenv/config src/users-live.ts",
+    "users:manual": "ts-node -P tsconfig.json -r dotenv/config src/users-manual.ts",
+    "start": "npm run users:live"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.10.5",
