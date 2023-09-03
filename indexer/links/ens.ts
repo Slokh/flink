@@ -76,12 +76,14 @@ const getEnsTextRecords = async (ensName: string): Promise<EnsRecord[]> => {
   );
 
   const values = await Promise.all(
-    filteredRecords.map((record: string) =>
-      client.getEnsText({
-        name: normalize(ensName),
-        key: record,
-      })
-    )
+    filteredRecords.map((record: string) => {
+      try {
+        return client.getEnsText({
+          name: normalize(ensName),
+          key: record,
+        });
+      } catch (e) {}
+    })
   );
 
   return filteredRecords.map((record: string, i: number) => ({
