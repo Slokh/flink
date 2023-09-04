@@ -39,14 +39,18 @@ export const upsertFarcaster = async (
       update: farcaster,
     });
   } else {
-    const entity = await prisma.entity.create({
-      data: {
-        farcasterAccounts: {
-          create: [farcaster],
+    let triesLeft = 5;
+    do {
+      const entity = await prisma.entity.create({
+        data: {
+          farcasterAccounts: {
+            create: [farcaster],
+          },
         },
-      },
-    });
-    id = entity.id;
+      });
+      id = entity.id;
+      triesLeft--;
+    } while (!id && triesLeft > 0);
   }
 
   return id;
