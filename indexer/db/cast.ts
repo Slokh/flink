@@ -132,8 +132,8 @@ export const bulkUpsertReactions = async (reactions: Reaction[]) => {
 
 export const deleteCast = async (hash: string, fid: number) => {
   await Promise.all([
-    prisma.farcasterCast.update({
-      where: { fid_hash: { fid, hash } },
+    prisma.farcasterCast.updateMany({
+      where: { fid, hash },
       data: { deleted: true },
     }),
     prisma.farcasterCastEmbed.updateMany({
