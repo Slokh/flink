@@ -1,5 +1,3 @@
-import { SearchInput } from "./search-input";
-
 export const Navbar = ({ variant }: { variant: "top" | "bottom" }) => (
   <div
     className={`flex flex-row border-${
@@ -10,9 +8,6 @@ export const Navbar = ({ variant }: { variant: "top" | "bottom" }) => (
       <a href="/" className="font-bold">
         flink
       </a>
-    </div>
-    <div className="w-1/2">
-      <SearchInput />
     </div>
     <div className="flex flex-row space-x-2 items-center">
       <div className="flex flex-col text-sm font-medium items-end">
