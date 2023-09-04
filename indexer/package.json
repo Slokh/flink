@@ -7,7 +7,7 @@
     "backfill": "ts-node -P tsconfig.json -r dotenv/config src/backfill.ts",
     "live:casts": "ts-node -P tsconfig.json -r dotenv/config src/casts-live.ts",
     "live:users": "ts-node -P tsconfig.json -r dotenv/config src/users-live.ts",
-    "start": "npm run live:users & npm run live:casts & npm run backfill"
+    "start": "npm run live:users & npm run backfill"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.10.5",

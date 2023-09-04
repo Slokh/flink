@@ -15,7 +15,7 @@ const backfill = async () => {
   for (let fid = currentFid + 1; ; fid++) {
     await resetFid(fid);
     await handleFidUserUpdate("backfill", client, fid);
-    await handleFidCasts(client, fid);
+    // await handleFidCasts(client, fid);
     await prisma.backfill.create({ data: { fid } });
   }
 };
