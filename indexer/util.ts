@@ -1,8 +1,5 @@
 import fetch from "node-fetch";
 
-export const URL_REGEX =
-  /\b(?:https?:\/\/|www\.|ftp:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?\b/gi;
-
 const MAX_RETRIES = 3;
 
 export const fetchWithRetry = async (

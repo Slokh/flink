@@ -2,7 +2,6 @@ import { HubEventType } from "@farcaster/hub-nodejs";
 import { Client } from "./hub";
 import { upsertFarcaster } from "../db/farcaster";
 import { upsertEthereum } from "../db/ethereum";
-import { URL_REGEX } from "../util";
 import { getOpenSeaLinks } from "../links/opensea";
 import { getFriendTechLinks } from "../links/friendtech";
 import { getEnsLinks } from "../links/ens";
@@ -11,9 +10,11 @@ import { getNftdLinks } from "../links/nftd";
 import { getLensLinks } from "../links/lens";
 import prisma from "../lib/prisma";
 import { getAddressForENS } from "../links/ens";
+import { extractLinks, isValidLink, normalizeLink } from "../links";
 
 export const backfillFarcasterUsers = async (client: Client) => {
   const lastFidRecord = await prisma.backfill.findFirst({
+    where: { type: "users" },
     orderBy: { fid: "desc" },
     select: { fid: true },
   });
@@ -23,10 +24,8 @@ export const backfillFarcasterUsers = async (client: Client) => {
     if (!(await handleFidChange("backfill", client, fid))) {
       break;
     }
-    await prisma.backfill.create({ data: { fid } });
+    await prisma.backfill.create({ data: { fid, type: "users" } });
   }
-
-  console.log("[backfill] complete");
 };
 
 export const watchFarcasterUsers = async (client: Client) => {
@@ -69,35 +68,29 @@ export const handleFidChange = async (
   const entityId = await upsertFarcaster(farcasterUser);
 
   console.log(
-    `[${mode}] [${entityId}] processing fid ${fid} ${farcasterUser.fname}`
+    `[${mode}] [users] [${entityId}] processing fid ${fid} ${farcasterUser.fname}`
   );
 
   const links: Link[] = [];
 
   const linkPromises = [];
 
-  if (farcasterUser.bio) {
-    const parsedLinks = farcasterUser.bio.match(URL_REGEX) || [];
-    for (const parsedLink of parsedLinks) {
-      const link = parsedLink.trim().split(" ")[0];
-      if (!link) {
-        continue;
-      }
-      links.push({
-        url: link,
-        source: "FARCASTER",
-        verified: false,
-        sourceInput: farcasterUser.fid.toString(),
-        metadata: {
-          bio: farcasterUser.bio,
-        },
-      });
+  const parsedLinks = extractLinks(farcasterUser.bio);
+  for (const link of parsedLinks) {
+    links.push({
+      url: link,
+      source: "FARCASTER",
+      verified: false,
+      sourceInput: farcasterUser.fid.toString(),
+      metadata: {
+        bio: farcasterUser.bio,
+      },
+    });
 
-      const match = link?.match(/nf\.td\/(\w+)/);
-      if (match?.length) {
-        const name = match[1];
-        linkPromises.push(getNftdLinks(name));
-      }
+    const match = link.match(/nf\.td\/(\w+)/);
+    if (match?.length) {
+      const name = match[1];
+      linkPromises.push(getNftdLinks(name));
     }
   }
 
@@ -117,57 +110,29 @@ export const handleFidChange = async (
   for (const address of addresses) {
     await upsertEthereum(address, entityId);
 
-    console.log(`[${mode}] [${entityId}] added address ${address.address}`);
-
     linkPromises.push(getOpenSeaLinks(address.address));
     linkPromises.push(getFriendTechLinks(address.address));
     linkPromises.push(getEnsLinks(address.address));
     linkPromises.push(getLensLinks(address.address));
   }
 
-  const linkResults = (await Promise.all(linkPromises))
-    .flat()
-    .concat(links)
-    .filter(({ url }) => url);
+  const linkResults = (await Promise.all(linkPromises)).flat().concat(links);
 
-  const normalizedLinkResults = linkResults.map((link) => {
-    // normalize link.url
-    let url = link.url.trim().toLowerCase();
-    if (url.startsWith("http://")) {
-      url = url.replace("http://", "");
-    }
-    if (url.startsWith("https://")) {
-      url = url.replace("https://", "");
-    }
-    if (url.startsWith("www.")) {
-      url = url.replace("www.", "");
-    }
-    if (url.endsWith("/")) {
-      url = url.slice(0, -1);
-    }
-    return {
-      ...link,
-      url,
-      verified: link.verified && !linksShouldBeUnverified,
-    };
-  });
+  const normalizedLinkResults = linkResults.map((link) => ({
+    ...link,
+    url: link.url ? normalizeLink(link.url) : "",
+    verified: link.verified && !linksShouldBeUnverified,
+  }));
 
   // deduplicate linkResults by url and source
   const dedupedLinkResults = normalizedLinkResults.filter(
     (link, index, self) =>
       index ===
         self.findIndex((l) => l.url === link.url && l.source === link.source) &&
-      !link.url.includes(" ") &&
-      link.url.match(URL_REGEX) &&
-      link.url.length > 5
+      isValidLink(link.url)
   );
 
   await upsertLinks(entityId, dedupedLinkResults);
-  for (const link of dedupedLinkResults) {
-    console.log(
-      `[${mode}] [${entityId}] added link ${link.url} ${link.source}`
-    );
-  }
 
   return farcasterUser;
 };

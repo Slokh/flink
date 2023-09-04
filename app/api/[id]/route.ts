@@ -9,7 +9,7 @@ import {
   getOpenSeaLinksByUser,
 } from "@/indexer/links/opensea";
 import { getEnsLinks } from "@/indexer/links/ens";
-import { URL_REGEX } from "@/indexer/util";
+import { isValidLink, normalizeLink } from "@/indexer/links";
 
 const RELEVANT_PLATFORMS: { [key: string]: string } = {
   "warpcast.com": "Farcaster",
@@ -40,6 +40,8 @@ const PLATFORM_ORDER = [
   "FriendTech",
   "",
 ];
+
+const FILTERED_LINKS = ["ipns://", "nf.td"];
 
 export async function GET(
   request: Request,
@@ -183,35 +185,17 @@ const parseLinks = (
       const platformLink = relevantPlatforms.find((platform) =>
         link.url.includes(platform)
       );
-
-      // normalize link.url
-      let url = link.url.trim().toLowerCase();
-      if (url.startsWith("http://")) {
-        url = url.replace("http://", "");
-      }
-      if (url.startsWith("https://")) {
-        url = url.replace("https://", "");
-      }
-      if (url.startsWith("www.")) {
-        url = url.replace("www.", "");
-      }
-      if (url.endsWith("/")) {
-        url = url.slice(0, -1);
-      }
-
       return {
         ...link,
-        url,
+        url: link.url ? normalizeLink(link.url) : "",
         platform: platformLink ? RELEVANT_PLATFORMS[platformLink] : undefined,
       };
     })
     .filter(
       (link, i, self) =>
         self.findIndex((l) => l.url === link.url) === i &&
-        !link.url.startsWith("ipns://") &&
-        !link.url.includes(" ") &&
-        link.url.match(URL_REGEX) &&
-        link.url.length > 5
+        isValidLink(link.url) &&
+        !FILTERED_LINKS.some((filtered) => link.url.includes(filtered))
     )
     .sort((a, b) => {
       const aIndex = PLATFORM_ORDER.indexOf(a.platform || "");

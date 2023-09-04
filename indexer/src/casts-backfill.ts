@@ -1,9 +1,9 @@
-import { watchFarcasterUsers } from "../farcaster/users";
 import { getHubClient } from "../farcaster/hub";
+import { backfillFarcasterCasts } from "../farcaster/casts";
 
 const run = async () => {
   const client = await getHubClient();
-  await watchFarcasterUsers(client);
+  await backfillFarcasterCasts(client);
 };
 
 run();

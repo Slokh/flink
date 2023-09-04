@@ -25,9 +25,9 @@ model Farcaster {
     bio      String?
     source   String
     verified Boolean
-
-    entity   Entity @relation(fields: [entityId], references: [id])
     entityId Int
+
+    entity Entity @relation(fields: [entityId], references: [id])
 }
 
 model Ethereum {
@@ -35,9 +35,9 @@ model Ethereum {
     source      String
     verified    Boolean
     sourceInput String?
+    entityId    Int
 
-    Entity   Entity? @relation(fields: [entityId], references: [id])
-    entityId Int
+    entity Entity? @relation(fields: [entityId], references: [id])
 }
 
 model Link {
@@ -47,13 +47,68 @@ model Link {
     verified    Boolean
     sourceInput String?
     deleted     Boolean @default(false)
+    entityId    Int
 
-    Entity   Entity? @relation(fields: [entityId], references: [id])
-    entityId Int
+    entity Entity? @relation(fields: [entityId], references: [id])
 
     @@id([url, entityId, source])
 }
 
 model Backfill {
-    fid Int @id
+    fid  Int    @id
+    type String
+}
+
+model FarcasterCast {
+    fid        Int
+    hash       String
+    timestamp  DateTime
+    parent     String?
+    parentFid  Int?
+    parentType String?
+    text       String
+    deleted    Boolean  @default(false)
+
+    embeds   FarcasterCastEmbed[]
+    mentions FarcasterCastMention[]
+
+    @@id([fid, hash])
+}
+
+model FarcasterCastEmbed {
+    fid         Int
+    hash        String
+    content     String
+    contentFid  Int
+    contentType String
+    parsed      Boolean @default(false)
+    deleted     Boolean @default(false)
+
+    cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid])
+
+    @@id([fid, hash, content])
+}
+
+model FarcasterCastMention {
+    fid             Int
+    hash            String
+    mention         Int
+    mentionPosition Int
+    deleted         Boolean @default(false)
+
+    cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid])
+
+    @@id([fid, hash, mention])
+}
+
+model FarcasterCastReaction {
+    fid          Int
+    target       String
+    targetFid    Int
+    targetType   String
+    reactionType String
+    timestamp    DateTime
+    deleted      Boolean  @default(false)
+
+    @@id([fid, target, reactionType])
 }

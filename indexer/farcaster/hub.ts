@@ -1,11 +1,15 @@
 import {
+  FARCASTER_EPOCH,
   HubRpcClient,
+  MessageData,
+  ReactionType,
   UserDataBody,
   VerificationAddEthAddressBody,
   getSSLHubRpcClient,
 } from "@farcaster/hub-nodejs";
 import { Farcaster } from "../db/farcaster";
 import { Ethereum } from "../db/ethereum";
+import { Reaction } from "../db/cast";
 
 export class Client {
   public client: HubRpcClient;
@@ -66,6 +70,66 @@ export class Client {
     return addresses;
   }
 
+  public async getCastReactions(fid: number, hash: Uint8Array) {
+    const messages = await this.getReactionMessages(fid, hash);
+    if (!messages.length) return [];
+
+    return messages
+      .map(({ data }) => this.toReaction(data))
+      .filter(Boolean) as Reaction[];
+  }
+
+  public toReaction(messageData?: MessageData) {
+    const reactionBody = messageData?.reactionBody;
+    if (
+      !reactionBody ||
+      reactionBody?.type === ReactionType.NONE ||
+      !(reactionBody?.targetCastId || reactionBody?.targetUrl)
+    ) {
+      return;
+    }
+
+    const reactionType =
+      reactionBody?.type === ReactionType.LIKE ? "like" : "recast";
+
+    let reaction: Reaction | undefined;
+    if (reactionBody?.targetCastId) {
+      reaction = {
+        target: convertToHex(reactionBody.targetCastId.hash),
+        fid: messageData.fid,
+        reactionType,
+        targetFid: reactionBody.targetCastId.fid,
+        targetType: "cast",
+        timestamp: new Date(messageData.timestamp * 1000 + FARCASTER_EPOCH),
+      };
+    } else {
+      reaction = {
+        target: reactionBody.targetUrl || "",
+        fid: messageData.fid,
+        reactionType,
+        targetFid: 0,
+        targetType: "url",
+        timestamp: new Date(messageData.timestamp * 1000 + FARCASTER_EPOCH),
+      };
+    }
+
+    return reaction;
+  }
+
+  private async getReactionMessages(fid: number, hash: Uint8Array) {
+    const reactions = await this.client.getReactionsByTarget({
+      targetCastId: {
+        hash,
+        fid,
+      },
+    });
+    if (!reactions.isOk()) {
+      return [];
+    }
+
+    return reactions.value.messages;
+  }
+
   private async getUserDataMessages(
     fid: number
   ): Promise<UserDataBody[] | undefined> {
@@ -103,16 +167,17 @@ export class Client {
   }
 
   public getAddress({ address }: VerificationAddEthAddressBody): Ethereum {
-    const hexAddress = `0x${Buffer.from(address)
-      .toString("hex")
-      .toLowerCase()}`;
     return {
-      address: hexAddress,
+      address: convertToHex(address),
       source: "FARCASTER",
       verified: true,
     };
   }
 }
+
+export const convertToHex = (buffer: Uint8Array) => {
+  return `0x${Buffer.from(buffer).toString("hex").toLowerCase()}`;
+};
 
 export const getHubClient = async (): Promise<Client> => {
   const client = new Client();
