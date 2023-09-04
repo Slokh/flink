@@ -11,7 +11,7 @@ export async function GET(
 ) {
   const { id } = params;
 
-  const { entityId } = await getIdentityForInput(id);
+  const { entityId } = await getIdentityForInput(id, true);
 
   if (!entityId) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });

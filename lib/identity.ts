@@ -11,9 +11,9 @@ type Identity = {
   address?: string;
 };
 
-export const getIdentityForInput = async (input: string) => {
+export const getIdentityForInput = async (input: string, create: boolean) => {
   const address = await getAddressFromInput(input);
-  const entityId = await getEntityId(input, address);
+  const entityId = await getEntityId(input, create, address);
   return {
     input,
     entityId,
@@ -21,7 +21,11 @@ export const getIdentityForInput = async (input: string) => {
   } as Identity;
 };
 
-const getEntityId = async (input: string, address?: string) => {
+const getEntityId = async (
+  input: string,
+  create: boolean,
+  address?: string
+) => {
   let entity;
   if (address) {
     entity = await prisma.ethereum.findFirst({
@@ -51,20 +55,22 @@ const getEntityId = async (input: string, address?: string) => {
     return entity.entityId;
   }
 
-  const username = await (
-    await fetch(
-      `https://api.neynar.com/v1/farcaster/user-by-username/?api_key=${process.env.NEYNAR_API_KEY}&username=${input}`
-    )
-  ).json();
+  if (create) {
+    const username = await (
+      await fetch(
+        `https://api.neynar.com/v1/farcaster/user-by-username/?api_key=${process.env.NEYNAR_API_KEY}&username=${input}`
+      )
+    ).json();
 
-  if (username?.result?.user?.fid) {
-    const entityId = await handleFidUserUpdate(
-      "manual",
-      await getHubClient(),
-      parseInt(username.result.user.fid, 10)
-    );
-    if (entityId) {
-      return entityId;
+    if (username?.result?.user?.fid) {
+      const entityId = await handleFidUserUpdate(
+        "manual",
+        await getHubClient(),
+        parseInt(username.result.user.fid, 10)
+      );
+      if (entityId) {
+        return entityId;
+      }
     }
   }
 };

@@ -45,11 +45,15 @@ const FILTERED_LINKS = ["ipns://", "nf.td"];
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string; create: boolean } }
 ) {
   const { id } = params;
+  const url = new URL(request.url);
 
-  const identity = await getIdentityForInput(id);
+  const identity = await getIdentityForInput(
+    id,
+    url.searchParams.get("create") === "true"
+  );
 
   let entity: Entity | undefined;
   let address = identity?.address;
@@ -161,7 +165,6 @@ const buildEntity = async (id: string, address?: string) => {
       links.push(...openseaLinks);
     }
     const ensName = await getENSForAddress(address);
-    console.log(links);
     return {
       ...parseLinks(links),
       ethereum: [

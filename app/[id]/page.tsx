@@ -12,10 +12,12 @@ import { Account, Entity, Ethereum, Link } from "@/lib/types";
 import { Metadata } from "next";
 import { headers } from "next/headers";
 
-const getEntity = async (id: string): Promise<Entity> => {
+const getEntity = async (id: string, create: boolean): Promise<Entity> => {
   const host = headers().get("host");
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
-  const data = await fetch(`${protocol}://${host}/api/${id}`);
+  const data = await fetch(
+    `${protocol}://${host}/api/${id}${create ? "?create=true" : ""}}`
+  );
   return await data.json();
 };
 
@@ -24,7 +26,7 @@ export const generateMetadata = async ({
 }: {
   params: { id: string };
 }): Promise<Metadata> => {
-  const entity = await getEntity(params.id);
+  const entity = await getEntity(params.id, false);
 
   // @ts-ignore
   if (entity?.error) {
@@ -253,7 +255,7 @@ const Emails = ({ emails }: { emails: Link[] }) => (
 );
 
 export default async function User({ params }: { params: { id: string } }) {
-  const entity = await getEntity(params.id);
+  const entity = await getEntity(params.id, true);
 
   // @ts-ignore
   if (entity?.error) {
