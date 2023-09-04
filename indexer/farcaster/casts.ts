@@ -5,68 +5,19 @@ import {
   MessageType,
 } from "@farcaster/hub-nodejs";
 import { Client, convertToHex } from "./hub";
-import prisma from "../lib/prisma";
 import {
   Cast,
   CastData,
   CastEmbed,
   CastMention,
-  bulkUpsertCasts,
-  bulkUpsertReactions,
   deleteCast,
   deleteReaction,
-  resetFid,
   upsertCast,
   upsertReaction,
 } from "../db/cast";
 import { extractLinks } from "../links";
-
-export const backfillFarcasterCasts = async (client: Client) => {
-  const lastFidRecord = await prisma.backfill.findFirst({
-    where: { type: "casts" },
-    orderBy: { fid: "desc" },
-    select: { fid: true },
-  });
-
-  const lastFid = lastFidRecord?.fid || 0;
-  for (let fid = lastFid + 1; ; fid++) {
-    await resetFid(fid);
-
-    let pageToken: Uint8Array | undefined = undefined;
-    do {
-      const response = await client.client.getCastsByFid({
-        fid,
-        pageToken,
-      });
-      if (response.isOk()) {
-        const messages = response.value.messages;
-        console.log(
-          `[backfill] [casts] [${fid}] processing ${messages.length} casts`
-        );
-
-        const castData = messages
-          .map((message) => generateCastData(message))
-          .filter(Boolean) as CastData[];
-        await bulkUpsertCasts(castData);
-
-        const reactions = await Promise.all(
-          castData.map((cast) =>
-            client.getCastReactions(cast.fid, cast.rawHash)
-          )
-        );
-        await bulkUpsertReactions(reactions.flat());
-
-        pageToken = response.value.nextPageToken;
-      } else {
-        throw new Error(
-          `[backfill] failed to get casts for fid ${fid} - ${response.error}]`
-        );
-      }
-    } while (pageToken?.length);
-
-    await prisma.backfill.create({ data: { fid, type: "casts" } });
-  }
-};
+import prisma from "../lib/prisma";
+import { handleFidUserUpdate } from "./users";
 
 export const watchFarcasterCasts = async (client: Client) => {
   const subscribtion = await client.subscribe({
@@ -83,6 +34,12 @@ export const watchFarcasterCasts = async (client: Client) => {
     const messageType = message.data?.type;
     if (!fid || !messageType) {
       continue;
+    }
+
+    // check if fid exists yet
+    const farcasterUser = await prisma.farcaster.findFirst({ where: { fid } });
+    if (!farcasterUser) {
+      await handleFidUserUpdate("live", client, fid);
     }
 
     if (messageType === MessageType.CAST_ADD) {
@@ -113,7 +70,7 @@ export const watchFarcasterCasts = async (client: Client) => {
   }
 };
 
-const generateCastData = (message?: Message): CastData | undefined => {
+export const generateCastData = (message?: Message): CastData | undefined => {
   if (!message?.data?.castAddBody) {
     return;
   }

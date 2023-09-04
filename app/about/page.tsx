@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/navbar";
+import { RandomEntities } from "@/components/random-entities";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
             Twitter, Ethereum, and more!{" "}
           </div>
         </div>
+        <RandomEntities amount={8} />
       </div>
     </>
   );

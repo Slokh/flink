@@ -1,4 +1,3 @@
-import { HubEventType } from "@farcaster/hub-nodejs";
 import { Client } from "./hub";
 import { upsertFarcaster } from "../db/farcaster";
 import { upsertEthereum } from "../db/ethereum";
@@ -8,25 +7,9 @@ import { getEnsLinks } from "../links/ens";
 import { Link, upsertLinks } from "../db/link";
 import { getNftdLinks } from "../links/nftd";
 import { getLensLinks } from "../links/lens";
-import prisma from "../lib/prisma";
 import { getAddressForENS } from "../links/ens";
 import { extractLinks, isValidLink, normalizeLink } from "../links";
-
-export const backfillFarcasterUsers = async (client: Client) => {
-  const lastFidRecord = await prisma.backfill.findFirst({
-    where: { type: "users" },
-    orderBy: { fid: "desc" },
-    select: { fid: true },
-  });
-
-  const lastFid = lastFidRecord?.fid || 0;
-  for (let fid = lastFid + 1; ; fid++) {
-    if (!(await handleFidChange("backfill", client, fid))) {
-      break;
-    }
-    await prisma.backfill.create({ data: { fid, type: "users" } });
-  }
-};
+import { HubEventType } from "@farcaster/hub-nodejs";
 
 export const watchFarcasterUsers = async (client: Client) => {
   const subscribtion = await client.subscribe({
@@ -43,7 +26,7 @@ export const watchFarcasterUsers = async (client: Client) => {
     const userData = event.mergeMessageBody.message.data?.userDataBody;
 
     if (verificationData || userData) {
-      await handleFidChange(
+      await handleFidUserUpdate(
         "live",
         client,
         event.mergeMessageBody.message.data.fid
@@ -52,7 +35,7 @@ export const watchFarcasterUsers = async (client: Client) => {
   }
 };
 
-export const handleFidChange = async (
+export const handleFidUserUpdate = async (
   mode: "backfill" | "live" | "manual",
   client: Client,
   fid: number
@@ -68,7 +51,7 @@ export const handleFidChange = async (
   const entityId = await upsertFarcaster(farcasterUser);
 
   console.log(
-    `[${mode}] [users] [${entityId}] processing fid ${fid} ${farcasterUser.fname}`
+    `[${mode}] [users] [${fid}] processing fid ${entityId} ${farcasterUser.fname}`
   );
 
   const links: Link[] = [];

@@ -109,8 +109,5 @@ model FarcasterCastReaction {
 }
 
 model Backfill {
-    fid  Int
-    type String
-
-    @@id([fid, type])
+    fid Int @id
 }

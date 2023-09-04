@@ -1,4 +1,4 @@
-import { handleFidChange } from "../farcaster/users";
+import { handleFidUserUpdate } from "../farcaster/users";
 import { getHubClient } from "../farcaster/hub";
 import prisma from "../lib/prisma";
 
@@ -19,7 +19,7 @@ const run = async () => {
     }
 
     if (fid) {
-      await handleFidChange("manual", client, fid);
+      await handleFidUserUpdate("manual", client, fid);
     }
   }
 };
