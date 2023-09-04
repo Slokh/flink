@@ -2,6 +2,8 @@ import { isAddress } from "viem";
 import prisma from "./prisma";
 import { getAddressForENS } from "./ens";
 import { getAddressFromLensHandle } from "@/indexer/links/lens";
+import { handleFidUserUpdate } from "@/indexer/farcaster/users";
+import { getHubClient } from "@/indexer/farcaster/hub";
 
 type Identity = {
   input: string;
@@ -47,6 +49,23 @@ const getEntityId = async (input: string, address?: string) => {
   });
   if (entity?.entityId) {
     return entity.entityId;
+  }
+
+  const username = await (
+    await fetch(
+      `https://api.neynar.com/v1/farcaster/user-by-username/?api_key=${process.env.NEYNAR_API_KEY}&username=${input}`
+    )
+  ).json();
+
+  if (username?.result?.user?.fid) {
+    const entityId = await handleFidUserUpdate(
+      "manual",
+      await getHubClient(),
+      parseInt(username.result.user.fid, 10)
+    );
+    if (entityId) {
+      return entityId;
+    }
   }
 };
 

@@ -117,5 +117,5 @@ export const handleFidUserUpdate = async (
 
   await upsertLinks(entityId, dedupedLinkResults);
 
-  return farcasterUser;
+  return entityId;
 };

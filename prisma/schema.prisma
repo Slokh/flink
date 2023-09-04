@@ -27,7 +27,8 @@ model Farcaster {
     verified Boolean
     entityId Int
 
-    entity Entity @relation(fields: [entityId], references: [id])
+    entity Entity          @relation(fields: [entityId], references: [id])
+    casts  FarcasterCast[]
 }
 
 model Ethereum {
@@ -63,6 +64,8 @@ model FarcasterCast {
     parentType String?
     text       String
     deleted    Boolean  @default(false)
+
+    user Farcaster @relation(fields: [fid], references: [fid])
 
     embeds   FarcasterCastEmbed[]
     mentions FarcasterCastMention[]
