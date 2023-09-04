@@ -1,4 +1,6 @@
 import { Navbar } from "@/components/navbar";
+import { RandomEntities } from "@/components/random-entities";
+import { SearchInput } from "@/components/search-input";
 
 export default function Home() {
   return (
@@ -14,7 +16,9 @@ export default function Home() {
             flink tries to automatically link your identities across Farcaster,
             Twitter, Ethereum, and more!{" "}
           </div>
+          <SearchInput />
         </div>
+        <RandomEntities amount={8} />
       </div>
     </>
   );
