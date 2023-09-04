@@ -16,7 +16,7 @@ const getEntity = async (id: string, create: boolean): Promise<Entity> => {
   const host = headers().get("host");
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(
-    `${protocol}://${host}/api/${id}${create ? "?create=true" : ""}}`
+    `${protocol}://${host}/api/${id}${create ? "?create=true" : ""}`
   );
   return await data.json();
 };
