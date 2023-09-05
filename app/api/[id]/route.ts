@@ -41,7 +41,7 @@ const PLATFORM_ORDER = [
   "",
 ];
 
-const FILTERED_LINKS = ["ipns://", "nf.td"];
+const FILTERED_LINKS = ["ipns://"];
 
 export async function GET(
   request: Request,
