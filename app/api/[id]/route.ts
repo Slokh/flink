@@ -216,7 +216,10 @@ const parseLinks = (
     }
 
     if (!link.platform) {
-      if (link.url.includes("@")) {
+      if (
+        link.url.indexOf("@") >= 0 &&
+        link.url.indexOf(".") > link.url.indexOf("@")
+      ) {
         emails.push({
           link: link.url,
           verified: link.verified,
