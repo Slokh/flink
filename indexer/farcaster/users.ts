@@ -10,6 +10,7 @@ import { getLensLinks } from "../links/lens";
 import { getAddressForENS } from "../links/ens";
 import { extractLinks, isValidLink, normalizeLink } from "../links";
 import { HubEventType } from "@farcaster/hub-nodejs";
+import { getZoraLinks } from "../links/zora";
 
 export const watchFarcasterUsers = async (client: Client) => {
   const subscribtion = await client.subscribe({
@@ -97,6 +98,7 @@ export const handleFidUserUpdate = async (
     linkPromises.push(getFriendTechLinks(address.address));
     linkPromises.push(getEnsLinks(address.address));
     linkPromises.push(getLensLinks(address.address));
+    linkPromises.push(getZoraLinks(address.address));
   }
 
   const linkResults = (await Promise.all(linkPromises)).flat().concat(links);

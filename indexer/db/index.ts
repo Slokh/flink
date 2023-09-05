@@ -4,4 +4,5 @@ export type Source =
   | "NFTD"
   | "ENS"
   | "FARCASTER"
-  | "LENS";
+  | "LENS"
+  | "ZORA";
