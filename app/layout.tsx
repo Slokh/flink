@@ -39,9 +39,7 @@ export default function RootLayout({
     <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex flex-col items-start bg-[#0a0a0b]">
-            {children}
-          </div>
+          <div className="flex flex-col items-start">{children}</div>
         </ThemeProvider>
       </body>
     </html>
