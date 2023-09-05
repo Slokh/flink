@@ -4,17 +4,31 @@ export const URL_REGEX =
 export const extractLinks = (text?: string): string[] => {
   if (!text) return [];
 
-  const links = text.match(URL_REGEX);
-  if (!links) return [];
+  const items = text
+    .toLowerCase()
+    .trim()
+    .split("\n")
+    .map((t) => t.split(" "))
+    .flat();
 
-  const normalizedLinks = links.map((link) => normalizeLink(link));
+  const links: string[] = [];
+  for (const item of items) {
+    const matches = item.match(URL_REGEX);
+    if (!matches) continue;
 
-  const deduplicatedLinks = normalizedLinks.filter(
-    (link, index) =>
-      normalizedLinks.indexOf(link) === index && isValidLink(link)
-  );
+    const normalizedLinks = matches.map((link) => normalizeLink(link));
 
-  return deduplicatedLinks;
+    const deduplicatedLinks = normalizedLinks.filter(
+      (link, index) =>
+        normalizedLinks.indexOf(link) === index && isValidLink(link)
+    );
+
+    links.push(...deduplicatedLinks);
+  }
+
+  console.log(links);
+
+  return links;
 };
 
 export const normalizeLink = (link: string): string => {
