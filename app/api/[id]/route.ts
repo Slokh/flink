@@ -41,7 +41,7 @@ const PLATFORM_ORDER = [
   "",
 ];
 
-const FILTERED_LINKS = ["ipns://"];
+const FILTERED_LINKS = ["ipns://", "flink.fyi"];
 
 export async function GET(
   request: Request,
