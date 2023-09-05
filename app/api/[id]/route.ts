@@ -160,10 +160,10 @@ const buildEntity = async (id: string, address?: string) => {
     }
     const results = await Promise.all(promises);
     const [lensLinks, ensLinks, openseaLinks] = results;
-    links.push(...lensLinks, ...ensLinks);
     if (openseaLinks) {
       links.push(...openseaLinks);
     }
+    links.push(...ensLinks, ...lensLinks);
     const ensName = await getENSForAddress(address);
     return {
       ...parseLinks(links),
