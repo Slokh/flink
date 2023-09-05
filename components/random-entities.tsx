@@ -2,7 +2,6 @@ import { Entity } from "@/lib/types";
 import { headers } from "next/headers";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Card, CardContent } from "./ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const getRandomEntities = async (amount?: number): Promise<Entity[]> => {
   const host = headers().get("host");

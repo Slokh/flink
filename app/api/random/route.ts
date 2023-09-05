@@ -44,7 +44,9 @@ export async function GET(request: Request) {
       const host = headers().get("host");
       const protocol =
         process?.env.NODE_ENV === "development" ? "http" : "https";
-      return await (await fetch(`${protocol}://${host}/api/${fname}`)).json();
+      return await (
+        await fetch(`${protocol}://${host}/api/users/${fname}`)
+      ).json();
     })
   );
 
