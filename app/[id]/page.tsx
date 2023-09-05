@@ -29,7 +29,7 @@ export const generateMetadata = async ({
   const entity = await getEntity(params.id, false);
 
   // @ts-ignore
-  if (entity?.error) {
+  if (!entity || entity?.error) {
     return {
       title: "flink",
       description:
@@ -258,7 +258,7 @@ export default async function User({ params }: { params: { id: string } }) {
   const entity = await getEntity(params.id, true);
 
   // @ts-ignore
-  if (entity?.error) {
+  if (!entity || entity?.error) {
     return (
       <>
         <Navbar variant="top" />
