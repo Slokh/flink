@@ -1,4 +1,4 @@
-import { Link } from "@/db/link";
+import { Link } from "../db/link";
 import { createPublicClient, http, parseAbi } from "viem";
 import { mainnet } from "viem/chains";
 
