@@ -80,7 +80,7 @@ export const handleEntity = async (entityId: number): Promise<Entity> => {
       where: { entityId },
     }),
     prisma.link.findMany({
-      where: { entityId },
+      where: { entityId, deleted: false },
     }),
   ]);
 

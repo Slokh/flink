@@ -60,6 +60,7 @@ export const handleFidUserUpdate = async (
   const linkPromises = [];
 
   const parsedLinks = extractLinks(farcasterUser.bio);
+  console.log(parsedLinks);
   for (const link of parsedLinks) {
     links.push({
       url: link,

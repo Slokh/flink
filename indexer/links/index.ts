@@ -26,8 +26,6 @@ export const extractLinks = (text?: string): string[] => {
     links.push(...deduplicatedLinks);
   }
 
-  console.log(links);
-
   return links;
 };
 

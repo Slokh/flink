@@ -1,6 +1,8 @@
 import { Navbar } from "@/components/navbar";
+import { RefreshButton } from "@/components/refresh-button";
 import { SearchInput } from "@/components/search-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Tooltip,
@@ -288,6 +290,7 @@ export default async function User({ params }: { params: { id: string } }) {
             <RelatedLinks relatedLinks={relatedLinks} />
           )}
           {emails?.length > 0 && <Emails emails={emails} />}
+          <RefreshButton id={params.id} />
           <SearchInput />
         </div>
       </div>
