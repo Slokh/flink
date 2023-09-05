@@ -63,7 +63,7 @@ export const generateMetadata = async ({
   const bio = bios[0];
 
   return {
-    title: display.value || params.id,
+    title: display?.value || params.id,
     description:
       bio?.value || `Check out ${display?.value || params.id}'s profile`,
     icons: {
