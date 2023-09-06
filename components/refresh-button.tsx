@@ -5,12 +5,11 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 
 export const RefreshButton = ({ id }: { id: string }) => {
-  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleClick = async () => {
     setLoading(true);
-    await fetch(`/api/${id}/refresh`);
+    await fetch(`/api/users/${id}/refresh`);
     window.location.reload();
   };
 
