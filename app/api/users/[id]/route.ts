@@ -80,7 +80,23 @@ export const handleEntity = async (entityId: number): Promise<Entity> => {
       where: { entityId },
     }),
     prisma.link.findMany({
-      where: { entityId, deleted: false },
+      where: {
+        OR: [
+          { entityId, deleted: false },
+          {
+            entityId,
+            url: {
+              startsWith: "twitter.com",
+            },
+          },
+          {
+            entityId,
+            url: {
+              startsWith: "x.com",
+            },
+          },
+        ],
+      },
     }),
   ]);
 
@@ -183,14 +199,19 @@ const parseLinks = (
   links: { url: string; verified: boolean; metadata?: any }[]
 ) => {
   const relevantPlatforms = Object.keys(RELEVANT_PLATFORMS);
+
   const linksWithPlatforms = links
     .map((link) => {
+      const noramlizedUrl = (link.url ? normalizeLink(link.url) : "").replace(
+        "x.com",
+        "twitter.com"
+      );
       const platformLink = relevantPlatforms.find((platform) =>
-        link.url.includes(platform)
+        noramlizedUrl.includes(platform)
       );
       return {
         ...link,
-        url: link.url ? normalizeLink(link.url) : "",
+        url: noramlizedUrl,
         platform: platformLink ? RELEVANT_PLATFORMS[platformLink] : undefined,
       };
     })
