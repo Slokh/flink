@@ -8,7 +8,7 @@
     "live:casts": "ts-node -P tsconfig.json -r dotenv/config src/casts-live.ts",
     "live:users": "ts-node -P tsconfig.json -r dotenv/config src/users-live.ts",
     "manual:users": "ts-node -P tsconfig.json -r dotenv/config src/users-manual.ts",
-    "start": "npm run live:users & npm run backfill"
+    "start": "npm run live:users"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.10.5",
