@@ -1,174 +1,127 @@
 import prisma from "../lib/prisma";
 
 export interface Cast {
-  hash: string;
   fid: number;
+  hash: string;
   timestamp: Date;
-  parent?: string;
+  topParentCast?: string;
+  topParentFid?: number;
+  topParentUrl?: string;
+  parentCast?: string;
   parentFid?: number;
-  parentType?: "cast" | "url";
+  parentUrl?: string;
   text: string;
 }
 
-export interface CastEmbed {
-  hash: string;
+export interface CastEmbedUrl {
   fid: number;
-  content: string;
-  contentFid: number;
-  contentType: "cast" | "url";
+  hash: string;
+  timestamp: Date;
+  url: string;
+  urlHost: string;
+  urlPath?: string;
+  urlParams?: string;
   parsed: boolean;
+}
+export interface CastEmbedCast {
+  fid: number;
+  hash: string;
+  timestamp: Date;
+  embedHash: string;
+  embedFid: number;
 }
 
 export interface CastMention {
-  hash: string;
   fid: number;
+  hash: string;
+  timestamp: Date;
   mention: number;
   mentionPosition: number;
-}
-
-export interface Reaction {
-  target: string;
-  fid: number;
-  reactionType: "like" | "recast";
-  targetFid: number;
-  targetType: "cast" | "url";
-  timestamp: Date;
 }
 
 export interface CastData {
   fid: number;
   hash: string;
-  rawHash: Uint8Array;
   cast: Cast;
   castMentions: CastMention[];
-  castEmbeds: CastEmbed[];
-  customEmbeds: CastEmbed[];
+  castEmbedCasts: CastEmbedCast[];
+  castEmbedUrls: CastEmbedUrl[];
 }
 
-export const upsertCast = async ({
-  cast,
-  castMentions,
-  castEmbeds,
-  customEmbeds,
-}: CastData) => {
-  await prisma.farcasterCast.upsert({
-    where: { fid_hash: { fid: cast.fid, hash: cast.hash } },
-    update: cast,
-    create: cast,
-  });
+export const upsertCastDatas = async (castDatas: CastData[]) => {
+  const casts = castDatas.map(({ cast }) => cast);
+  await upsertCasts(casts);
+
+  const castMentions = castDatas.map(({ castMentions }) => castMentions).flat();
+
+  const castEmbedCasts = castDatas
+    .map(({ castEmbedCasts }) => castEmbedCasts)
+    .flat();
+
+  const castEmbedUrls = castDatas
+    .map(({ castEmbedUrls }) => castEmbedUrls)
+    .flat();
+
   await Promise.all([
-    prisma.farcasterCastMention.createMany({
-      data: castMentions,
-      skipDuplicates: true,
-    }),
-    prisma.farcasterCastEmbed.createMany({
-      data: castEmbeds.concat(customEmbeds),
-      skipDuplicates: true,
-    }),
+    upsertCastMentions(castMentions),
+    upsertCastEmbedCasts(castEmbedCasts),
+    upsertCastEmbedUrls(castEmbedUrls),
   ]);
 };
 
-export const bulkUpsertCasts = async (data: CastData[]) => {
-  const casts = data.map((d) => d?.cast).filter(Boolean) as Cast[];
-
-  const batchSize = 10000;
-  for (let i = 0; i < casts.length; i += batchSize) {
-    const batch = casts.slice(i, i + batchSize);
-    await prisma.farcasterCast.createMany({
-      data: batch,
-      skipDuplicates: true,
-    });
-  }
-
-  const mentions = data
-    .map((d) => d?.castMentions)
-    .flat()
-    .filter(Boolean) as CastMention[];
-  for (let i = 0; i < mentions.length; i += batchSize) {
-    const batch = mentions.slice(i, i + batchSize);
-    await prisma.farcasterCastMention.createMany({
-      data: batch,
-      skipDuplicates: true,
-    });
-  }
-
-  const embeds = data
-    .map((d) => d?.castEmbeds)
-    .flat()
-    .filter(Boolean) as CastEmbed[];
-  for (let i = 0; i < embeds.length; i += batchSize) {
-    const batch = embeds.slice(i, i + batchSize);
-    await prisma.farcasterCastEmbed.createMany({
-      data: batch,
-      skipDuplicates: true,
-    });
-  }
-};
-
-export const upsertReaction = async (reaction: Reaction) => {
-  await prisma.farcasterCastReaction.upsert({
-    where: {
-      fid_target_reactionType: {
-        fid: reaction.fid,
-        target: reaction.target,
-        reactionType: reaction.reactionType,
-      },
-    },
-    update: reaction,
-    create: reaction,
+export const getCast = async (fid: number, hash: string) => {
+  return await prisma.farcasterCast.findUnique({
+    where: { fid_hash: { fid, hash } },
   });
 };
 
-export const bulkUpsertReactions = async (reactions: Reaction[]) => {
-  const batchSize = 10000;
-  for (let i = 0; i < reactions.length; i += batchSize) {
-    const batch = reactions.slice(i, i + batchSize);
-    await prisma.farcasterCastReaction.createMany({
-      data: batch,
-      skipDuplicates: true,
-    });
-  }
+export const upsertCasts = async (casts: Cast[]) => {
+  await prisma.farcasterCast.createMany({
+    data: casts,
+    skipDuplicates: true,
+  });
 };
 
-export const deleteCast = async (hash: string, fid: number) => {
+export const upsertCastMentions = async (castMentions: CastMention[]) => {
+  await prisma.farcasterCastMention.createMany({
+    data: castMentions,
+    skipDuplicates: true,
+  });
+};
+
+export const upsertCastEmbedCasts = async (castEmbedCasts: CastEmbedCast[]) => {
+  await prisma.farcasterCastEmbedCast.createMany({
+    data: castEmbedCasts,
+    skipDuplicates: true,
+  });
+};
+
+export const upsertCastEmbedUrls = async (castEmbedUrls: CastEmbedUrl[]) => {
+  await prisma.farcasterCastEmbedUrl.createMany({
+    data: castEmbedUrls,
+    skipDuplicates: true,
+  });
+};
+
+export const deleteCast = async (fid: number, hash: string) => {
+  if (!(await getCast(fid, hash))) return;
+
   await Promise.all([
-    prisma.farcasterCast.updateMany({
-      where: { fid, hash },
-      data: { deleted: true },
-    }),
-    prisma.farcasterCastEmbed.updateMany({
-      where: { hash, fid },
+    prisma.farcasterCast.update({
+      where: { fid_hash: { fid, hash } },
       data: { deleted: true },
     }),
     prisma.farcasterCastMention.updateMany({
-      where: { hash, fid },
+      where: { fid, hash },
       data: { deleted: true },
     }),
-    deleteReaction(hash),
-  ]);
-};
-
-export const deleteReaction = async (target: string) => {
-  await prisma.farcasterCastReaction.updateMany({
-    where: { target },
-    data: { deleted: true },
-  });
-};
-
-export const resetFid = async (fid: number) => {
-  await Promise.all([
-    prisma.farcasterCastEmbed.deleteMany({
-      where: { fid },
+    prisma.farcasterCastEmbedCast.updateMany({
+      where: { fid, hash },
+      data: { deleted: true },
     }),
-    prisma.farcasterCastMention.deleteMany({
-      where: { fid },
-    }),
-    prisma.farcasterCastReaction.deleteMany({
-      where: { targetFid: fid },
+    prisma.farcasterCastEmbedUrl.updateMany({
+      where: { fid, hash },
+      data: { deleted: true },
     }),
   ]);
-
-  await prisma.farcasterCast.deleteMany({
-    where: { fid },
-  });
 };

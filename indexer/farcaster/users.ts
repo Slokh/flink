@@ -9,38 +9,9 @@ import { getNftdLinks } from "../links/nftd";
 import { getLensLinks } from "../links/lens";
 import { getAddressForENS } from "../links/ens";
 import { extractLinks, isValidLink, normalizeLink } from "../links";
-import { HubEventType } from "@farcaster/hub-nodejs";
 import { getZoraLinks } from "../links/zora";
 
-export const watchFarcasterUsers = async (client: Client) => {
-  const subscribtion = await client.subscribe({
-    eventTypes: [HubEventType.MERGE_MESSAGE],
-  });
-  if (!subscribtion.isOk()) {
-    console.error("Failed to subscribe to hub events");
-    process.exit(1);
-  }
-
-  for await (const event of subscribtion.value) {
-    const verificationData =
-      event.mergeMessageBody.message.data?.verificationAddEthAddressBody;
-    const userData = event.mergeMessageBody.message.data?.userDataBody;
-
-    if (verificationData || userData) {
-      await handleFidUserUpdate(
-        "live",
-        client,
-        event.mergeMessageBody.message.data.fid
-      );
-    }
-  }
-};
-
-export const handleFidUserUpdate = async (
-  mode: "backfill" | "live" | "manual",
-  client: Client,
-  fid: number
-) => {
+export const handleUserUpdate = async (client: Client, fid: number) => {
   const [farcasterUser, addresses] = await Promise.all([
     client.getFarcasterUser(fid),
     client.getVerifiedAddresses(fid),
@@ -50,10 +21,6 @@ export const handleFidUserUpdate = async (
   }
 
   const entityId = await upsertFarcaster(farcasterUser);
-
-  console.log(
-    `[${mode}] [users] [${fid}] processing fid ${entityId} ${farcasterUser.fname}`
-  );
 
   const links: Link[] = [];
 
@@ -118,6 +85,10 @@ export const handleFidUserUpdate = async (
   );
 
   await upsertLinks(entityId, dedupedLinkResults);
+
+  console.log(
+    `[live] [user-update] [${fid}] processed for entity ${entityId} ${farcasterUser.fname}`
+  );
 
   return entityId;
 };

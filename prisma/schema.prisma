@@ -27,8 +27,7 @@ model Farcaster {
     verified Boolean
     entityId Int
 
-    entity Entity          @relation(fields: [entityId], references: [id])
-    casts  FarcasterCast[]
+    entity Entity @relation(fields: [entityId], references: [id])
 }
 
 model Ethereum {
@@ -56,43 +55,71 @@ model Link {
 }
 
 model FarcasterCast {
-    fid        Int
-    hash       String
-    timestamp  DateTime
-    parent     String?
+    fid       Int
+    hash      String
+    timestamp DateTime
+
+    topParentCast String?
+    topParentFid  Int?
+    topParentUrl  String?
+
+    parentCast String?
     parentFid  Int?
-    parentType String?
-    text       String
-    deleted    Boolean  @default(false)
+    parentUrl  String?
 
-    user Farcaster @relation(fields: [fid], references: [fid])
+    text String
 
-    embeds   FarcasterCastEmbed[]
-    mentions FarcasterCastMention[]
+    deleted Boolean @default(false)
+
+    urlEmbeds  FarcasterCastEmbedUrl[]
+    castEmbeds FarcasterCastEmbedCast[]
+    mentions   FarcasterCastMention[]
 
     @@id([fid, hash])
 }
 
-model FarcasterCastEmbed {
-    fid         Int
-    hash        String
-    content     String
-    contentFid  Int
-    contentType String
-    parsed      Boolean @default(false)
-    deleted     Boolean @default(false)
+model FarcasterCastEmbedUrl {
+    fid       Int
+    hash      String
+    timestamp DateTime
+
+    url       String
+    urlHost   String?
+    urlPath   String?
+    urlParams String?
+
+    parsed  Boolean @default(false)
+    deleted Boolean @default(false)
 
     cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid])
 
-    @@id([fid, hash, content])
+    @@id([fid, hash, url])
+}
+
+model FarcasterCastEmbedCast {
+    fid       Int
+    hash      String
+    timestamp DateTime
+
+    embedHash String
+    embedFid  Int
+
+    deleted Boolean @default(false)
+
+    cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid])
+
+    @@id([fid, hash, embedHash, embedFid])
 }
 
 model FarcasterCastMention {
-    fid             Int
-    hash            String
+    fid       Int
+    hash      String
+    timestamp DateTime
+
     mention         Int
     mentionPosition Int
-    deleted         Boolean @default(false)
+
+    deleted Boolean @default(false)
 
     cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid])
 
@@ -100,15 +127,28 @@ model FarcasterCastMention {
 }
 
 model FarcasterCastReaction {
-    fid          Int
-    target       String
-    targetFid    Int
-    targetType   String
-    reactionType String
-    timestamp    DateTime
-    deleted      Boolean  @default(false)
+    fid       Int
+    timestamp DateTime
 
-    @@id([fid, target, reactionType])
+    targetHash   String
+    targetFid    Int
+    reactionType String
+
+    deleted Boolean @default(false)
+
+    @@id([fid, targetHash, targetFid, reactionType])
+}
+
+model FarcasterUrlReaction {
+    fid       Int
+    timestamp DateTime
+
+    targetUrl    String
+    reactionType String
+
+    deleted Boolean @default(false)
+
+    @@id([fid, targetUrl, reactionType])
 }
 
 model Backfill {
