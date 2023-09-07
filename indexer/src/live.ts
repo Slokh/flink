@@ -1,7 +1,11 @@
 import { HubEventType, Message, MessageType } from "@farcaster/hub-nodejs";
 import { Client, convertToHex, getHubClient } from "../farcaster/hub";
 import { handleUserUpdate } from "../farcaster/users";
-import { generateCastData, getParentCasts } from "../farcaster/casts";
+import {
+  generateCastData,
+  getParentCasts,
+  handleCastMessages,
+} from "../farcaster/casts";
 import prisma from "../lib/prisma";
 import { deleteCast, getCast, upsertCastDatas } from "../db/cast";
 import { generateReactionData } from "../farcaster/reactions";
@@ -59,18 +63,10 @@ const run = async () => {
 };
 
 const handleCastAdd = async (client: Client, message: Message) => {
-  const castData = generateCastData(message);
-  if (!castData) return;
-  const parentCastData = await getParentCasts(
-    client,
-    [[castData.fid, castData.hash]],
-    [castData]
-  );
-  await upsertCastDatas([castData].concat(parentCastData));
-  console.log(
-    `[live] [cast-add] [${castData.fid}] added cast ${castData.hash}`
-  );
-  return castData.cast;
+  const castData = await handleCastMessages(client, [message], false);
+  for (const data of castData) {
+    console.log(`[live] [cast-add] [${data.fid}] added cast ${data.hash}`);
+  }
 };
 
 const handleCastRemove = async (message: Message) => {

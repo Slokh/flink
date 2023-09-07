@@ -151,6 +151,19 @@ model FarcasterUrlReaction {
     @@id([fid, targetUrl, reactionType])
 }
 
+model FarcasterCastKeyword {
+    fid       Int
+    hash      String
+    timestamp DateTime
+
+    keyword String
+    score   Float
+
+    deleted Boolean @default(false)
+
+    @@id([fid, hash, keyword])
+}
+
 model Backfill {
     fid Int @id
 }

@@ -16,23 +16,29 @@ import {
   upsertCastReactions,
   upsertUrlReactions,
 } from "../db/reaction";
+import { extractKeywords } from "../keywords";
+import { getCastsMissingKeywords, upsertKeywords } from "../db/keyword";
 
 export const handleCastMessages = async (
   client: Client,
   messages: Message[],
   withReactions = false
 ) => {
-  const castData = (
-    await Promise.all(messages.map((message) => generateCastData(message)))
-  ).filter(Boolean) as CastData[];
+  const castData = messages
+    .map((message) => generateCastData(message))
+    .filter(Boolean) as CastData[];
 
-  const parentCastData = await getParentCasts(
+  const allCastData = await getParentCasts(
     client,
     castData.map(({ hash, fid }) => [fid, hash]),
     castData
   );
 
-  const allCastData = castData.concat(parentCastData);
+  for (const data of castData) {
+    if (!allCastData.some((cast) => cast.hash === data.hash)) {
+      allCastData.push(data);
+    }
+  }
 
   const allCastDataMap = allCastData.reduce((acc, cast) => {
     acc[cast.hash] = cast.cast;
@@ -61,6 +67,24 @@ export const handleCastMessages = async (
 
   await upsertCastDatas(allCastDataWithTopParents);
 
+  const batchSize = 200;
+  const keywords = [];
+
+  const missingKeywords = await getCastsMissingKeywords(
+    allCastDataWithTopParents
+  );
+
+  for (let i = 0; i < missingKeywords.length; i += batchSize) {
+    const batch = missingKeywords.slice(i, i + batchSize);
+    const batchKeywords = (
+      await Promise.all(batch.map(({ cast }) => extractKeywords(cast)))
+    ).flat();
+    keywords.push(...batchKeywords);
+    console.log(`  [keywords] processed ${i}/${missingKeywords.length}`);
+  }
+
+  const promises = [upsertKeywords(keywords)];
+
   if (withReactions) {
     const reactions = (
       await Promise.all(
@@ -79,11 +103,12 @@ export const handleCastMessages = async (
       (reaction) => reaction?.targetUrl
     ) as UrlReaction[];
 
-    await Promise.all([
-      upsertCastReactions(castReactions),
-      upsertUrlReactions(urlReactions),
-    ]);
+    promises.push(upsertCastReactions(castReactions));
+    promises.push(upsertUrlReactions(urlReactions));
   }
+
+  await Promise.all(promises);
+  return allCastData;
 };
 
 export const getParentCasts = async (

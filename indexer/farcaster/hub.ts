@@ -62,10 +62,6 @@ export class Client {
     const cast = await this.client.getCast({ hash, fid });
     if (cast.isOk()) {
       return cast.value;
-    } else {
-      console.log(
-        `!!! Error getting cast for (${fid}, ${castHash}) - ${cast.error}`
-      );
     }
   }
 
