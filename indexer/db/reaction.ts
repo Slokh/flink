@@ -16,17 +16,40 @@ export interface UrlReaction {
 }
 
 export const upsertCastReactions = async (reactions: CastReaction[]) => {
-  await prisma.farcasterCastReaction.createMany({
-    data: reactions,
-    skipDuplicates: true,
-  });
+  await prisma.$transaction(
+    reactions.map((reaction) =>
+      prisma.farcasterCastReaction.upsert({
+        where: {
+          fid_targetHash_targetFid_reactionType: {
+            fid: reaction.fid,
+            targetHash: reaction.targetHash,
+            targetFid: reaction.targetFid,
+            reactionType: reaction.reactionType,
+          },
+        },
+        create: reaction,
+        update: reaction,
+      })
+    )
+  );
 };
 
 export const upsertUrlReactions = async (reactions: UrlReaction[]) => {
-  await prisma.farcasterUrlReaction.createMany({
-    data: reactions,
-    skipDuplicates: true,
-  });
+  await prisma.$transaction(
+    reactions.map((reaction) =>
+      prisma.farcasterUrlReaction.upsert({
+        where: {
+          fid_targetUrl_reactionType: {
+            fid: reaction.fid,
+            targetUrl: reaction.targetUrl,
+            reactionType: reaction.reactionType,
+          },
+        },
+        create: reaction,
+        update: reaction,
+      })
+    )
+  );
 };
 
 export const deleteCastReaction = async (reaction: CastReaction) => {

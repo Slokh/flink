@@ -52,9 +52,9 @@ export const handleCastMessages = async (
       ...cast,
       cast: {
         ...cast.cast,
-        topParentCast: topParent?.hash,
-        topParentFid: topParent?.fid,
-        topParentUrl: topParent?.parentUrl,
+        topParentCast: topParent?.hash || cast.cast.hash,
+        topParentFid: topParent?.fid || cast.cast.fid,
+        topParentUrl: topParent?.parentUrl || cast.cast.parentUrl,
       },
     };
   });
