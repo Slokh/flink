@@ -48,7 +48,7 @@ export interface CastData {
   castEmbedUrls: CastEmbedUrl[];
 }
 
-const BATCH_SIZE = 10000;
+const BATCH_SIZE = 5000;
 
 export const upsertCastDatas = async (castDatas: CastData[]) => {
   const casts = castDatas.map(({ cast }) => cast);
@@ -78,9 +78,8 @@ export const getCast = async (fid: number, hash: string) => {
 };
 
 export const upsertCasts = async (casts: Cast[]) => {
-  const batchSize = 10000;
-  for (let i = 0; i < casts.length; i += batchSize) {
-    const batch = casts.slice(i, i + batchSize);
+  for (let i = 0; i < casts.length; i += BATCH_SIZE) {
+    const batch = casts.slice(i, i + BATCH_SIZE);
     await prisma.farcasterCast.createMany({
       data: batch,
       skipDuplicates: true,
@@ -89,9 +88,8 @@ export const upsertCasts = async (casts: Cast[]) => {
 };
 
 export const upsertCastMentions = async (castMentions: CastMention[]) => {
-  const batchSize = 10000;
-  for (let i = 0; i < castMentions.length; i += batchSize) {
-    const batch = castMentions.slice(i, i + batchSize);
+  for (let i = 0; i < castMentions.length; i += BATCH_SIZE) {
+    const batch = castMentions.slice(i, i + BATCH_SIZE);
     await prisma.farcasterCastMention.createMany({
       data: batch,
       skipDuplicates: true,
@@ -100,9 +98,8 @@ export const upsertCastMentions = async (castMentions: CastMention[]) => {
 };
 
 export const upsertCastEmbedCasts = async (castEmbedCasts: CastEmbedCast[]) => {
-  const batchSize = 10000;
-  for (let i = 0; i < castEmbedCasts.length; i += batchSize) {
-    const batch = castEmbedCasts.slice(i, i + batchSize);
+  for (let i = 0; i < castEmbedCasts.length; i += BATCH_SIZE) {
+    const batch = castEmbedCasts.slice(i, i + BATCH_SIZE);
     await prisma.farcasterCastEmbedCast.createMany({
       data: batch,
       skipDuplicates: true,
@@ -111,9 +108,8 @@ export const upsertCastEmbedCasts = async (castEmbedCasts: CastEmbedCast[]) => {
 };
 
 export const upsertCastEmbedUrls = async (castEmbedUrls: CastEmbedUrl[]) => {
-  const batchSize = 10000;
-  for (let i = 0; i < castEmbedUrls.length; i += batchSize) {
-    const batch = castEmbedUrls.slice(i, i + batchSize);
+  for (let i = 0; i < castEmbedUrls.length; i += BATCH_SIZE) {
+    const batch = castEmbedUrls.slice(i, i + BATCH_SIZE);
     await prisma.farcasterCastEmbedUrl.createMany({
       data: batch,
       skipDuplicates: true,

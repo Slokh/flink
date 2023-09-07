@@ -10,7 +10,7 @@ export interface Keyword {
 }
 
 export const upsertKeywords = async (keywords: Keyword[]) => {
-  const batchSize = 10000;
+  const batchSize = 5000;
   for (let i = 0; i < keywords.length; i += batchSize) {
     const batch = keywords.slice(i, i + batchSize);
     await prisma.farcasterCastKeyword.createMany({
