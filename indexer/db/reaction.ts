@@ -30,7 +30,7 @@ export const upsertUrlReactions = async (reactions: UrlReaction[]) => {
 };
 
 export const deleteCastReaction = async (reaction: CastReaction) => {
-  await prisma.farcasterCastReaction.update({
+  await prisma.farcasterCastReaction.upsert({
     where: {
       fid_targetHash_targetFid_reactionType: {
         fid: reaction.fid,
@@ -39,12 +39,16 @@ export const deleteCastReaction = async (reaction: CastReaction) => {
         reactionType: reaction.reactionType,
       },
     },
-    data: { deleted: true },
+    create: {
+      ...reaction,
+      deleted: true,
+    },
+    update: { deleted: true },
   });
 };
 
 export const deleteUrlReaction = async (reaction: UrlReaction) => {
-  const record = await prisma.farcasterUrlReaction.findUnique({
+  await prisma.farcasterUrlReaction.upsert({
     where: {
       fid_targetUrl_reactionType: {
         fid: reaction.fid,
@@ -52,17 +56,10 @@ export const deleteUrlReaction = async (reaction: UrlReaction) => {
         reactionType: reaction.reactionType,
       },
     },
-  });
-  if (!record) return;
-
-  await prisma.farcasterUrlReaction.update({
-    where: {
-      fid_targetUrl_reactionType: {
-        fid: reaction.fid,
-        targetUrl: reaction.targetUrl,
-        reactionType: reaction.reactionType,
-      },
+    create: {
+      ...reaction,
+      deleted: true,
     },
-    data: { deleted: true },
+    update: { deleted: true },
   });
 };

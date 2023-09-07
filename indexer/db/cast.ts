@@ -104,11 +104,9 @@ export const upsertCastEmbedUrls = async (castEmbedUrls: CastEmbedUrl[]) => {
 };
 
 export const deleteCast = async (fid: number, hash: string) => {
-  if (!(await getCast(fid, hash))) return;
-
   await Promise.all([
-    prisma.farcasterCast.update({
-      where: { fid_hash: { fid, hash } },
+    prisma.farcasterCast.updateMany({
+      where: { fid, hash },
       data: { deleted: true },
     }),
     prisma.farcasterCastMention.updateMany({
@@ -121,6 +119,10 @@ export const deleteCast = async (fid: number, hash: string) => {
     }),
     prisma.farcasterCastEmbedUrl.updateMany({
       where: { fid, hash },
+      data: { deleted: true },
+    }),
+    prisma.farcasterCastReaction.updateMany({
+      where: { targetFid: fid, targetHash: hash },
       data: { deleted: true },
     }),
   ]);

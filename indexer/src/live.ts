@@ -49,11 +49,11 @@ const run = async () => {
     if (messageType === MessageType.CAST_ADD) {
       await handleCastAdd(client, message);
     } else if (messageType === MessageType.CAST_REMOVE) {
-      await handleCastRemove(client, message);
+      await handleCastRemove(message);
     } else if (messageType === MessageType.REACTION_ADD) {
-      await handleReactionAdd(client, message);
+      await handleReactionAdd(message);
     } else if (messageType === MessageType.REACTION_REMOVE) {
-      await handleReactionRemove(client, message);
+      await handleReactionRemove(message);
     }
   }
 };
@@ -73,7 +73,7 @@ const handleCastAdd = async (client: Client, message: Message) => {
   return castData.cast;
 };
 
-const handleCastRemove = async (client: Client, message: Message) => {
+const handleCastRemove = async (message: Message) => {
   if (!message.data?.castRemoveBody) return;
   const fid = message.data.fid;
   const hash = convertToHex(message.data.castRemoveBody.targetHash);
@@ -81,7 +81,7 @@ const handleCastRemove = async (client: Client, message: Message) => {
   console.log(`[live] [cast-remove] [${fid}] deleted cast ${hash}`);
 };
 
-const handleReactionAdd = async (client: Client, message: Message) => {
+const handleReactionAdd = async (message: Message) => {
   const reactionData = generateReactionData(message);
   if (!reactionData) return;
 
@@ -101,7 +101,7 @@ const handleReactionAdd = async (client: Client, message: Message) => {
   );
 };
 
-const handleReactionRemove = async (client: Client, message: Message) => {
+const handleReactionRemove = async (message: Message) => {
   const reactionData = generateReactionData(message);
   if (!reactionData) return;
 
@@ -119,16 +119,6 @@ const handleReactionRemove = async (client: Client, message: Message) => {
   console.log(
     `[live] [react-remove] [${reactionData.fid}] unreacted ${reactionData.reactionType} from cast ${reactionData.targetHash}`
   );
-};
-
-const getOrCreateCast = async (client: Client, fid: number, hash: string) => {
-  const cast = await getCast(fid, hash);
-  if (cast) return cast;
-
-  const castMessage = await client.getCast(fid, hash);
-  if (!castMessage) return;
-
-  return await handleCastAdd(client, castMessage);
 };
 
 run();
