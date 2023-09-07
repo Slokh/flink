@@ -13,7 +13,13 @@ export interface Cast {
   text: string;
 }
 
-export interface CastEmbedUrl {
+interface Content {
+  contentType?: string;
+  contentLength?: number;
+  contentLastModified?: Date;
+}
+
+export interface CastEmbedUrl extends Content {
   fid: number;
   hash: string;
   timestamp: Date;
@@ -50,9 +56,27 @@ export interface CastData {
 
 const BATCH_SIZE = 5000;
 
+export const getCast = async (fid: number, hash: string) => {
+  return await prisma.farcasterCast.findUnique({
+    where: { fid_hash: { fid, hash } },
+  });
+};
+
 export const upsertCastDatas = async (castDatas: CastData[]) => {
-  const casts = castDatas.map(({ cast }) => cast);
+  const { casts, castMentions, castEmbedCasts, castEmbedUrls } =
+    await resetCasts(castDatas);
+
   await upsertCasts(casts);
+
+  await Promise.all([
+    upsertCastMentions(castMentions),
+    upsertCastEmbedCasts(castEmbedCasts),
+    upsertCastEmbedUrls(castEmbedUrls),
+  ]);
+};
+
+const resetCasts = async (castDatas: CastData[]) => {
+  const casts = castDatas.map(({ cast }) => cast);
 
   const castMentions = castDatas.map(({ castMentions }) => castMentions).flat();
 
@@ -65,16 +89,47 @@ export const upsertCastDatas = async (castDatas: CastData[]) => {
     .flat();
 
   await Promise.all([
-    upsertCastMentions(castMentions),
-    upsertCastEmbedCasts(castEmbedCasts),
-    upsertCastEmbedUrls(castEmbedUrls),
+    prisma.farcasterCastMention.deleteMany({
+      where: {
+        OR: castMentions.map(({ fid, hash }) => ({
+          fid,
+          hash,
+          deleted: false,
+        })),
+      },
+    }),
+    prisma.farcasterCastEmbedCast.deleteMany({
+      where: {
+        OR: castEmbedCasts.map(({ fid, hash }) => ({
+          fid,
+          hash,
+          deleted: false,
+        })),
+      },
+    }),
+    prisma.farcasterCastEmbedUrl.deleteMany({
+      where: {
+        OR: castEmbedUrls.map(({ fid, hash }) => ({
+          fid,
+          hash,
+          deleted: false,
+        })),
+      },
+    }),
   ]);
-};
 
-export const getCast = async (fid: number, hash: string) => {
-  return await prisma.farcasterCast.findUnique({
-    where: { fid_hash: { fid, hash } },
+  await prisma.farcasterCast.deleteMany({
+    where: {
+      OR: casts.map(({ fid, hash }) => ({ fid, hash, deleted: false })),
+    },
   });
+
+  return {
+    casts,
+    castMentions,
+    castEmbedCasts,
+    castEmbedUrls,
+  };
 };
 
 export const upsertCasts = async (casts: Cast[]) => {
@@ -108,8 +163,18 @@ export const upsertCastEmbedCasts = async (castEmbedCasts: CastEmbedCast[]) => {
 };
 
 export const upsertCastEmbedUrls = async (castEmbedUrls: CastEmbedUrl[]) => {
-  for (let i = 0; i < castEmbedUrls.length; i += BATCH_SIZE) {
-    const batch = castEmbedUrls.slice(i, i + BATCH_SIZE);
+  const castEmbedUrlsWithMimeTypes = await Promise.all(
+    castEmbedUrls.map(async (castEmbedUrl) => {
+      const mimeType = await getMimeType(castEmbedUrl.url);
+      return {
+        ...castEmbedUrl,
+        ...mimeType,
+      };
+    })
+  );
+
+  for (let i = 0; i < castEmbedUrlsWithMimeTypes.length; i += BATCH_SIZE) {
+    const batch = castEmbedUrlsWithMimeTypes.slice(i, i + BATCH_SIZE);
     await prisma.farcasterCastEmbedUrl.createMany({
       data: batch,
       skipDuplicates: true,
@@ -145,3 +210,20 @@ export const deleteCast = async (fid: number, hash: string) => {
     }),
   ]);
 };
+
+async function getMimeType(url: string): Promise<Content | undefined> {
+  try {
+    const response = await fetch(`https://${url}`, { method: "HEAD" });
+    if (response.ok) {
+      const headers = response.headers;
+      const contentType = headers.get("Content-Type");
+      const contentLength = headers.get("Content-Length");
+      const lastModified = headers.get("Last-Modified");
+      return {
+        contentType: contentType ? contentType : undefined,
+        contentLength: contentLength ? parseInt(contentLength) : undefined,
+        contentLastModified: lastModified ? new Date(lastModified) : undefined,
+      };
+    }
+  } catch (error) {}
+}

@@ -5,7 +5,6 @@ export const extractLinks = (text?: string): string[] => {
   if (!text) return [];
 
   const items = text
-    .toLowerCase()
     .trim()
     .split("\n")
     .map((t) => t.split(" "))
@@ -17,20 +16,20 @@ export const extractLinks = (text?: string): string[] => {
     if (!matches) continue;
 
     const normalizedLinks = matches.map((link) => normalizeLink(link));
-
-    const deduplicatedLinks = normalizedLinks.filter(
-      (link, index) =>
-        normalizedLinks.indexOf(link) === index && isValidLink(link)
-    );
-
-    links.push(...deduplicatedLinks);
+    links.push(...normalizedLinks);
   }
 
-  return links;
+  const deduplicatedLinks = links.filter(
+    (link, index, self) =>
+      isValidLink(link) &&
+      index === self.findIndex((l) => l.toLowerCase() === link.toLowerCase())
+  );
+
+  return deduplicatedLinks;
 };
 
 export const normalizeLink = (link: string): string => {
-  let normalized = link.trim().toLowerCase();
+  let normalized = link.trim();
   if (normalized.includes(" ")) {
     normalized = normalized.split(" ")[0];
   }

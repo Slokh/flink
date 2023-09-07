@@ -83,10 +83,13 @@ model FarcasterCastEmbedUrl {
     hash      String
     timestamp DateTime
 
-    url       String
-    urlHost   String?
-    urlPath   String?
-    urlParams String?
+    url                 String
+    urlHost             String?
+    urlPath             String?
+    urlParams           String?
+    contentType         String?
+    contentLength       Int?
+    contentLastModified DateTime?
 
     parsed  Boolean @default(false)
     deleted Boolean @default(false)

@@ -8,7 +8,7 @@ import {
   CastMention,
   upsertCastDatas,
 } from "../db/cast";
-import { extractLinks } from "../links";
+import { extractLinks, normalizeLink } from "../links";
 import { generateReactionData } from "./reactions";
 import {
   CastReaction,
@@ -214,20 +214,23 @@ export const generateCastData = (message: Message) => {
   const castEmbedUrls: CastEmbedUrl[] = embeds
     .map((embed) => {
       if (embed.url) {
+        let urlHost;
+        let urlPath;
+        let urlParams;
+        if (!embed.url.startsWith("chain://")) {
+          const normalizedUrl = normalizeLink(embed.url);
+          urlHost = normalizedUrl.split("/")[0];
+          urlPath = normalizedUrl.split("/").slice(1).join("/").split("?")[0];
+          urlParams = normalizedUrl.split("?")[1];
+        }
         return {
           hash,
           fid,
           timestamp,
           url: embed.url,
-          urlHost: embed.url?.startsWith("chain://")
-            ? undefined
-            : new URL(embed.url).host,
-          urlPath: embed.url?.startsWith("chain://")
-            ? undefined
-            : new URL(embed.url).pathname,
-          urlParams: embed.url?.startsWith("chain://")
-            ? undefined
-            : new URL(embed.url).searchParams.toString(),
+          urlHost,
+          urlPath,
+          urlParams,
           parsed: false,
         };
       }
@@ -247,7 +250,12 @@ export const generateCastData = (message: Message) => {
         parsed: true,
       };
     })
-    .filter((embed) => !castEmbedUrls.some((e) => e.url.includes(embed.url)));
+    .filter(
+      (embed, i) =>
+        !castEmbedUrls.some(
+          (e) => e.url.toLowerCase() === embed.url.toLowerCase()
+        )
+    );
 
   return {
     fid,
