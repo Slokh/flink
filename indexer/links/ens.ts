@@ -97,21 +97,27 @@ const recordsAsLinks = (record: EnsRecord): Link | undefined => {
     return;
   }
 
+  const recordsToUrls = {
+    "com.twitter": "https://twitter.com/",
+    "com.github": "https://github.com/",
+    "com.reddit": "https://reddit.com/u/",
+    "com.discord": "https://discord.com/",
+    "com.instagram": "https://instagram.com/",
+    "org.telegram": "https://t.me/",
+    "com.medium": "https://medium.com/",
+  };
+
   let url = record.value.split(" ")[0];
-  if (record.key === "com.twitter") {
-    url = `https://twitter.com/${record.value}`;
-  } else if (record.key === "com.github") {
-    url = `https://github.com/${record.value}`;
-  } else if (record.key === "com.reddit") {
-    url = `https://reddit.com/u/${record.value}`;
-  } else if (record.key === "com.discord") {
-    url = `https://discord.com/${record.value}`;
-  } else if (record.key === "com.instagram") {
-    url = `https://instagram.com/${record.value}`;
-  } else if (record.key === "org.telegram") {
-    url = `https://t.me/${record.value}`;
-  } else if (record.key === "com.medium") {
-    url = `https://medium.com/${record.value}`;
+  for (const [key, value] of Object.entries(recordsToUrls)) {
+    if (record.key === key) {
+      if (url.startsWith(value)) {
+      } else if (url.startsWith(value.replace("https://", ""))) {
+        url = "https://" + url;
+      } else {
+        url = value + url;
+      }
+      break;
+    }
   }
 
   return {
