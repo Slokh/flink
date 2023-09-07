@@ -10,21 +10,10 @@ export interface Keyword {
 }
 
 export const upsertKeywords = async (keywords: Keyword[]) => {
-  await prisma.$transaction(
-    keywords.map((keyword) =>
-      prisma.farcasterCastKeyword.upsert({
-        where: {
-          fid_hash_keyword: {
-            fid: keyword.fid,
-            hash: keyword.hash,
-            keyword: keyword.keyword,
-          },
-        },
-        create: keyword,
-        update: keyword,
-      })
-    )
-  );
+  await prisma.farcasterCastKeyword.createMany({
+    data: keywords,
+    skipDuplicates: true,
+  });
 };
 
 export const getCastsMissingKeywords = async (casts: CastData[]) => {

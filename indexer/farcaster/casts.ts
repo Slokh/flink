@@ -65,6 +65,10 @@ export const handleCastMessages = async (
     };
   });
 
+  console.log(
+    `[cast-ingest] [${castData[0].fid}] processing ${messages.length} casts (${allCastDataWithTopParents.length} w/ parents)`
+  );
+
   await upsertCastDatas(allCastDataWithTopParents);
 
   const batchSize = 200;
@@ -80,7 +84,13 @@ export const handleCastMessages = async (
       await Promise.all(batch.map(({ cast }) => extractKeywords(cast)))
     ).flat();
     keywords.push(...batchKeywords);
-    console.log(`  [keywords] processed ${i}/${missingKeywords.length}`);
+    if (i % 1000 === 0) {
+      console.log(
+        `[keyword-extract] [${castData[0].fid}] processed ${i + batchSize} of ${
+          missingKeywords.length
+        }`
+      );
+    }
   }
 
   const promises = [upsertKeywords(keywords)];

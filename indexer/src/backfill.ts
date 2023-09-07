@@ -20,16 +20,12 @@ const handleFidCasts = async (client: Client, fid: number) => {
     });
     if (response.isOk()) {
       const messages = response.value.messages;
-      console.log(
-        `[backfill] [casts] [${fid}] processing ${messages.length} casts`
-      );
-
       await handleCastMessages(client, messages, true);
 
       pageToken = response.value.nextPageToken;
     } else {
       throw new Error(
-        `[backfill] failed to get casts for fid ${fid} - ${response.error}]`
+        `backfill failed to get casts for fid ${fid} - ${response.error}]`
       );
     }
   } while (pageToken?.length);

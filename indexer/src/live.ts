@@ -1,13 +1,9 @@
 import { HubEventType, Message, MessageType } from "@farcaster/hub-nodejs";
 import { Client, convertToHex, getHubClient } from "../farcaster/hub";
 import { handleUserUpdate } from "../farcaster/users";
-import {
-  generateCastData,
-  getParentCasts,
-  handleCastMessages,
-} from "../farcaster/casts";
+import { handleCastMessages } from "../farcaster/casts";
 import prisma from "../lib/prisma";
-import { deleteCast, getCast, upsertCastDatas } from "../db/cast";
+import { deleteCast } from "../db/cast";
 import { generateReactionData } from "../farcaster/reactions";
 import {
   CastReaction,
@@ -65,7 +61,7 @@ const run = async () => {
 const handleCastAdd = async (client: Client, message: Message) => {
   const castData = await handleCastMessages(client, [message], false);
   for (const data of castData) {
-    console.log(`[live] [cast-add] [${data.fid}] added cast ${data.hash}`);
+    console.log(`[cast-add] [${data.fid}] added cast ${data.hash}`);
   }
 };
 
@@ -74,7 +70,7 @@ const handleCastRemove = async (message: Message) => {
   const fid = message.data.fid;
   const hash = convertToHex(message.data.castRemoveBody.targetHash);
   await deleteCast(fid, hash);
-  console.log(`[live] [cast-remove] [${fid}] deleted cast ${hash}`);
+  console.log(`[cast-remove] [${fid}] deleted cast ${hash}`);
 };
 
 const handleReactionAdd = async (message: Message) => {
@@ -84,7 +80,7 @@ const handleReactionAdd = async (message: Message) => {
   if (reactionData?.targetUrl) {
     await upsertUrlReactions([reactionData as UrlReaction]);
     console.log(
-      `[live] [react-add] [${reactionData.fid}] reacted ${reactionData.reactionType} to url ${reactionData.targetUrl}}`
+      `[react-add] [${reactionData.fid}] reacted ${reactionData.reactionType} to url ${reactionData.targetUrl}}`
     );
     return;
   }
@@ -93,7 +89,7 @@ const handleReactionAdd = async (message: Message) => {
 
   await upsertCastReactions([reactionData as CastReaction]);
   console.log(
-    `[live] [react-add] [${reactionData.fid}] reacted ${reactionData.reactionType} to cast ${reactionData.targetHash}`
+    `[react-add] [${reactionData.fid}] reacted ${reactionData.reactionType} to cast ${reactionData.targetHash}`
   );
 };
 
@@ -104,7 +100,7 @@ const handleReactionRemove = async (message: Message) => {
   if (reactionData?.targetUrl) {
     await deleteUrlReaction(reactionData as UrlReaction);
     console.log(
-      `[live] [react-remove] [${reactionData.fid}] unreacted ${reactionData.reactionType} from url ${reactionData.targetUrl}`
+      `[react-remove] [${reactionData.fid}] unreacted ${reactionData.reactionType} from url ${reactionData.targetUrl}`
     );
     return;
   }
@@ -113,7 +109,7 @@ const handleReactionRemove = async (message: Message) => {
 
   await deleteCastReaction(reactionData as CastReaction);
   console.log(
-    `[live] [react-remove] [${reactionData.fid}] unreacted ${reactionData.reactionType} from cast ${reactionData.targetHash}`
+    `[react-remove] [${reactionData.fid}] unreacted ${reactionData.reactionType} from cast ${reactionData.targetHash}`
   );
 };
 

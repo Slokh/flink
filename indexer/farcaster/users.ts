@@ -87,7 +87,7 @@ export const handleUserUpdate = async (client: Client, fid: number) => {
   await upsertLinks(entityId, dedupedLinkResults);
 
   console.log(
-    `[live] [user-update] [${fid}] processed for entity ${entityId} ${farcasterUser.fname}`
+    `[user-update] [${fid}] processed for entity ${entityId} ${farcasterUser.fname}`
   );
 
   return entityId;
