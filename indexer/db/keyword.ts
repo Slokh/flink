@@ -9,10 +9,11 @@ export interface Keyword {
   score: number;
 }
 
+const BATCH_SIZE = 5000;
+
 export const upsertKeywords = async (keywords: Keyword[]) => {
-  const batchSize = 5000;
-  for (let i = 0; i < keywords.length; i += batchSize) {
-    const batch = keywords.slice(i, i + batchSize);
+  for (let i = 0; i < keywords.length; i += BATCH_SIZE) {
+    const batch = keywords.slice(i, i + BATCH_SIZE);
     await prisma.farcasterCastKeyword.createMany({
       data: batch,
       skipDuplicates: true,
@@ -21,21 +22,32 @@ export const upsertKeywords = async (keywords: Keyword[]) => {
 };
 
 export const getCastsMissingKeywords = async (casts: CastData[]) => {
-  const where = {
-    OR: casts.map((cast) => ({
-      fid: cast.fid,
-      hash: cast.hash,
-    })),
-  };
+  const castIds = casts.map((cast) => ({
+    fid: cast.fid,
+    hash: cast.hash,
+  }));
 
-  const existingKeywords = await prisma.farcasterCastKeyword.findMany({
-    where,
-    select: {
-      fid: true,
-      hash: true,
-    },
-    distinct: ["fid", "hash"],
-  });
+  const batches = [];
+  for (let i = 0; i < castIds.length; i += BATCH_SIZE) {
+    batches.push(castIds.slice(i, i + BATCH_SIZE));
+  }
+
+  const existingKeywords = (
+    await Promise.all(
+      batches.map((batch) =>
+        prisma.farcasterCastKeyword.findMany({
+          where: {
+            OR: batch,
+          },
+          select: {
+            fid: true,
+            hash: true,
+          },
+          distinct: ["fid", "hash"],
+        })
+      )
+    )
+  ).flat();
 
   const existingKeywordsMap = existingKeywords.reduce((acc, cur) => {
     acc[`${cur.fid}-${cur.hash}`] = true;
