@@ -77,52 +77,21 @@ export const upsertCastDatas = async (castDatas: CastData[]) => {
 
 const resetCasts = async (castDatas: CastData[]) => {
   const casts = castDatas.map(({ cast }) => cast);
-
   const castMentions = castDatas.map(({ castMentions }) => castMentions).flat();
-
   const castEmbedCasts = castDatas
     .map(({ castEmbedCasts }) => castEmbedCasts)
     .flat();
-
   const castEmbedUrls = castDatas
     .map(({ castEmbedUrls }) => castEmbedUrls)
     .flat();
 
   await Promise.all([
-    prisma.farcasterCastMention.deleteMany({
-      where: {
-        OR: castMentions.map(({ fid, hash }) => ({
-          fid,
-          hash,
-          deleted: false,
-        })),
-      },
-    }),
-    prisma.farcasterCastEmbedCast.deleteMany({
-      where: {
-        OR: castEmbedCasts.map(({ fid, hash }) => ({
-          fid,
-          hash,
-          deleted: false,
-        })),
-      },
-    }),
-    prisma.farcasterCastEmbedUrl.deleteMany({
-      where: {
-        OR: castEmbedUrls.map(({ fid, hash }) => ({
-          fid,
-          hash,
-          deleted: false,
-        })),
-      },
-    }),
+    deleteCastMentions(castMentions),
+    deleteCastEmbedCasts(castEmbedCasts),
+    deleteCastEmbedUrls(castEmbedUrls),
   ]);
 
-  await prisma.farcasterCast.deleteMany({
-    where: {
-      OR: casts.map(({ fid, hash }) => ({ fid, hash, deleted: false })),
-    },
-  });
+  await deleteCasts(casts);
 
   return {
     casts,
@@ -178,6 +147,50 @@ export const upsertCastEmbedUrls = async (castEmbedUrls: CastEmbedUrl[]) => {
     await prisma.farcasterCastEmbedUrl.createMany({
       data: batch,
       skipDuplicates: true,
+    });
+  }
+};
+
+export const deleteCasts = async (casts: Cast[]) => {
+  for (let i = 0; i < casts.length; i += BATCH_SIZE) {
+    const batch = casts.slice(i, i + BATCH_SIZE);
+    await prisma.farcasterCast.deleteMany({
+      where: {
+        OR: batch.map(({ fid, hash }) => ({ fid, hash, deleted: false })),
+      },
+    });
+  }
+};
+
+export const deleteCastMentions = async (castMentions: CastMention[]) => {
+  for (let i = 0; i < castMentions.length; i += BATCH_SIZE) {
+    const batch = castMentions.slice(i, i + BATCH_SIZE);
+    await prisma.farcasterCastMention.deleteMany({
+      where: {
+        OR: batch.map(({ fid, hash }) => ({ fid, hash, deleted: false })),
+      },
+    });
+  }
+};
+
+export const deleteCastEmbedCasts = async (castEmbedCasts: CastEmbedCast[]) => {
+  for (let i = 0; i < castEmbedCasts.length; i += BATCH_SIZE) {
+    const batch = castEmbedCasts.slice(i, i + BATCH_SIZE);
+    await prisma.farcasterCastEmbedCast.deleteMany({
+      where: {
+        OR: batch.map(({ fid, hash }) => ({ fid, hash, deleted: false })),
+      },
+    });
+  }
+};
+
+export const deleteCastEmbedUrls = async (castEmbedUrls: CastEmbedUrl[]) => {
+  for (let i = 0; i < castEmbedUrls.length; i += BATCH_SIZE) {
+    const batch = castEmbedUrls.slice(i, i + BATCH_SIZE);
+    await prisma.farcasterCastEmbedUrl.deleteMany({
+      where: {
+        OR: batch.map(({ fid, hash }) => ({ fid, hash, deleted: false })),
+      },
     });
   }
 };
