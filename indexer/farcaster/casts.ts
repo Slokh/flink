@@ -40,6 +40,8 @@ export const handleCastMessages = async (
     }
   }
 
+  if (allCastData.length === 0) return [];
+
   const allCastDataMap = allCastData.reduce((acc, cast) => {
     acc[cast.hash] = cast.cast;
     return acc;
