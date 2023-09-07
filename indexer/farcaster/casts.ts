@@ -66,7 +66,9 @@ export const handleCastMessages = async (
   });
 
   console.log(
-    `[cast-ingest] [${castData[0].fid}] processing ${messages.length} casts (${allCastDataWithTopParents.length} w/ parents)`
+    `[cast-ingest] [${castData[0].fid}] processing ${
+      messages.length
+    } casts (+ ${allCastDataWithTopParents.length - messages.length} parents)`
   );
 
   await upsertCastDatas(allCastDataWithTopParents);

@@ -10,10 +10,14 @@ export interface Keyword {
 }
 
 export const upsertKeywords = async (keywords: Keyword[]) => {
-  await prisma.farcasterCastKeyword.createMany({
-    data: keywords,
-    skipDuplicates: true,
-  });
+  const batchSize = 10000;
+  for (let i = 0; i < keywords.length; i += batchSize) {
+    const batch = keywords.slice(i, i + batchSize);
+    await prisma.farcasterCastKeyword.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+  }
 };
 
 export const getCastsMissingKeywords = async (casts: CastData[]) => {

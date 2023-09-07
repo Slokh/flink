@@ -48,6 +48,8 @@ export interface CastData {
   castEmbedUrls: CastEmbedUrl[];
 }
 
+const BATCH_SIZE = 10000;
+
 export const upsertCastDatas = async (castDatas: CastData[]) => {
   const casts = castDatas.map(({ cast }) => cast);
   await upsertCasts(casts);
@@ -76,31 +78,47 @@ export const getCast = async (fid: number, hash: string) => {
 };
 
 export const upsertCasts = async (casts: Cast[]) => {
-  await prisma.farcasterCast.createMany({
-    data: casts,
-    skipDuplicates: true,
-  });
+  const batchSize = 10000;
+  for (let i = 0; i < casts.length; i += batchSize) {
+    const batch = casts.slice(i, i + batchSize);
+    await prisma.farcasterCast.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+  }
 };
 
 export const upsertCastMentions = async (castMentions: CastMention[]) => {
-  await prisma.farcasterCastMention.createMany({
-    data: castMentions,
-    skipDuplicates: true,
-  });
+  const batchSize = 10000;
+  for (let i = 0; i < castMentions.length; i += batchSize) {
+    const batch = castMentions.slice(i, i + batchSize);
+    await prisma.farcasterCastMention.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+  }
 };
 
 export const upsertCastEmbedCasts = async (castEmbedCasts: CastEmbedCast[]) => {
-  await prisma.farcasterCastEmbedCast.createMany({
-    data: castEmbedCasts,
-    skipDuplicates: true,
-  });
+  const batchSize = 10000;
+  for (let i = 0; i < castEmbedCasts.length; i += batchSize) {
+    const batch = castEmbedCasts.slice(i, i + batchSize);
+    await prisma.farcasterCastEmbedCast.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+  }
 };
 
 export const upsertCastEmbedUrls = async (castEmbedUrls: CastEmbedUrl[]) => {
-  await prisma.farcasterCastEmbedUrl.createMany({
-    data: castEmbedUrls,
-    skipDuplicates: true,
-  });
+  const batchSize = 10000;
+  for (let i = 0; i < castEmbedUrls.length; i += batchSize) {
+    const batch = castEmbedUrls.slice(i, i + batchSize);
+    await prisma.farcasterCastEmbedUrl.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+  }
 };
 
 export const deleteCast = async (fid: number, hash: string) => {
