@@ -2,8 +2,8 @@ import { isAddress } from "viem";
 import prisma from "./prisma";
 import { getAddressForENS } from "./ens";
 import { getAddressFromLensHandle } from "@/indexer/links/lens";
-import { handleFidUserUpdate } from "@/indexer/farcaster/users";
 import { getHubClient } from "@/indexer/farcaster/hub";
+import { handleUserUpdate } from "@/indexer/farcaster/users";
 
 type Identity = {
   input: string;
@@ -63,8 +63,7 @@ const getEntityId = async (
     ).json();
 
     if (username?.result?.user?.fid) {
-      const entityId = await handleFidUserUpdate(
-        "manual",
+      const entityId = await handleUserUpdate(
         await getHubClient(),
         parseInt(username.result.user.fid, 10)
       );

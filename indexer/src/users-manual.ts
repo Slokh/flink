@@ -19,7 +19,7 @@ const run = async () => {
     }
 
     if (fid) {
-      await handleUserUpdate("manual", client, fid);
+      await handleUserUpdate(client, fid);
     }
   }
 };
