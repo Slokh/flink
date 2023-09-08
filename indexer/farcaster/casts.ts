@@ -75,7 +75,7 @@ export const handleCastMessages = async (
 
   await upsertCastDatas(allCastDataWithTopParents);
 
-  const batchSize = 200;
+  const batchSize = 100;
   const keywords = [];
 
   const missingKeywords = await getCastsMissingKeywords(
