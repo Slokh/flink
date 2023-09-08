@@ -54,7 +54,7 @@ export interface CastData {
   castEmbedUrls: CastEmbedUrl[];
 }
 
-const BATCH_SIZE = 5000;
+const BATCH_SIZE = 2000;
 
 export const getCast = async (fid: number, hash: string) => {
   return await prisma.farcasterCast.findUnique({

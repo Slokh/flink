@@ -9,7 +9,7 @@ export interface Keyword {
   score: number;
 }
 
-const BATCH_SIZE = 5000;
+const BATCH_SIZE = 2000;
 
 export const upsertKeywords = async (keywords: Keyword[]) => {
   for (let i = 0; i < keywords.length; i += BATCH_SIZE) {
