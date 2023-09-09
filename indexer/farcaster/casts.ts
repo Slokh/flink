@@ -26,6 +26,8 @@ export const handleCastMessages = async (
   messages: Message[],
   withReactions = false
 ) => {
+  if (messages.length === 0) return [];
+
   console.log(
     `[cast-ingest] [${messages[0].data?.fid}] processing ${messages.length} messages`
   );
