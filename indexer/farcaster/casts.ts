@@ -90,8 +90,6 @@ export const handleCastMessages = async (
 
   const newCasts = await upsertCastDatas(allCastDataWithTopParents);
 
-  console.log("new casts", newCasts.length);
-
   const batchSize = 100;
   const keywords = [];
 
@@ -111,8 +109,6 @@ export const handleCastMessages = async (
       );
     }
   }
-
-  console.log("keywords done");
 
   const promises = [upsertKeywords(keywords)];
 
