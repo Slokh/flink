@@ -1,5 +1,5 @@
 import prisma from "../lib/prisma";
-import { CastData } from "./cast";
+import { Cast, CastData } from "./cast";
 
 export interface Keyword {
   fid: number;
@@ -21,7 +21,7 @@ export const upsertKeywords = async (keywords: Keyword[]) => {
   }
 };
 
-export const getCastsMissingKeywords = async (casts: CastData[]) => {
+export const getCastsMissingKeywords = async (casts: Cast[]) => {
   const castIds = casts.map((cast) => ({
     fid: cast.fid,
     hash: cast.hash,

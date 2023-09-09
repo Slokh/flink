@@ -1,6 +1,5 @@
 import { handleUserUpdate } from "../farcaster/users";
-import { getHubClient } from "../farcaster/hub";
-import prisma from "../lib/prisma";
+import { Client, getHubClient } from "../farcaster/hub";
 import { handleCastMessages } from "../farcaster/casts";
 
 const run = async () => {
@@ -9,22 +8,9 @@ const run = async () => {
 
   const mode = args[0];
   if (mode === "user") {
-    for (const arg of args.slice(1)) {
-      let fid;
-      if (arg.startsWith("e")) {
-        const record = await prisma.farcaster.findFirst({
-          where: { entityId: parseInt(arg.slice(1), 10) },
-          select: { fid: true },
-        });
-        fid = record?.fid;
-      } else {
-        fid = parseInt(arg, 10);
-      }
-
-      if (fid) {
-        await handleUserUpdate(client, fid);
-      }
-    }
+    const fid = parseInt(args[1], 10);
+    await handleUserUpdate(client, fid);
+    await handleFidCasts(client, fid);
   } else if (mode === "cast") {
     const fid = parseInt(args[1], 10);
     const hash = args[2];
@@ -36,3 +22,23 @@ const run = async () => {
 };
 
 run();
+
+const handleFidCasts = async (client: Client, fid: number) => {
+  let pageToken: Uint8Array | undefined = undefined;
+  do {
+    const response = await client.client.getCastsByFid({
+      fid,
+      pageToken,
+    });
+    if (response.isOk()) {
+      const messages = response.value.messages;
+      await handleCastMessages(client, messages, true);
+
+      pageToken = response.value.nextPageToken;
+    } else {
+      throw new Error(
+        `backfill failed to get casts for fid ${fid} - ${response.error}]`
+      );
+    }
+  } while (pageToken?.length);
+};

@@ -6,6 +6,7 @@ import {
   CastEmbedCast,
   CastEmbedUrl,
   CastMention,
+  getExistingCasts,
   upsertCastDatas,
 } from "../db/cast";
 import { extractLinks, normalizeLink } from "../links";
@@ -18,6 +19,7 @@ import {
 } from "../db/reaction";
 import { extractKeywords } from "../keywords";
 import { getCastsMissingKeywords, upsertKeywords } from "../db/keyword";
+import { FarcasterCast } from "@prisma/client";
 
 export const handleCastMessages = async (
   client: Client,
@@ -27,6 +29,15 @@ export const handleCastMessages = async (
   const castData = messages
     .map((message) => generateCastData(message))
     .filter(Boolean) as CastData[];
+
+  const existingCasts = await getExistingCasts(castData);
+  const existingCastsMap = existingCasts.reduce(
+    (acc: Record<string, boolean>, cur: FarcasterCast) => {
+      acc[`${cur.fid}-${cur.hash}`] = true;
+      return acc;
+    },
+    {} as Record<string, boolean>
+  );
 
   const allCastData = await getParentCasts(
     client,
@@ -40,14 +51,18 @@ export const handleCastMessages = async (
     }
   }
 
-  if (allCastData.length === 0) return [];
+  const filteredCastData = allCastData.filter(
+    (cast) => !existingCastsMap[`${cast.fid}-${cast.hash}`]
+  );
 
-  const allCastDataMap = allCastData.reduce((acc, cast) => {
+  if (filteredCastData.length === 0) return [];
+
+  const allCastDataMap = filteredCastData.reduce((acc, cast) => {
     acc[cast.hash] = cast.cast;
     return acc;
   }, {} as Record<string, Cast>);
 
-  const allCastDataWithTopParents = allCastData.map((cast) => {
+  const allCastDataWithTopParents = filteredCastData.map((cast) => {
     let topParent = cast.cast.parentCast
       ? allCastDataMap[cast.cast.parentCast]
       : undefined;
@@ -73,19 +88,19 @@ export const handleCastMessages = async (
     } casts (+ ${allCastDataWithTopParents.length - messages.length} parents)`
   );
 
-  await upsertCastDatas(allCastDataWithTopParents);
+  const newCasts = await upsertCastDatas(allCastDataWithTopParents);
+
+  console.log("new casts", newCasts.length);
 
   const batchSize = 100;
   const keywords = [];
 
-  const missingKeywords = await getCastsMissingKeywords(
-    allCastDataWithTopParents
-  );
+  const missingKeywords = await getCastsMissingKeywords(newCasts);
 
   for (let i = 0; i < missingKeywords.length; i += batchSize) {
     const batch = missingKeywords.slice(i, i + batchSize);
     const batchKeywords = (
-      await Promise.all(batch.map(({ cast }) => extractKeywords(cast)))
+      await Promise.all(batch.map((cast) => extractKeywords(cast)))
     ).flat();
     keywords.push(...batchKeywords);
     if (i % 1000 === 0) {
@@ -96,6 +111,8 @@ export const handleCastMessages = async (
       );
     }
   }
+
+  console.log("keywords done");
 
   const promises = [upsertKeywords(keywords)];
 
