@@ -1,5 +1,6 @@
 import { FarcasterCast } from "@prisma/client";
 import prisma from "../lib/prisma";
+import { getEmbedMetadata } from "../embeds";
 
 export interface Cast {
   fid: number;
@@ -132,13 +133,10 @@ export const upsertCastEmbedCasts = async (castEmbedCasts: CastEmbedCast[]) => {
 
 export const upsertCastEmbedUrls = async (castEmbedUrls: CastEmbedUrl[]) => {
   const castEmbedUrlsWithMimeTypes = await Promise.all(
-    castEmbedUrls.map(async (castEmbedUrl) => {
-      const mimeType = await getMimeType(castEmbedUrl.url);
-      return {
-        ...castEmbedUrl,
-        ...mimeType,
-      };
-    })
+    castEmbedUrls.map(async (castEmbedUrl) => ({
+      ...castEmbedUrl,
+      ...(await getEmbedMetadata(castEmbedUrl.url)),
+    }))
   );
 
   for (let i = 0; i < castEmbedUrlsWithMimeTypes.length; i += BATCH_SIZE) {
@@ -189,20 +187,3 @@ export const deleteCast = async (fid: number, hash: string) => {
     }),
   ]);
 };
-
-async function getMimeType(url: string): Promise<Content | undefined> {
-  try {
-    const response = await fetch(`https://${url}`, { method: "HEAD" });
-    if (response.ok) {
-      const headers = response.headers;
-      const contentType = headers.get("Content-Type");
-      const contentLength = headers.get("Content-Length");
-      const lastModified = headers.get("Last-Modified");
-      return {
-        contentType: contentType ? contentType : undefined,
-        contentLength: contentLength ? parseInt(contentLength) : undefined,
-        contentLastModified: lastModified ? new Date(lastModified) : undefined,
-      };
-    }
-  } catch (error) {}
-}

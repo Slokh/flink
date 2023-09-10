@@ -1,6 +1,6 @@
+import { CHAIN_ID_TO_NAME } from "@/indexer/util";
 import prisma from "@/lib/prisma";
 import { Embed, FarcasterCast, FarcasterUser } from "@/lib/types";
-import { CHAIN_ID_TO_NAME } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import { unfurl } from "unfurl.js";
 

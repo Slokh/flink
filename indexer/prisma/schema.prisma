@@ -91,6 +91,7 @@ model FarcasterCastEmbedUrl {
     contentType         String?
     contentLength       Int?
     contentLastModified DateTime?
+    contentMetadata     Json?
 
     parsed  Boolean @default(false)
     deleted Boolean @default(false)

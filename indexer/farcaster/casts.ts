@@ -159,9 +159,7 @@ const extractKeywordsFromCasts = async (casts: CastData[]) => {
     keywords.push(...batchKeywords);
     if (i % 1000 === 0) {
       console.log(
-        `[keyword-extract] [${casts[0].fid}] processed ${i * batchSize} of ${
-          casts.length
-        }`
+        `[keyword-extract] [${casts[0].fid}] processed ${i} of ${casts.length}`
       );
     }
   }
