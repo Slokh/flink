@@ -40,7 +40,7 @@ export default function RootLayout({
     <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex flex-col items-start">{children}</div>
+          {children}
         </ThemeProvider>
         <Analytics />
       </body>

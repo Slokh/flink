@@ -76,6 +76,7 @@ model FarcasterCast {
     mentions   FarcasterCastMention[]
 
     @@id([fid, hash])
+    @@index([timestamp(sort: Desc), fid])
 }
 
 model FarcasterCastEmbedUrl {
@@ -94,7 +95,7 @@ model FarcasterCastEmbedUrl {
     parsed  Boolean @default(false)
     deleted Boolean @default(false)
 
-    cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid])
+    cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid], onDelete: Cascade)
 
     @@id([fid, hash, url])
 }
@@ -109,7 +110,7 @@ model FarcasterCastEmbedCast {
 
     deleted Boolean @default(false)
 
-    cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid])
+    cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid], onDelete: Cascade)
 
     @@id([fid, hash, embedHash, embedFid])
 }
@@ -124,7 +125,7 @@ model FarcasterCastMention {
 
     deleted Boolean @default(false)
 
-    cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid])
+    cast FarcasterCast @relation(fields: [hash, fid], references: [hash, fid], onDelete: Cascade)
 
     @@id([fid, hash, mention])
 }

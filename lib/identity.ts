@@ -12,8 +12,9 @@ type Identity = {
 };
 
 export const getIdentityForInput = async (input: string, create: boolean) => {
-  const address = await getAddressFromInput(input);
-  const entityId = await getEntityId(input, create, address);
+  const address = await getAddressFromInput(input.toLowerCase());
+  const entityId = await getEntityId(input.toLowerCase(), create, address);
+
   return {
     input,
     entityId,

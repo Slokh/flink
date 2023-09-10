@@ -1,11 +1,10 @@
-import { Navbar } from "@/components/navbar";
+import { Layout } from "@/components/layout";
 import { RandomEntities } from "@/components/random-entities";
 import { SearchInput } from "@/components/search-input";
 
 export default function Home() {
   return (
-    <>
-      <Navbar variant="top" />
+    <Layout>
       <div className="flex flex-col items-center mt-8 md:mt-24 w-full p-4 space-y-4">
         <div className="flex flex-col w-full max-w-xl items-start space-y-2 text-start">
           <div className="text-4xl">flink</div>
@@ -20,6 +19,6 @@ export default function Home() {
         </div>
         <RandomEntities amount={8} />
       </div>
-    </>
+    </Layout>
   );
 }

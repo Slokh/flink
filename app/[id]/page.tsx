@@ -1,10 +1,18 @@
-import { Navbar } from "@/components/navbar";
-import { Overview } from "@/components/overview";
-import { Profile } from "@/components/profile";
+import {
+  Profile,
+  ProfileIdentity,
+  ProfileOverview,
+} from "@/components/panels/profile";
 import { SearchInput } from "@/components/search-input";
 import { Entity } from "@/lib/types";
 import { Metadata } from "next";
 import { headers } from "next/headers";
+import { Casts } from "@/components/panels/casts";
+import { Layout } from "@/components/layout";
+import { RefreshButton } from "@/components/refresh-button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const getEntity = async (id: string, create: boolean): Promise<Entity> => {
   const host = headers().get("host");
@@ -53,10 +61,7 @@ export const generateMetadata = async ({
     };
   }
 
-  const { pfps, displays, bios } = entity;
-  const pfp = pfps[0];
-  const display = displays[0];
-  const bio = bios[0];
+  const { display, bio } = entity;
 
   return {
     title: display?.value || params.id,
@@ -92,9 +97,8 @@ export default async function User({ params }: { params: { id: string } }) {
   if (!entity || entity?.error) {
     return (
       <>
-        <Navbar variant="top" />
         <div className="flex flex-col items-center w-full p-4 min-h-screen mt-4">
-          <div className="flex flex-col items-center w-full max-w-sm space-y-4">
+          <div className="flex flex-col items-center w-full space-y-4">
             <h1>Unknown identity</h1>
             <SearchInput />
           </div>
@@ -104,14 +108,67 @@ export default async function User({ params }: { params: { id: string } }) {
   }
 
   return (
-    <>
-      <div className="flex flex-col items-center w-full p-4 min-h-screen mt-4">
-        <div className="flex flex-col items-center w-full max-w-sm space-y-4">
-          <Overview id={params.id} entity={entity} />
-          <Profile id={params.id} entity={entity} />
+    <Layout>
+      <div className="flex flex-col lg:hidden items-center">
+        <div className="max-w-xs">
+          <ProfileOverview id={params.id} entity={entity} />
+          <Tabs defaultValue="profile" className="w-full p-2">
+            <TabsList className="w-full">
+              <TabsTrigger value="profile" className="w-full">
+                Profile
+              </TabsTrigger>
+              <TabsTrigger value="casts" className="w-full">
+                Casts
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="profile">
+              <div className="flex flex-col items-center">
+                <ProfileIdentity entity={entity} />
+                <div className="flex flex-col space-y-4 mt-4">
+                  <SearchInput />
+                  <RefreshButton id={params.id} />
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="casts">
+              <div className="flex justify-center">
+                <div className="max-w-[32rem]">
+                  {entity.fid && <Casts fid={entity.fid} />}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-      <Navbar variant="bottom" />
-    </>
+
+      <div className="flex flex-row justify-center h-full hidden lg:flex">
+        <div className="min-w-80 w-80">
+          <ScrollArea className="h-full">
+            <div className="flex flex-col items-center space-y-4 w-full">
+              <Profile id={params.id} entity={entity} />
+            </div>
+          </ScrollArea>
+        </div>
+        <Separator orientation="vertical" />
+        <div className="w-[32rem]">
+          <ScrollArea className="h-full">
+            <div className="flex flex-col items-center space-y-4 w-full">
+              {entity.fid && <Casts fid={entity.fid} />}
+            </div>
+          </ScrollArea>
+        </div>
+        <Separator orientation="vertical" />
+        <div className="min-w-80 w-80">
+          <ScrollArea className="h-full">
+            <div className="flex flex-col items-center space-y-4 w-full">
+              <div className="flex flex-col items-center w-full space-y-4 p-4">
+                <SearchInput />
+                <RefreshButton id={params.id} />
+              </div>
+            </div>
+          </ScrollArea>
+        </div>
+      </div>
+    </Layout>
   );
 }

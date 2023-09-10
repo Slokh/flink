@@ -12,10 +12,7 @@ const getRandomEntities = async (amount?: number): Promise<Entity[]> => {
 };
 
 const RandomEntity = ({ entity }: { entity: Entity }) => {
-  const { pfps, displays, bios, accounts } = entity;
-  const pfp = pfps[0];
-  const display = displays[0];
-  const bio = bios[0];
+  const { pfp, display, bio, accounts } = entity;
 
   return (
     <Card className="w-full sm:w-80 h-80 m-2">

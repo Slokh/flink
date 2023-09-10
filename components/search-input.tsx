@@ -25,7 +25,7 @@ export const SearchInput = () => {
     <div className="flex w-full items-center space-x-2">
       <Input
         id="name"
-        placeholder="Search by farcaster, twitter, address, ens, lens, etc."
+        placeholder="Search..."
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={handleKeyDown}
         autoFocus

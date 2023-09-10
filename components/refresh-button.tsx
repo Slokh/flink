@@ -1,5 +1,6 @@
 "use client";
 
+import { Loading } from "./loading";
 import { Button } from "./ui/button";
 import { useState } from "react";
 
@@ -14,11 +15,7 @@ export const RefreshButton = ({ id }: { id: string }) => {
 
   return (
     <Button className="w-full" disabled={loading} onClick={handleClick}>
-      {loading ? (
-        <img src="/loading.svg" alt="loading" className="w-5 h-5" />
-      ) : (
-        "Refresh"
-      )}
+      {loading ? <Loading /> : "Refresh Profile"}
     </Button>
   );
 };
