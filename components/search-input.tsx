@@ -28,7 +28,6 @@ export const SearchInput = () => {
         placeholder="Search..."
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={handleKeyDown}
-        autoFocus
       />
       <Button className="w-32" disabled={loading} onClick={handleClick}>
         {loading ? (
