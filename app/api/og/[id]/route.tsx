@@ -1,4 +1,3 @@
-import { Overview } from "@/components/overview";
 import { Entity } from "@/lib/types";
 import { headers } from "next/headers";
 import { ImageResponse } from "next/server";
@@ -18,9 +17,7 @@ export async function GET(
     return new ImageResponse(<img src="/flink.png" />);
   }
 
-  const { pfps, bios, accounts, ethereum }: Entity = await response.json();
-  const pfp = pfps[0];
-  const bio = bios[0];
+  const { pfp, bio, accounts, ethereum }: Entity = await response.json();
 
   return new ImageResponse(
     (
