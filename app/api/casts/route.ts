@@ -1,8 +1,7 @@
-import { CHAIN_ID_TO_NAME } from "@/indexer/util";
+import { getEmbedMetadata } from "@/indexer/embeds";
 import prisma from "@/lib/prisma";
 import { Embed, FarcasterCast, FarcasterUser } from "@/lib/types";
 import { NextResponse } from "next/server";
-import { unfurl } from "unfurl.js";
 
 const PAGE_SIZE = 20;
 
@@ -34,18 +33,13 @@ export async function GET(
   }, {} as Record<string, any>);
 
   const relevantFids = getRelevantFids(Object.values(castMap));
-  const urls = casts.flatMap((cast) =>
-    cast.urlEmbeds.filter(({ parsed }) => !parsed).map(({ url }: any) => url)
-  );
 
   const [userMap, embedMap, likeMap, recastMap] = await Promise.all([
     getUsersByFids(relevantFids),
-    getEmbedsForUrls(urls),
+    getEmbedsForCasts(casts),
     getReactionsForCasts(casts, "like"),
     getReactionsForCasts(casts, "recast"),
   ]);
-
-  await getReactionsForCasts(casts, "like");
 
   return NextResponse.json(
     casts.map((cast) => ({
@@ -183,59 +177,52 @@ const getRelevantFids = (casts: any) => {
   return Object.keys(fids).map((fid) => parseInt(fid));
 };
 
-const getEmbedsForUrls = async (urls: string[]) => {
-  const embeds: Embed[] = await Promise.all(
-    urls.map(async (url: string) => {
-      try {
-        if (url.startsWith("chain://")) {
-          const [, , chainId, contractAddress, tokenId] = url.split("/");
-          const response = await fetch(
-            `https://api.simplehash.com/api/v0/nfts/${
-              CHAIN_ID_TO_NAME[chainId]
-            }/${contractAddress.split(":")[1]}/${tokenId}`,
-            {
-              headers: {
-                "X-API-KEY": process.env.SIMPLEHASH_API_KEY as string,
-              },
-            }
-          );
-          const {
-            name,
-            description,
-            collection: { marketplace_pages },
-            previews: { image_opengraph_url },
-          } = await response.json();
-
-          const openseaUrl = marketplace_pages.find(
-            ({ nft_url }: { nft_url: string }) => nft_url.includes("opensea")
-          )?.nft_url;
-
-          return {
-            url,
-            type: "nft",
-            nftMetadata: {
-              name,
-              description,
-              image: image_opengraph_url,
-              externalUrl: openseaUrl,
-            },
-          };
-        }
-        return {
-          url,
-          type: "url",
-          urlMetadata: await unfurl(url),
-        };
-      } catch (e) {
-        return {
-          url,
-          type: "media",
-        };
-      }
-    })
+const getEmbedsForCasts = async (casts: any) => {
+  const urlEmbeds = casts.flatMap((cast: any) =>
+    cast.urlEmbeds.filter(({ parsed }: any) => !parsed)
   );
-  return embeds.reduce((acc, embed) => {
-    acc[embed.url] = embed;
+
+  const embedsToFetch = urlEmbeds.filter(
+    ({ url, contentMetadata, parsed }: any) =>
+      url && !contentMetadata && !parsed
+  );
+
+  let fetchedEmbedsMap: Record<string, any> = {};
+
+  if (embedsToFetch.length > 0) {
+    const fetchedEmbeds = await Promise.all(
+      embedsToFetch.map(async ({ url }: any) => await getEmbedMetadata(url))
+    );
+
+    await prisma.farcasterCastEmbedUrl.deleteMany({
+      where: {
+        OR: embedsToFetch.map(({ fid, hash, url }: any) => ({
+          fid,
+          hash,
+          url,
+        })),
+      },
+    });
+
+    await prisma.farcasterCastEmbedUrl.createMany({
+      data: fetchedEmbeds.map((embed: any, i) => ({
+        ...embedsToFetch[i],
+        ...embed,
+      })),
+      skipDuplicates: true,
+    });
+
+    fetchedEmbedsMap = fetchedEmbeds.reduce(
+      (acc: any, embed: any, i: number) => {
+        acc[embedsToFetch[i].url] = embed;
+        return acc;
+      },
+      {} as Record<string, any>
+    );
+  }
+
+  return urlEmbeds.reduce((acc: any, embed: any) => {
+    acc[embed.url] = fetchedEmbedsMap[embed.url] || embed.contentMetadata;
     return acc;
   }, {} as Record<string, Embed>);
 };

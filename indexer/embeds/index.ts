@@ -26,7 +26,7 @@ const getHeadMetadata = async (url: string) => {
   let contentLastModified: Date | undefined;
 
   try {
-    const response = await fetchWithRetry(url, { method: "HEAD" });
+    const response = await fetch(url, { method: "HEAD" });
     if (response.ok) {
       const headers = response.headers;
       const rawContentType = headers.get("Content-Type");
@@ -48,12 +48,13 @@ const getHeadMetadata = async (url: string) => {
 };
 
 const getMetadata = async (url: string) => {
-  let contentMetadata: any;
+  let contentMetadata = {};
   try {
     if (!url.startsWith("chain://")) {
       contentMetadata = await unfurl(url);
+    } else {
+      contentMetadata = await getNftMetadata(url);
     }
-    contentMetadata = await getNftMetadata(url);
   } catch (e) {}
 
   return {
