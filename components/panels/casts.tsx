@@ -2,10 +2,9 @@
 "use client";
 
 import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
-import { FarcasterCast, FarcasterMention } from "@/lib/types";
+import { Embed, FarcasterCast, FarcasterMention } from "@/lib/types";
 import { Loading } from "../loading";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { formatDistanceStrict } from "date-fns";
 import { EmbedPreview } from "../embeds";
 import {
   differenceInSeconds,
@@ -37,11 +36,11 @@ const formatDistanceCustom = (date1: Date, date2: Date) => {
 const formatText = (
   text: string,
   mentions: FarcasterMention[],
-  embeds: string[]
+  embeds: Embed[]
 ) => {
   let formattedText = text;
   embeds.forEach((embed) => {
-    formattedText = formattedText.replace(embed, "");
+    formattedText = formattedText.replace(embed.url, "");
   });
 
   // Sort mentions by position in descending order to avoid messing up the indices
@@ -165,7 +164,7 @@ const Cast = forwardRef<HTMLDivElement, { cast: FarcasterCast }>(
               <div
                 className="flex flex-col text-sm space-y-2 break-words"
                 dangerouslySetInnerHTML={{
-                  __html: formatText(cast.text, cast.mentions, cast.urlEmbeds),
+                  __html: formatText(cast.text, cast.mentions, cast.embeds),
                 }}
               ></div>
               {cast.embeds.map((embed, i) => (

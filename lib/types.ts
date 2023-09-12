@@ -57,8 +57,6 @@ export type FarcasterCast = {
   topParentUrl?: string;
   text: string;
   mentions: FarcasterMention[];
-  urlEmbeds: string[];
-  castEmbeds: FarcasterCast[];
   embeds: Embed[];
   likes: number;
   recasts: number;
@@ -66,9 +64,7 @@ export type FarcasterCast = {
 
 export type Embed = {
   url: string;
-  type: "nft" | "media" | "url";
-  nftMetadata?: NftMetadata;
-  urlMetadata?: Metadata;
+  metadata?: NftMetadata | Metadata;
 };
 
 export type NftMetadata = {

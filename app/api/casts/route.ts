@@ -23,6 +23,7 @@ export async function GET(
     fid ? parseInt(fid) : undefined,
     false
   );
+
   const adjacentCasts = await getCastsByFidHashes(
     getAdjacentCastFidHashes(casts)
   );
@@ -61,15 +62,7 @@ export async function GET(
         mention: userMap[mention.mention],
         position: mention.mentionPosition,
       })),
-      urlEmbeds: cast.urlEmbeds
-        .filter(({ parsed }) => !parsed)
-        .map(({ url }) => url),
-      castEmbeds: cast.castEmbeds.map(
-        (embed: any) => castMap[`${embed.fid}-${embed.hash}`]
-      ),
-      embeds: cast.urlEmbeds
-        .filter(({ parsed }) => !parsed)
-        .map(({ url }) => embedMap[url]),
+      embeds: embedMap[`${cast.fid}-${cast.hash}`] || [],
       likes: likeMap[`${cast.fid}-${cast.hash}`] || 0,
       recasts: recastMap[`${cast.fid}-${cast.hash}`] || 0,
     }))
@@ -115,8 +108,6 @@ const getCastsByFid = async (
       timestamp: "desc",
     },
     include: {
-      urlEmbeds: true,
-      castEmbeds: true,
       mentions: true,
     },
     take: PAGE_SIZE,
@@ -130,8 +121,6 @@ const getCastsByFidHashes = async (fidHashes: FidHash[]) => {
       OR: fidHashes,
     },
     include: {
-      urlEmbeds: true,
-      castEmbeds: true,
       mentions: true,
     },
   });
@@ -156,12 +145,6 @@ const getAdjacentCastFidHashes = (casts: any) => {
         hash: cast.topParentCast,
       };
     }
-    cast.castEmbeds.forEach(({ embedFid, embedHash }: any) => {
-      fidHashes[`${embedFid}-${embedHash}`] = {
-        fid: embedFid,
-        hash: embedHash,
-      };
-    });
   }
   return Object.values(fidHashes);
 };
@@ -178,13 +161,18 @@ const getRelevantFids = (casts: any) => {
 };
 
 const getEmbedsForCasts = async (casts: any) => {
-  const urlEmbeds = casts.flatMap((cast: any) =>
-    cast.urlEmbeds.filter(({ parsed }: any) => !parsed)
-  );
+  const urlEmbeds = await prisma.farcasterCastEmbedUrl.findMany({
+    where: {
+      OR: casts.map((cast: any) => ({
+        fid: cast.fid,
+        hash: cast.hash,
+      })),
+      parsed: false,
+    },
+  });
 
   const embedsToFetch = urlEmbeds.filter(
-    ({ url, contentMetadata, parsed }: any) =>
-      url && !contentMetadata && !parsed
+    ({ url, contentMetadata, parsed }: any) => url && !contentMetadata
   );
 
   let fetchedEmbedsMap: Record<string, any> = {};
@@ -222,7 +210,12 @@ const getEmbedsForCasts = async (casts: any) => {
   }
 
   return urlEmbeds.reduce((acc: any, embed: any) => {
-    acc[embed.url] = fetchedEmbedsMap[embed.url] || embed.contentMetadata;
+    const key = `${embed.fid}-${embed.hash}`;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push({
+      url: embed.url,
+      metadata: embed.contentMetadata || fetchedEmbedsMap[embed.url],
+    });
     return acc;
   }, {} as Record<string, Embed>);
 };
@@ -242,6 +235,7 @@ const getReactionsForCasts = async (
     },
     _count: true,
   });
+
   return reactions.reduce((acc, reaction) => {
     acc[`${reaction.targetFid}-${reaction.targetHash}`] = reaction._count;
     return acc;
