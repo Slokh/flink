@@ -3,7 +3,9 @@ import { unfurl } from "unfurl.js";
 
 export const getEmbedMetadata = async (url: string) => {
   let formattedUrl =
-    !url.startsWith("https:") && !url.startsWith("http:")
+    !url.startsWith("https:") &&
+    !url.startsWith("http:") &&
+    !url.startsWith("chain://")
       ? `https://${url}`
       : url;
   console.log(`[embed] fetching embed metadata for ${formattedUrl}`);
@@ -74,5 +76,5 @@ const getNftMetadata = async (url: string) => {
       },
     }
   );
-  return await response.json();
+  return await response;
 };

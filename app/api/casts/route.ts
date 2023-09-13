@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { Embed, FarcasterCast, FarcasterUser } from "@/lib/types";
 import { NextResponse } from "next/server";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 5;
 
 interface FidHash {
   fid: number;
@@ -172,7 +172,12 @@ const getEmbedsForCasts = async (casts: any) => {
   });
 
   const embedsToFetch = urlEmbeds.filter(
-    ({ url, contentMetadata, parsed }: any) => url && !contentMetadata
+    ({ url, contentMetadata, contentType }: any) =>
+      url &&
+      (!contentMetadata ||
+        (Object.keys(contentMetadata).length === 0 &&
+          url.startsWith("chain://"))) &&
+      (!contentType || !contentType.includes("image"))
   );
 
   let fetchedEmbedsMap: Record<string, any> = {};

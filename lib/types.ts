@@ -64,12 +64,12 @@ export type FarcasterCast = {
 
 export type Embed = {
   url: string;
-  metadata?: NftMetadata | Metadata;
+  metadata?: NftMetadata | Metadata | {};
 };
 
 export type NftMetadata = {
   name: string;
   description: string;
-  image: string;
+  image_url: string;
   externalUrl: string;
 };

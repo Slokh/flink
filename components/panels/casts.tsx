@@ -136,18 +136,15 @@ const Cast = forwardRef<HTMLDivElement, { cast: FarcasterCast }>(
     const displayName = cast.user.display || username;
 
     return (
-      <div
-        ref={ref}
-        className="w-full flex flex-col space-y-2 border-b p-4 pt-2 pb-2"
-      >
-        <div className="w-full flex flex-row space-x-2">
+      <div ref={ref} className="flex flex-col space-y-2 border-b p-4 pt-2 pb-2">
+        <div className="flex flex-row space-x-2">
           <a href={`/${cast.user.fname}`}>
             <Avatar className="h-10 w-10">
               <AvatarImage src={cast.user.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
           </a>
-          <div className="w-full flex flex-col space-y-1">
+          <div className="flex flex-col space-y-1">
             <div className="flex flex-row justify-between">
               <a
                 href={`/${cast.user.fname}`}
@@ -166,7 +163,7 @@ const Cast = forwardRef<HTMLDivElement, { cast: FarcasterCast }>(
                 dangerouslySetInnerHTML={{
                   __html: formatText(cast.text, cast.mentions, cast.embeds),
                 }}
-              ></div>
+              />
               {cast.embeds.map((embed, i) => (
                 <EmbedPreview key={i} embed={embed} />
               ))}
@@ -232,7 +229,7 @@ export const Casts = ({ fid }: { fid?: number }) => {
   }
 
   return (
-    <div className="w-full">
+    <div>
       {casts.map((cast, index) => {
         if (casts.length >= index + 5) {
           return <Cast ref={lastCastElementRef} key={cast.hash} cast={cast} />;

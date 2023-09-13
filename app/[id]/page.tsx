@@ -110,35 +110,36 @@ export default async function User({ params }: { params: { id: string } }) {
   return (
     <Layout>
       <div className="flex flex-col lg:hidden items-center">
-        <div className="max-w-xs">
-          <ProfileOverview id={params.id} entity={entity} />
-          <Tabs defaultValue="profile" className="w-full p-2">
-            <TabsList className="w-full">
-              <TabsTrigger value="profile" className="w-full">
-                Profile
-              </TabsTrigger>
-              <TabsTrigger value="casts" className="w-full">
-                Casts
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="profile">
-              <div className="flex flex-col items-center">
-                <ProfileIdentity entity={entity} />
-                <div className="flex flex-col space-y-4 mt-4">
-                  <SearchInput />
-                  <RefreshButton id={params.id} />
-                </div>
+        <ProfileOverview id={params.id} entity={entity} />
+        <Tabs
+          defaultValue="profile"
+          className="w-full p-2 justify-center items-center flex flex-col"
+        >
+          <TabsList className="w-full max-w-xs flex">
+            <TabsTrigger value="profile" className="w-full">
+              Profile
+            </TabsTrigger>
+            <TabsTrigger value="casts" className="w-full">
+              Casts
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="profile">
+            <div className="flex flex-col items-center">
+              <ProfileIdentity entity={entity} />
+              <div className="flex flex-col space-y-4 mt-4">
+                <SearchInput />
+                <RefreshButton id={params.id} />
               </div>
-            </TabsContent>
-            <TabsContent value="casts">
-              <div className="flex justify-center">
-                <div className="max-w-[32rem]">
-                  {entity.fid && <Casts fid={entity.fid} />}
-                </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="casts">
+            <div className="flex justify-center">
+              <div className="w-full">
+                {entity.fid && <Casts fid={entity.fid} />}
               </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <div className="flex flex-row justify-center h-full hidden lg:flex">
