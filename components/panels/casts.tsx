@@ -48,7 +48,7 @@ const formatText = (
 
   // Insert mentions into the text
   sortedMentions.forEach((mention) => {
-    const el = `<a href="/${mention.mention.fname}" class="text-link relative inline cursor-pointer hover:underline text-purple-600 dark:text-purple-400">@${mention.mention.fname}</a>`;
+    const el = `<a href="/${mention.mention.fname}" class="current relative hover:underline text-purple-600 dark:text-purple-400">@${mention.mention.fname}</a>`;
     formattedText = `${formattedText.slice(
       0,
       mention.position
@@ -58,7 +58,7 @@ const formatText = (
   // Replace URLs with anchor tags
   formattedText = formattedText.replace(
     /(https?:\/\/[^\s]+)/g,
-    '<a class="text-link relative inline cursor-pointer hover:underline text-purple-600 dark:text-purple-400" href="$1">$1</a>'
+    '<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="$1">$1</a>'
   );
 
   return formattedText;
@@ -136,15 +136,18 @@ const Cast = forwardRef<HTMLDivElement, { cast: FarcasterCast }>(
     const displayName = cast.user.display || username;
 
     return (
-      <div ref={ref} className="flex flex-col space-y-2 border-b p-4 pt-2 pb-2">
-        <div className="flex flex-row space-x-2">
+      <div
+        ref={ref}
+        className="w-full flex flex-col space-y-2 border-b p-4 pt-2 pb-2"
+      >
+        <div className="flex flex-row space-x-2 w-full">
           <a href={`/${cast.user.fname}`}>
             <Avatar className="h-10 w-10">
               <AvatarImage src={cast.user.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
           </a>
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-1 w-full">
             <div className="flex flex-row justify-between">
               <a
                 href={`/${cast.user.fname}`}
@@ -158,12 +161,13 @@ const Cast = forwardRef<HTMLDivElement, { cast: FarcasterCast }>(
               </div>
             </div>
             <div className="flex flex-col space-y-2">
-              <div
-                className="flex flex-col text-sm space-y-2 break-words"
-                dangerouslySetInnerHTML={{
-                  __html: formatText(cast.text, cast.mentions, cast.embeds),
-                }}
-              />
+              <div className="flex flex-col whitespace-pre-wrap break-words pb-2 text-base leading-5 tracking-normal">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: formatText(cast.text, cast.mentions, cast.embeds),
+                  }}
+                />
+              </div>
               {cast.embeds.map((embed, i) => (
                 <EmbedPreview key={i} embed={embed} />
               ))}
@@ -229,7 +233,7 @@ export const Casts = ({ fid }: { fid?: number }) => {
   }
 
   return (
-    <div>
+    <div className="w-full">
       {casts.map((cast, index) => {
         if (casts.length >= index + 5) {
           return <Cast ref={lastCastElementRef} key={cast.hash} cast={cast} />;

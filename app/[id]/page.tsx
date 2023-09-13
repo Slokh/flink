@@ -109,7 +109,7 @@ export default async function User({ params }: { params: { id: string } }) {
 
   return (
     <Layout>
-      <div className="flex flex-col lg:hidden items-center">
+      <div className="flex flex-col lg:hidden items-center w-full">
         <ProfileOverview id={params.id} entity={entity} />
         <Tabs
           defaultValue="profile"
@@ -132,17 +132,15 @@ export default async function User({ params }: { params: { id: string } }) {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="casts">
-            <div className="flex justify-center">
-              <div className="w-full">
-                {entity.fid && <Casts fid={entity.fid} />}
-              </div>
+          <TabsContent value="casts" className="w-full">
+            <div className="flex justify-center w-full">
+              {entity.fid && <Casts fid={entity.fid} />}
             </div>
           </TabsContent>
         </Tabs>
       </div>
 
-      <div className="flex flex-row justify-center h-full hidden lg:flex">
+      <div className="flex flex-row justify-center h-full hidden lg:flex w-full">
         <div className="min-w-80 w-80">
           <ScrollArea className="h-full">
             <div className="flex flex-col items-center space-y-4 w-full">
