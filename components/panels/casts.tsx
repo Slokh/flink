@@ -79,7 +79,7 @@ const CastStatusItem = ({
 
 const CastStatus = ({ cast }: { cast: FarcasterCast }) => (
   <div className="flex flex-row space-x-12 p-1">
-    <CastStatusItem amount={"?"}>
+    <CastStatusItem amount={cast.replies}>
       <svg
         width="15"
         height="15"

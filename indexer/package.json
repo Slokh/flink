@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "generate": "npx prisma generate",
-    "backfill": "ts-node -P tsconfig.json -r dotenv/config src/backfill-embeds.ts",
+    "backfill": "ts-node -P tsconfig.json -r dotenv/config src/backfill.ts",
     "live": "ts-node -P tsconfig.json -r dotenv/config src/live.ts",
     "manual": "ts-node -P tsconfig.json -r dotenv/config src/manual.ts",
     "start": "npm run live"

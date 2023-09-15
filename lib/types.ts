@@ -60,6 +60,7 @@ export type FarcasterCast = {
   embeds: Embed[];
   likes: number;
   recasts: number;
+  replies: number;
 };
 
 export type Embed = {
