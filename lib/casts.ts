@@ -24,8 +24,7 @@ export const getCast = async (hash: string) => {
 
 export const getCastsResponseByHotness = async (
   page: number,
-  parentUrl?: string,
-  fid?: number
+  parentUrl?: string
 ) => {
   const results: FidHash[] = parentUrl
     ? await prisma.$queryRaw`
@@ -70,6 +69,7 @@ export const getCastsResponseByHotness = async (
             ) AS weighted_votes,
             EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCastReaction"."timestamp"))) AS age_in_seconds
         FROM "public"."FarcasterCastReaction"
+          WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '7 days'::interval
         GROUP BY "targetFid", "targetHash"
     )
 
