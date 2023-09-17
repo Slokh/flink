@@ -262,7 +262,11 @@ const WebCast = ({
         </div>
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-2">
           <a
-            href={`/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`}
+            href={
+              isReply
+                ? `/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`
+                : `/${cast.user.fname}/${cast.hash}`
+            }
             className="hover:underline"
           >
             {`${cast.replies} replies`}
@@ -278,7 +282,11 @@ const WebCast = ({
             warpcast
           </a>
           <CopyLink
-            link={`https://flink.fyi/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`}
+            link={
+              isReply
+                ? `https://flink.fyi/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`
+                : `https://flink.fyi/${cast.user.fname}/${cast.hash}`
+            }
           />
         </div>
       </div>
