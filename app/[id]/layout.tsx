@@ -90,22 +90,22 @@ export default async function Layout({
   const isCast = headers().get("x-invoke-path")?.includes("0x");
 
   return (
-    <div className="flex flex-col md:flex-row md:justify-center w-full">
+    <div className="flex flex-col lg:flex-row lg:justify-center w-full">
       <div className="flex flex-col flex-grow w-full">
         {!isCast && (
-          <div className="flex md:hidden justify-center">
+          <div className="flex lg:hidden justify-center">
             <Profile id={params.id} entity={entity} />
           </div>
         )}
         {children}
       </div>
-      <div className="hidden md:flex h-full">
+      <div className="hidden lg:flex h-full">
         <Separator orientation="vertical" />
       </div>
-      <div className="flex md:hidden">
+      <div className="flex lg:hidden">
         <Separator orientation="horizontal" />
       </div>
-      <div className="hidden md:flex">
+      <div className="hidden lg:flex">
         <Profile id={params.id} entity={entity} />
       </div>
     </div>

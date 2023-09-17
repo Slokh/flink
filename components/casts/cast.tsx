@@ -16,6 +16,7 @@ import {
 import {
   ChatBubbleIcon,
   HeartFilledIcon,
+  HeartIcon,
   UpdateIcon,
 } from "@radix-ui/react-icons";
 import {
@@ -180,12 +181,12 @@ const WebCast = ({
         </div>
       )}
       <div className="flex flex-col w-20 items-center justify-center text-sm">
-        <div className="flex flex-row items-center space-x-1 text-red-500 font-semibold">
-          <HeartFilledIcon />
+        <div className="flex flex-row items-center space-x-1">
+          <HeartFilledIcon className="text-red-500" />
           <div>{cast.likes}</div>
         </div>
-        <div className="flex flex-row items-center space-x-1 text-green-500">
-          <UpdateIcon />
+        <div className="flex flex-row items-center space-x-1">
+          <UpdateIcon className="text-green-500" />
           <div>{cast.recasts}</div>
         </div>
       </div>
@@ -306,12 +307,7 @@ export const MobileCast = ({
   const community = cast.parentUrl
     ? CHANNELS_BY_URL[cast.parentUrl]
     : undefined;
-  const formattedText = formatText(
-    cast.text,
-    cast.mentions,
-    cast.embeds,
-    false
-  );
+  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
   return (
     <div className="flex md:hidden flex-col space-y-2 border-b p-2">
       {isReply && (
@@ -366,17 +362,17 @@ export const MobileCast = ({
               <EmbedPreview key={i} embed={embed} />
             ))}
           <div className="flex flex-row justify-between items-center">
-            <div className="flex flex-row space-x-2">
-              <div className="flex flex-row space-x-1 text-zinc-500 items-center text-sm">
+            <div className="flex flex-row space-x-4 text-zinc-500">
+              <div className="flex flex-row space-x-1 items-center text-sm">
                 <ChatBubbleIcon />
                 <div>{cast.replies}</div>
               </div>
-              <div className="flex flex-row space-x-1 text-green-500 items-center text-sm">
+              <div className="flex flex-row space-x-1 items-center text-sm">
                 <UpdateIcon />
                 <div>{cast.recasts}</div>
               </div>
-              <div className="flex flex-row space-x-1 text-red-500 items-center text-sm">
-                <HeartFilledIcon />
+              <div className="flex flex-row space-x-1 items-center text-sm">
+                <HeartIcon />
                 <div>{cast.likes}</div>
               </div>
             </div>

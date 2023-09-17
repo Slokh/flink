@@ -171,7 +171,14 @@ export const EmbedPreview = ({ embed }: { embed: Embed }) => {
     if (embed.contentType?.startsWith("image")) {
       return <ImageEmbed url={embed.url} />;
     }
-    return <></>;
+    return (
+      <a
+        href={embed.url}
+        className="text-purple-600 dark:text-purple-400 hover:underline"
+      >
+        {embed.url}
+      </a>
+    );
   }
 
   if (embed.url.startsWith("chain://")) {

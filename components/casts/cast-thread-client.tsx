@@ -19,12 +19,12 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
   return (
     <div className="flex flex-row space-x-2 max-w-2xl m-4">
       <div className="flex flex-col w-12 items-center text-sm">
-        <div className="flex flex-row items-center space-x-1 text-red-500 font-semibold">
-          <HeartFilledIcon />
+        <div className="flex flex-row items-center space-x-1">
+          <HeartFilledIcon className="text-red-500" />
           <div>{cast.likes}</div>
         </div>
-        <div className="flex flex-row items-center space-x-1 text-green-500">
-          <UpdateIcon />
+        <div className="flex flex-row items-center space-x-1">
+          <UpdateIcon className="text-green-500" />
           <div>{cast.recasts}</div>
         </div>
       </div>
@@ -126,12 +126,7 @@ const CastChild = ({
     }
   }, [highlight, cast.hash]);
 
-  const formattedText = formatText(
-    cast.text,
-    cast.mentions,
-    cast.embeds,
-    false
-  );
+  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
   return (
     <div className="flex flex-col p-2">
       <div
@@ -143,12 +138,12 @@ const CastChild = ({
         ref={castRef}
       >
         <div className="flex flex-col min-w-12 items-end text-sm">
-          <div className="flex flex-row items-center space-x-1 text-red-500 font-semibold">
-            <HeartFilledIcon />
+          <div className="flex flex-row items-center space-x-1">
+            <HeartFilledIcon className="text-red-500" />
             <div>{cast.likes}</div>
           </div>
-          <div className="flex flex-row items-center space-x-1 text-green-500">
-            <UpdateIcon />
+          <div className="flex flex-row items-center space-x-1">
+            <UpdateIcon className="text-green-500" />
             <div>{cast.recasts}</div>
           </div>
         </div>
