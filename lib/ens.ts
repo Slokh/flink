@@ -9,9 +9,13 @@ const client = createPublicClient({
 });
 
 export const getAddressForENS = async (input: string) => {
-  return await client.getEnsAddress({
-    name: input,
-  });
+  try {
+    return await client.getEnsAddress({
+      name: input,
+    });
+  } catch (e) {
+    return undefined;
+  }
 };
 
 export const getENSForAddress = async (address: string) => {

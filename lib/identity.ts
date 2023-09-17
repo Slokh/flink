@@ -8,6 +8,7 @@ import { handleUserUpdate } from "@/indexer/farcaster/users";
 type Identity = {
   input: string;
   entityId?: number;
+  fid?: number;
   address?: string;
 };
 
@@ -17,8 +18,8 @@ export const getIdentityForInput = async (input: string, create: boolean) => {
 
   return {
     input,
-    entityId,
     address,
+    ...entityId,
   } as Identity;
 };
 
@@ -34,16 +35,16 @@ const getEntityId = async (
       select: { entityId: true },
     });
     if (entity?.entityId) {
-      return entity.entityId;
+      return { entityId: entity.entityId };
     }
   }
 
   entity = await prisma.farcaster.findFirst({
     where: { fname: input },
-    select: { entityId: true },
+    select: { entityId: true, fid: true },
   });
   if (entity?.entityId) {
-    return entity.entityId;
+    return { entityId: entity.entityId, fid: entity.fid };
   }
 
   entity = await prisma.link.findFirst({
@@ -53,7 +54,7 @@ const getEntityId = async (
     select: { entityId: true },
   });
   if (entity?.entityId) {
-    return entity.entityId;
+    return { entityId: entity.entityId };
   }
 
   if (create) {
@@ -69,7 +70,7 @@ const getEntityId = async (
         parseInt(username.result.user.fid, 10)
       );
       if (entityId) {
-        return entityId;
+        return { entityId: entityId };
       }
     }
   }

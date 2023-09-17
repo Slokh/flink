@@ -20,15 +20,17 @@ const TwitterEmbed = ({ metadata }: { metadata: Metadata }) => {
     metadata.twitter_card.images?.[0]?.url ||
     metadata.open_graph?.images?.[0]?.url;
   return (
-    <a href={url || "#"} target="_blank">
+    <a href={url || "#"} target="_blank" className="max-w-lg">
       <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
-        <div>
-          <img
-            alt="embed_image"
-            src={image}
-            className="w-full rounded-t-lg h-56 object-cover"
-          />
-        </div>
+        {image && (
+          <div>
+            <img
+              alt="embed_image"
+              src={image}
+              className="w-full rounded-t-lg h-56 object-cover"
+            />
+          </div>
+        )}
         <div className="flex flex-col p-2 space-y-1">
           <div className="flex flex-row space-x-2 items-center">
             {metadata.favicon && (
@@ -39,14 +41,14 @@ const TwitterEmbed = ({ metadata }: { metadata: Metadata }) => {
               />
             )}
             <div className="font-normal font-semibold text-sm">
-              {metadata.open_graph?.title.replace(
+              {metadata.open_graph?.title?.replace(
                 /0x([a-fA-F0-9]{4}).*/,
                 "0x$1..."
               )}
             </div>
           </div>
           <div className="text-zinc-500 text-xs">{urlHost}</div>
-          <div className="text-zinc-500">
+          <div className="text-zinc-500 text-sm">
             {metadata.open_graph?.description
               ?.replaceAll(URL_REGEX, "")
               .replace(/0x([a-fA-F0-9]{4}).*/, "0x$1...")}
@@ -62,8 +64,7 @@ const UrlEmbed = ({ metadata }: { metadata: Metadata }) => {
   const urlHost =
     (url.startsWith("https://") ? url.split("/")[2] : url.split("/")[0]) || "";
 
-  let title = metadata.open_graph?.title;
-  console.log(metadata);
+  let title = metadata.open_graph?.title || metadata.title || "";
   let username;
   if (["twitter.com", "x.com"].includes(urlHost)) {
     title = title.replace(" on X", "").replace(" on Twitter", "");
@@ -75,7 +76,7 @@ const UrlEmbed = ({ metadata }: { metadata: Metadata }) => {
   }
 
   return (
-    <a href={url || "#"} target="_blank">
+    <a href={url || "#"} target="_blank" className="max-w-lg">
       <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
         <div className="flex flex-col p-2 space-y-1">
           <div className="flex flex-row space-x-2 items-center">
@@ -95,7 +96,10 @@ const UrlEmbed = ({ metadata }: { metadata: Metadata }) => {
               )}
             </div>
           </div>
-          <div>
+          {!metadata.open_graph?.images && (
+            <div className="text-zinc-500 text-xs">{urlHost}</div>
+          )}
+          <div className="text-sm">
             {metadata.open_graph?.description?.replace(
               /0x([a-fA-F0-9]{4}).*/,
               "0x$1..."
@@ -121,19 +125,21 @@ const UrlEmbed = ({ metadata }: { metadata: Metadata }) => {
 
 const ImageEmbed = ({ url }: { url: string }) => {
   return (
-    <Dialog>
-      <DialogTrigger>
-        <img src={url} alt={url} className="rounded-lg" />
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle className="h-4"></DialogTitle>
-          <DialogDescription>
-            <img src={url} alt={url} className="rounded-lg" />
-          </DialogDescription>
-        </DialogHeader>
-      </DialogContent>
-    </Dialog>
+    <div className="md:max-w-xl p-2">
+      <Dialog>
+        <DialogTrigger>
+          <img src={url} alt={url} className="rounded-lg" />
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="h-4"></DialogTitle>
+            <DialogDescription>
+              <img src={url} alt={url} className="rounded-lg" />
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 
@@ -158,15 +164,21 @@ const NftEmbed = ({ metadata }: { metadata: NftMetadata }) => (
 );
 
 export const EmbedPreview = ({ embed }: { embed: Embed }) => {
-  if (!embed.metadata || Object.keys(embed.metadata).length === 0) {
-    return <ImageEmbed url={embed.url} />;
+  if (
+    !embed.contentMetadata ||
+    Object.keys(embed.contentMetadata).length === 0
+  ) {
+    if (embed.contentType?.startsWith("image")) {
+      return <ImageEmbed url={embed.url} />;
+    }
+    return <></>;
   }
 
   if (embed.url.startsWith("chain://")) {
-    return <NftEmbed metadata={embed.metadata as NftMetadata} />;
+    return <NftEmbed metadata={embed.contentMetadata as NftMetadata} />;
   }
 
-  const metadata = embed.metadata as Metadata;
+  const metadata = embed.contentMetadata as Metadata;
 
   if (metadata.twitter_card) {
     return <TwitterEmbed metadata={metadata} />;

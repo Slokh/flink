@@ -150,6 +150,7 @@ export const handleEntity = async (entityId: number): Promise<Entity> => {
   }
 
   return {
+    fname: farcaster?.fname || undefined,
     fid: farcaster?.fid,
     pfp: pfps.length > 0 ? pfps[0] : undefined,
     bio: bios.length > 0 ? bios[0] : undefined,

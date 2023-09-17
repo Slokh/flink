@@ -1,61 +1,238 @@
 import { getEmbedMetadata } from "@/indexer/embeds";
 import prisma from "@/lib/prisma";
-import { Embed, FarcasterUser } from "@/lib/types";
-import { subHours } from "date-fns";
-import { NextResponse } from "next/server";
+import { Embed, FarcasterMention, FarcasterUser } from "@/lib/types";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 25;
 
 interface FidHash {
   fid: number;
   hash: string;
 }
 
-export const getCastsResponseByTopLikes = async (page: number) => {
-  console.log(subHours(new Date(), 24));
-  const topCasts = await prisma.farcasterCastReaction.groupBy({
-    by: ["targetFid", "targetHash"],
+export const getCast = async (hash: string) => {
+  const casts = await prisma.farcasterCast.findMany({
     where: {
-      reactionType: "like",
-      timestamp: {
-        gte: subHours(new Date(), 24),
-      },
+      OR: [{ topParentCast: hash }, { parentCast: hash }, { hash }],
     },
-    _count: true,
-    orderBy: {
-      _count: {
-        targetFid: "desc",
-      },
+    include: {
+      mentions: true,
     },
-    take: PAGE_SIZE,
-    skip: (page - 1) * PAGE_SIZE,
   });
 
+  return await getCastsResponse(casts);
+};
+
+export const getCastsResponseByHotness = async (
+  page: number,
+  parentUrl?: string,
+  fid?: number
+) => {
+  const results: FidHash[] = parentUrl
+    ? await prisma.$queryRaw`
+    WITH ReactionCounts AS (
+        SELECT
+            "targetFid",
+            "targetHash",
+            SUM(
+                CASE 
+                    WHEN "reactionType" = 'like' THEN 1
+                    WHEN "reactionType" = 'recast' THEN 0.5
+                    ELSE 0
+                END
+            ) AS weighted_votes,
+            EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCastReaction"."timestamp"))) AS age_in_seconds
+        FROM "public"."FarcasterCastReaction"
+          JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+        WHERE "FarcasterCast"."parentUrl" = ${parentUrl}
+        GROUP BY "targetFid", "targetHash"
+    )
+
+    SELECT
+        "targetFid" AS fid,
+        "targetHash" AS hash,
+        LOG(GREATEST(ABS(weighted_votes), 1)) - 
+        (age_in_seconds / 86400) AS hotness
+    FROM ReactionCounts
+    ORDER BY hotness DESC
+    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE};
+  `
+    : await prisma.$queryRaw`
+    WITH ReactionCounts AS (
+        SELECT
+            "targetFid",
+            "targetHash",
+            SUM(
+                CASE 
+                    WHEN "reactionType" = 'like' THEN 1
+                    WHEN "reactionType" = 'recast' THEN 0.5
+                    ELSE 0
+                END
+            ) AS weighted_votes,
+            EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCastReaction"."timestamp"))) AS age_in_seconds
+        FROM "public"."FarcasterCastReaction"
+        GROUP BY "targetFid", "targetHash"
+    )
+
+    SELECT
+        "targetFid" AS fid,
+        "targetHash" AS hash,
+        LOG(GREATEST(ABS(weighted_votes), 1)) - 
+        (age_in_seconds / 86400) AS hotness
+    FROM ReactionCounts
+    ORDER BY hotness DESC
+    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE};
+  `;
+
   const casts = await getCastsByFidHashes(
-    topCasts.map((cast) => ({
-      fid: cast.targetFid,
-      hash: cast.targetHash,
+    results.map((cast) => ({
+      fid: cast.fid,
+      hash: cast.hash,
     }))
   );
 
-  return await getCastsResponse(casts, false);
+  const castMap = casts.reduce((acc: any, cast: any) => {
+    acc[`${cast.fid}-${cast.hash}`] = cast;
+    return acc;
+  }, {} as Record<string, any>);
+
+  const orderedCasts = results.map(
+    (result) => castMap[`${result.fid}-${result.hash}`]
+  );
+
+  return await getCastsResponse(orderedCasts);
 };
 
-export const getCastsResponseByFid = async (
+const getTimeInterval = (
+  time: "hour" | "day" | "week" | "month" | "year" | "all"
+) => {
+  switch (time) {
+    case "hour":
+      return "1 hours";
+    case "day":
+      return "24 hours";
+    case "week":
+      return "7 days";
+    case "month":
+      return "30 days";
+    case "year":
+      return "1 year";
+    case "all":
+      return "100 years"; // Adjust the interval as per your requirement
+    default:
+      return "24 hours";
+  }
+};
+
+export const getCastsResponseByTopLikes = async (
   page: number,
-  fid?: number,
-  withReplies = true
+  replies: boolean,
+  time: "hour" | "day" | "week" | "month" | "year" | "all",
+  parentUrl?: string,
+  fid?: number
+) => {
+  const timeInterval = getTimeInterval(time);
+
+  const results: FidHash[] = await (parentUrl
+    ? prisma.$queryRaw`
+    SELECT
+        "targetFid" AS fid,
+        "targetHash" AS hash,
+        COUNT(*) as count
+    FROM "public"."FarcasterCastReaction"
+      JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE
+        "reactionType" = 'like'
+        AND "FarcasterCast"."timestamp" >= NOW() -  ${timeInterval}::interval
+        AND "FarcasterCast"."parentUrl" = ${parentUrl}
+    GROUP BY "targetFid", "targetHash"
+    ORDER BY COUNT(*) DESC, "targetFid" DESC
+    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
+  `
+    : fid
+    ? replies
+      ? prisma.$queryRaw`
+    SELECT
+        "targetFid" AS fid,
+        "targetHash" AS hash,
+        COUNT(*) as count
+    FROM "public"."FarcasterCastReaction"
+      JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE
+        "reactionType" = 'like'
+        AND "FarcasterCast"."timestamp" >= NOW() - ${timeInterval}::interval
+        AND "FarcasterCast"."fid" = ${fid}
+        AND "FarcasterCast"."parentCast" IS NOT NULL
+    GROUP BY "targetFid", "targetHash"
+    ORDER BY COUNT(*) DESC, "targetFid" DESC
+    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
+  `
+      : prisma.$queryRaw`
+    SELECT
+        "targetFid" AS fid,
+        "targetHash" AS hash,
+        COUNT(*) as count
+    FROM "public"."FarcasterCastReaction"
+      JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE
+        "reactionType" = 'like'
+        AND "FarcasterCast"."timestamp" >= NOW() - ${timeInterval}::interval
+        AND "FarcasterCast"."fid" = ${fid}
+        AND "FarcasterCast"."parentCast" IS NULL
+    GROUP BY "targetFid", "targetHash"
+    ORDER BY COUNT(*) DESC, "targetFid" DESC
+    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
+  `
+    : prisma.$queryRaw`
+    SELECT
+        "targetFid" AS fid,
+        "targetHash" AS hash,
+        COUNT(*) as count
+    FROM "public"."FarcasterCastReaction"
+      JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE
+        "reactionType" = 'like'
+        AND "FarcasterCast"."timestamp" >= NOW() - ${timeInterval}::interval
+    GROUP BY "targetFid", "targetHash"
+    ORDER BY COUNT(*) DESC, "targetFid" DESC
+    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
+  `);
+
+  const casts = await getCastsByFidHashes(
+    results.map((cast) => ({
+      fid: cast.fid,
+      hash: cast.hash,
+    }))
+  );
+
+  const castMap = casts.reduce((acc: any, cast: any) => {
+    acc[`${cast.fid}-${cast.hash}`] = cast;
+    return acc;
+  }, {} as Record<string, any>);
+
+  const orderedCasts = results.map(
+    (result) => castMap[`${result.fid}-${result.hash}`]
+  );
+
+  return await getCastsResponse(orderedCasts);
+};
+
+export const getCastsResponseByNewness = async (
+  page: number,
+  replies: boolean,
+  parentUrl?: string,
+  fid?: number
 ) => {
   const casts = await prisma.farcasterCast.findMany({
     where: {
-      ...(fid ? { fid } : {}),
-      ...(!withReplies
+      parentCast: replies
         ? {
-            parentCast: {
-              equals: null,
-            },
+            not: null,
           }
-        : {}),
+        : {
+            equals: null,
+          },
+      ...(parentUrl ? { parentUrl } : {}),
+      ...(fid ? { fid } : {}),
     },
     orderBy: {
       timestamp: "desc",
@@ -67,16 +244,47 @@ export const getCastsResponseByFid = async (
     skip: (page - 1) * PAGE_SIZE,
   });
 
-  return await getCastsResponse(casts, withReplies);
+  return await getCastsResponse(casts);
 };
 
-const getCastsResponse = async (casts: any, withReplies: boolean) => {
-  let allCasts = casts;
-  if (withReplies) {
-    allCasts = allCasts.concat(
-      await getCastsByFidHashes(getAdjacentCastFidHashes(casts))
-    );
-  }
+export const getCastsResponseByFid = async (page: number, fid?: number) => {
+  const casts = await prisma.farcasterCast.findMany({
+    where: {
+      parentCast: {
+        equals: null,
+      },
+      ...(fid ? { fid } : {}),
+    },
+    orderBy: {
+      timestamp: "desc",
+    },
+    include: {
+      mentions: true,
+    },
+    take: PAGE_SIZE,
+    skip: (page - 1) * PAGE_SIZE,
+  });
+
+  return await getCastsResponse(casts);
+};
+
+const getCastsResponse = async (casts: any) => {
+  let allCasts = casts.concat(
+    await getCastsByFidHashes(
+      casts
+        .filter(({ parentCast }: any) => parentCast)
+        .flatMap((cast: any) => [
+          {
+            fid: cast.parentFid,
+            hash: cast.parentCast,
+          },
+          {
+            fid: cast.topParentFid,
+            hash: cast.topParentCast,
+          },
+        ])
+    )
+  );
 
   const castMap = allCasts.reduce((acc: any, cast: any) => {
     acc[`${cast.fid}-${cast.hash}`] = cast;
@@ -93,32 +301,37 @@ const getCastsResponse = async (casts: any, withReplies: boolean) => {
     getRepliesForCast(casts),
   ]);
 
-  return NextResponse.json(
-    casts.map((cast: any) => ({
-      user: userMap[cast.fid],
-      hash: cast.hash,
-      timestamp: cast.timestamp.toISOString(),
-      parentCast:
-        cast.parentFid && cast.parentCast
-          ? castMap[`${cast.parentFid}-${cast.parentCast}`]
-          : undefined,
-      parentUrl: cast.parentUrl || undefined,
-      topParentCast:
-        cast.topParentFid && cast.topParentCast
-          ? castMap[`${cast.topParentFid}-${cast.topParentCast}`]
-          : undefined,
-      topParentUrl: cast.topParentUrl || undefined,
-      text: cast.text,
-      mentions: cast.mentions.map((mention: any) => ({
+  return casts.map((cast: any) => ({
+    user: userMap[cast.fid],
+    hash: cast.hash,
+    timestamp: cast.timestamp.toISOString(),
+    parentCast:
+      cast.parentFid && cast.parentCast
+        ? {
+            user: userMap[cast.parentFid],
+            ...castMap[`${cast.parentFid}-${cast.parentCast}`],
+          }
+        : undefined,
+    parentUrl: cast.parentUrl || undefined,
+    topParentCast:
+      cast.topParentFid && cast.topParentCast
+        ? {
+            user: userMap[cast.topParentFid],
+            ...castMap[`${cast.topParentFid}-${cast.topParentCast}`],
+          }
+        : undefined,
+    topParentUrl: cast.topParentUrl || undefined,
+    text: cast.text,
+    mentions:
+      cast.mentions?.map((mention: any) => ({
         mention: userMap[mention.mention],
         position: mention.mentionPosition,
-      })),
-      embeds: embedMap[`${cast.fid}-${cast.hash}`] || [],
-      likes: likeMap[`${cast.fid}-${cast.hash}`] || 0,
-      recasts: recastMap[`${cast.fid}-${cast.hash}`] || 0,
-      replies: replyMap[`${cast.fid}-${cast.hash}`] || 0,
-    }))
-  );
+      })) || [],
+    embeds: embedMap[`${cast.fid}-${cast.hash}`] || [],
+    likes: likeMap[`${cast.fid}-${cast.hash}`] || 0,
+    recasts: recastMap[`${cast.fid}-${cast.hash}`] || 0,
+    replies: replyMap[`${cast.fid}-${cast.hash}`] || 0,
+  }));
 };
 
 const getUsersByFids = async (fids: number[]) => {
@@ -151,34 +364,11 @@ const getCastsByFidHashes = async (fidHashes: FidHash[]) => {
   });
 };
 
-const getAdjacentCastFidHashes = (casts: any) => {
-  const fidHashes: Record<string, FidHash> = {};
-  for (const cast of casts) {
-    fidHashes[`${cast.fid}-${cast.hash}`] = {
-      fid: cast.fid,
-      hash: cast.hash,
-    };
-    if (cast.parentFid && cast.parentCast) {
-      fidHashes[`${cast.parentFid}-${cast.parentCast}`] = {
-        fid: cast.parentFid,
-        hash: cast.parentCast,
-      };
-    }
-    if (cast.topParentFid && cast.topParentCast) {
-      fidHashes[`${cast.topParentFid}-${cast.topParentCast}`] = {
-        fid: cast.topParentFid,
-        hash: cast.topParentCast,
-      };
-    }
-  }
-  return Object.values(fidHashes);
-};
-
 const getRelevantFids = (casts: any) => {
   const fids: Record<number, boolean> = {};
   for (const cast of casts) {
     fids[cast.fid] = true;
-    cast.mentions.forEach((mention: any) => {
+    cast.mentions?.forEach((mention: any) => {
       fids[mention.mention] = true;
     });
   }
@@ -210,7 +400,6 @@ const getEmbedsForCasts = async (casts: any) => {
         fid: cast.fid,
         hash: cast.hash,
       })),
-      parsed: false,
     },
   });
 
@@ -261,8 +450,8 @@ const getEmbedsForCasts = async (casts: any) => {
     const key = `${embed.fid}-${embed.hash}`;
     if (!acc[key]) acc[key] = [];
     acc[key].push({
-      url: embed.url,
-      metadata: embed.contentMetadata || fetchedEmbedsMap[embed.url],
+      ...embed,
+      ...fetchedEmbedsMap[embed.url],
     });
     return acc;
   }, {} as Record<string, Embed>);
@@ -279,6 +468,7 @@ const getReactionsForCasts = async (
       OR: casts.map((cast) => ({
         targetFid: cast.fid,
         targetHash: cast.hash,
+        deleted: false,
       })),
     },
     _count: true,
@@ -288,4 +478,65 @@ const getReactionsForCasts = async (
     acc[`${reaction.targetFid}-${reaction.targetHash}`] = reaction._count;
     return acc;
   }, {} as Record<string, number>);
+};
+
+export const formatText = (
+  text: string,
+  mentions: FarcasterMention[],
+  embeds: Embed[],
+  withLinks: boolean
+) => {
+  let offset = 0;
+  let updatedMentionsPositions = []; // Array to store updated positions
+
+  // Convert text to a Buffer object to deal with bytes
+  let textBuffer = Buffer.from(text, "utf-8");
+
+  for (let i = 0; i < mentions.length; i++) {
+    // Assuming mentionsPositions consider newlines as bytes, so no newline adjustment
+    const adjustedMentionPosition = mentions[i].position;
+    const mentionUsername = mentions[i].mention.fname;
+
+    const mentionLink = withLinks
+      ? `<a href="/${mentionUsername}" class="current relative hover:underline text-purple-600 dark:text-purple-400">@${mentionUsername}</a>`
+      : `<span class="current relative text-purple-600 dark:text-purple-400">@${mentionUsername}</span>`;
+    const mentionLinkBuffer = Buffer.from(mentionLink, "utf-8");
+
+    // Apply the offset only when slicing the text
+    const actualPosition = adjustedMentionPosition + offset;
+
+    const beforeMention = textBuffer.slice(0, actualPosition);
+    const afterMention = textBuffer.slice(actualPosition);
+
+    // Concatenating buffers
+    textBuffer = Buffer.concat([
+      beforeMention,
+      mentionLinkBuffer,
+      afterMention,
+    ]);
+
+    // Update the offset based on the added mention
+    offset += mentionLinkBuffer.length;
+
+    // Store the adjusted position in the new array
+    updatedMentionsPositions.push(actualPosition);
+  }
+
+  // Convert the final Buffer back to a string
+  text = textBuffer.toString("utf-8");
+
+  if (withLinks) {
+    // Replace urls with anchor tags
+    text = text.replace(
+      /(https?:\/\/[^\s]+)/g,
+      '<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="$1">$1</a>'
+    );
+  } else {
+    // Remove embeds from text
+    embeds.forEach((embed) => {
+      text = text.replace(`https://${embed.url}`, "").replace(embed.url, "");
+    });
+  }
+
+  return text;
 };

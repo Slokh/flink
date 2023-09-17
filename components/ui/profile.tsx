@@ -1,11 +1,12 @@
 import { Account, Entity, EntityText, Ethereum, Link } from "@/lib/types";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../ui/tooltip";
+} from "./tooltip";
+import { ScrollArea } from "./scroll-area";
 
 const GroupItem = ({
   platform,
@@ -173,8 +174,10 @@ export const ProfileIdentity = ({
 );
 
 export const Profile = ({ entity, id }: { entity: Entity; id: string }) => (
-  <div className="flex flex-col items-center w-full">
-    <ProfileOverview id={id} entity={entity} />
-    <ProfileIdentity entity={entity} />
+  <div className="flex flex-col items-center p-2 w-80 max-w-full h-full">
+    <ScrollArea className="h-full">
+      <ProfileOverview id={id} entity={entity} />
+      <ProfileIdentity entity={entity} />
+    </ScrollArea>
   </div>
 );

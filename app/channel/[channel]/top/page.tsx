@@ -4,7 +4,7 @@ import { CastsQuery, CastsSort } from "@/lib/types";
 export default function Home({ params, searchParams }: CastsQuery) {
   return (
     <CastsTable
-      sort={CastsSort.Hot}
+      sort={CastsSort.Top}
       params={params}
       searchParams={searchParams}
     />

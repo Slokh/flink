@@ -167,7 +167,12 @@ const extractKeywordsFromCasts = async (casts: CastData[]) => {
   await upsertKeywords(keywords);
 };
 
-const extractReactionsFromCasts = async (client: Client, casts: CastData[]) => {
+export const extractReactionsFromCasts = async (
+  client: Client,
+  casts: CastData[]
+) => {
+  if (!casts.length) return;
+
   const reactions = (
     await Promise.all(
       casts.map(async ({ fid, hash }) => {
@@ -184,6 +189,10 @@ const extractReactionsFromCasts = async (client: Client, casts: CastData[]) => {
   const urlReactions = reactions.filter(
     (reaction) => reaction?.targetUrl
   ) as UrlReaction[];
+
+  console.log(
+    `[reaction-extract] [${casts[0].fid}] found ${reactions.length} reactions`
+  );
 
   await Promise.all([
     upsertCastReactions(castReactions),
@@ -202,7 +211,7 @@ const getExistingCastMap = async (castDatas: CastData[]) => {
   );
 };
 
-const messagesToCastDatas = (messages: Message[]) => {
+export const messagesToCastDatas = (messages: Message[]) => {
   return messages
     .map((message) => messageToCastData(message))
     .filter(Boolean) as CastData[];

@@ -4,7 +4,7 @@ import { UserCastsTable } from "@/components/casts/casts";
 export default async function User({ params, searchParams }: CastsQuery) {
   return (
     <UserCastsTable
-      sort={CastsSort.New}
+      sort={CastsSort.NewReplies}
       params={params}
       searchParams={searchParams}
     />

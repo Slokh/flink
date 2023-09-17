@@ -1,4 +1,8 @@
-import { handleCastMessages } from "../farcaster/casts";
+import {
+  handleCastMessages,
+  extractReactionsFromCasts,
+  messagesToCastDatas,
+} from "../farcaster/casts";
 import { Client, getHubClient } from "../farcaster/hub";
 import prisma from "../lib/prisma";
 
@@ -20,7 +24,10 @@ const handleFidCasts = async (client: Client, fid: number) => {
     });
     if (response.isOk()) {
       const messages = response.value.messages;
-      await handleCastMessages(client, messages, true);
+      await handleCastMessages(client, messages);
+
+      const castDatas = messagesToCastDatas(messages);
+      await extractReactionsFromCasts(client, castDatas);
 
       pageToken = response.value.nextPageToken;
     } else {

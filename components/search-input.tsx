@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -22,19 +23,21 @@ export const SearchInput = () => {
   };
 
   return (
-    <div className="flex w-full items-center space-x-2">
+    <div className="relative">
       <Input
         id="name"
-        placeholder="Search..."
+        placeholder="Search users..."
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={handleKeyDown}
+        className="pr-8 border-0" // Add padding to prevent text from going under the button
       />
-      <Button className="w-32" disabled={loading} onClick={handleClick}>
-        {loading ? (
-          <img src="/loading.svg" alt="loading" className="w-5 h-5" />
-        ) : (
-          "Search"
-        )}
+      <Button
+        variant="outline"
+        size="icon"
+        className="absolute right-0 top-0 h-full border-0"
+        onClick={handleClick}
+      >
+        <MagnifyingGlassIcon />
       </Button>
     </div>
   );
