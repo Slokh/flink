@@ -1,4 +1,5 @@
 import { getEmbedMetadata } from "@/indexer/embeds";
+import { normalizeLink } from "@/indexer/links";
 import prisma from "@/lib/prisma";
 import { Embed, FarcasterMention, FarcasterUser } from "@/lib/types";
 
@@ -12,7 +13,11 @@ interface FidHash {
 export const getCast = async (hash: string) => {
   const casts = await prisma.farcasterCast.findMany({
     where: {
-      OR: [{ topParentCast: hash }, { parentCast: hash }, { hash }],
+      OR: [
+        { topParentCast: hash, deleted: false },
+        { parentCast: hash, deleted: false },
+        { hash, deleted: false },
+      ],
     },
     include: {
       mentions: true,
@@ -528,22 +533,29 @@ export const formatText = (
 
   // Replace urls with anchor tags
   if (withLinks) {
-    embeds
-      .filter(({ parsed }) => !parsed)
-      .forEach((embed) => {
-        text = text.replace(`https://${embed.url}`, "").replace(embed.url, "");
-      });
+    const urls = embeds
+      .map(({ url }) => normalizeLink(url))
+      .filter((url, index, self) => self.indexOf(url) === index);
 
-    text = text.replace(
-      /(https?:\/\/[^\s]+)/g,
-      '<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="$1">$1</a>'
-    );
-
-    const urls = embeds.filter(({ parsed }) => parsed).map(({ url }) => url);
     urls.forEach((url) => {
+      let originalUrl = url;
+      if (text.includes(`https://www.${url}`)) {
+        originalUrl = `https://www.${url}`;
+      } else if (text.includes(`https://${url}`)) {
+        originalUrl = `https://${url}`;
+      } else if (text.includes(`http://${url}`)) {
+        originalUrl = `http://${url}`;
+      } else if (text.includes(`www.${url}`)) {
+        originalUrl = `www.${url}`;
+      }
+
+      if (text.includes(`${originalUrl}/`)) {
+        originalUrl = `${originalUrl}/`;
+      }
+
       text = text.replace(
-        url,
-        `<a class="current relative hover:underline break-a text-purple-600 dark:text-purple-400" href="${url}">${url}</a>`
+        originalUrl,
+        `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${originalUrl}">${url}</a>`
       );
     });
   } else {
