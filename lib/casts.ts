@@ -531,18 +531,25 @@ export const formatText = (
     embeds
       .filter(({ parsed }) => !parsed)
       .forEach((embed) => {
-        text = text.replace(
-          embed.url,
-          `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${embed.url}">${embed.url}</a>`
-        );
-      });
-  } else {
-    // Remove embeds from text
-    embeds
-      .filter(({ parsed }) => !parsed)
-      .forEach((embed) => {
         text = text.replace(`https://${embed.url}`, "").replace(embed.url, "");
       });
+
+    text = text.replace(
+      /(https?:\/\/[^\s]+)/g,
+      '<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="$1">$1</a>'
+    );
+
+    const urls = embeds.filter(({ parsed }) => parsed).map(({ url }) => url);
+    urls.forEach((url) => {
+      text = text.replace(
+        url,
+        `<a class="current relative hover:underline break-a text-purple-600 dark:text-purple-400" href="${url}">${url}</a>`
+      );
+    });
+  } else {
+    embeds.forEach((embed) => {
+      text = text.replace(`https://${embed.url}`, "").replace(embed.url, "");
+    });
   }
 
   return text;

@@ -56,6 +56,7 @@ export const Casts = async ({
           isReply={
             sort === CastsSort.NewReplies || sort === CastsSort.TopReplies
           }
+          isLink
         />
       ))}
     </div>

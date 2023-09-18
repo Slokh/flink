@@ -299,10 +299,12 @@ export const MobileCast = ({
   cast,
   isParent,
   isReply,
+  isLink,
 }: {
   cast: FarcasterCast;
   isParent?: boolean;
   isReply?: boolean;
+  isLink?: boolean;
 }) => {
   const community = cast.parentUrl
     ? CHANNELS_BY_URL[cast.parentUrl]
@@ -311,7 +313,7 @@ export const MobileCast = ({
     cast.text,
     cast.mentions,
     cast.embeds,
-    false
+    !isLink
   );
   return (
     <div className="flex md:hidden flex-col space-y-2 border-b p-2">
@@ -333,7 +335,7 @@ export const MobileCast = ({
             </Avatar>
           </a>
         )}
-        <div className="flex flex-col space-y-1 w-full">
+        <div className="flex flex-col space-y-1 w-full min-w-0 relative">
           <div className="flex flex-row space-x-2">
             {isParent && (
               <a href={`/${cast.user.fname}`}>
@@ -355,12 +357,18 @@ export const MobileCast = ({
               </div>
             </div>
           </div>
-          <a
-            href={`/${cast.user.fname}/${cast.hash}`}
-            className="flex flex-col text-sm whitespace-pre-wrap break-words pb-2 text-base leading-5 tracking-normal"
-          >
-            <div dangerouslySetInnerHTML={{ __html: formattedText }} />
-          </a>
+          {isLink ? (
+            <a
+              href={`/${cast.user.fname}/${cast.hash}`}
+              className="flex flex-col text-sm whitespace-pre-wrap break-words pb-2 text-base leading-5 tracking-normal"
+            >
+              <div dangerouslySetInnerHTML={{ __html: formattedText }} />
+            </a>
+          ) : (
+            <div className="flex flex-col text-sm whitespace-pre-wrap break-words pb-2 text-base leading-5 tracking-normal">
+              <div dangerouslySetInnerHTML={{ __html: formattedText }} />
+            </div>
+          )}
           {cast.embeds
             .filter(({ parsed }) => !parsed)
             .map((embed, i) => (
@@ -415,16 +423,18 @@ export const Cast = ({
   cast,
   showRank,
   isReply,
+  isLink,
 }: {
   rank: number;
   cast: FarcasterCast;
   showRank?: boolean;
   isReply?: boolean;
+  isLink?: boolean;
 }) => {
   return (
     <>
       <WebCast rank={rank} cast={cast} showRank={showRank} isReply={isReply} />
-      <MobileCast cast={cast} isReply={isReply} />
+      <MobileCast cast={cast} isReply={isReply} isLink={isLink} />
     </>
   );
 };
