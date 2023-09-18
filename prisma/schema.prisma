@@ -27,9 +27,6 @@ model Farcaster {
     verified Boolean
     entityId Int
 
-    followers Int @default(0)
-    following Int @default(0)
-
     entity Entity @relation(fields: [entityId], references: [id])
 }
 

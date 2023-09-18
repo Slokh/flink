@@ -209,7 +209,7 @@ const WebCast = ({
               ? `/${cast.user.fname}/${cast.hash}`
               : `/${cast.topParentCast?.user?.fname}/${cast.topParentCast?.hash}/${cast.hash}`
           }
-          className="transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-2"
+          className="transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-2 visited:text-purple-600 visited:dark:text-purple-400"
         >
           {formattedText ? (
             <div dangerouslySetInnerHTML={{ __html: formattedText }} />

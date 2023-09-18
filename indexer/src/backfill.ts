@@ -10,16 +10,12 @@ import prisma from "../lib/prisma";
 
 const backfill = async () => {
   const client = await getHubClient();
-  let currentFid = 1;
-  for (let fid = currentFid; fid < 25000; fid++) {
+  let currentFid = await getCurrentFid();
+  for (let fid = currentFid; fid < 20150; fid++) {
+    await handleFidCasts(client, fid);
     await handleLinks(client, fid);
+    await prisma.backfill.create({ data: { fid } });
   }
-
-  // let currentFid = await getCurrentFid();
-  // for (let fid = currentFid; ; fid++) {
-  //   await handleFidCasts(client, fid);
-  //   await prisma.backfill.create({ data: { fid } });
-  // }
 };
 
 const handleFidCasts = async (client: Client, fid: number) => {

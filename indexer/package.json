@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "generate": "npx prisma generate",
+    "calculate-channel-stats": "ts-node -P tsconfig.json -r dotenv/config src/calculate-channel-stats.ts",
     "backfill": "ts-node -P tsconfig.json -r dotenv/config src/backfill.ts",
     "live": "ts-node -P tsconfig.json -r dotenv/config src/live.ts",
     "manual": "ts-node -P tsconfig.json -r dotenv/config src/manual.ts",
