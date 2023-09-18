@@ -383,18 +383,19 @@ const getRelevantFids = (casts: any) => {
 
 const getRepliesForCast = async (casts: any) => {
   const replyCounts = await prisma.farcasterCast.groupBy({
-    by: ["parentFid", "parentCast"],
+    by: ["topParentFid", "topParentCast"],
     where: {
       OR: casts.map((cast: any) => ({
-        parentFid: cast.fid,
-        parentCast: cast.hash,
+        topParentFid: cast.fid,
+        topParentCast: cast.hash,
       })),
     },
     _count: true,
   });
 
   return replyCounts.reduce((acc: any, replyCount: any) => {
-    acc[`${replyCount.parentFid}-${replyCount.parentCast}`] = replyCount._count;
+    acc[`${replyCount.topParentFid}-${replyCount.topParentCast}`] =
+      replyCount._count;
     return acc;
   }, {} as Record<string, number>);
 };
