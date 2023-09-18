@@ -164,6 +164,10 @@ const NftEmbed = ({ metadata }: { metadata: NftMetadata }) => (
 );
 
 export const EmbedPreview = ({ embed }: { embed: Embed }) => {
+  if (embed.url.includes("i.imgur.com")) {
+    return <ImageEmbed url={embed.url} />;
+  }
+
   if (
     !embed.contentMetadata ||
     Object.keys(embed.contentMetadata).length === 0
@@ -171,14 +175,7 @@ export const EmbedPreview = ({ embed }: { embed: Embed }) => {
     if (embed.contentType?.startsWith("image")) {
       return <ImageEmbed url={embed.url} />;
     }
-    return (
-      <a
-        href={embed.url}
-        className="text-purple-600 dark:text-purple-400 hover:underline"
-      >
-        {embed.url}
-      </a>
-    );
+    return <></>;
   }
 
   if (embed.url.startsWith("chain://")) {

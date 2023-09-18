@@ -528,10 +528,14 @@ export const formatText = (
 
   // Replace urls with anchor tags
   if (withLinks) {
-    text = text.replace(
-      /(https?:\/\/[^\s]+)/g,
-      '<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="$1">$1</a>'
-    );
+    embeds
+      .filter(({ parsed }) => !parsed)
+      .forEach((embed) => {
+        text = text.replace(
+          embed.url,
+          `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${embed.url}">${embed.url}</a>`
+        );
+      });
   } else {
     // Remove embeds from text
     embeds

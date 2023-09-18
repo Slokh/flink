@@ -5,7 +5,11 @@ import { FarcasterCast, FarcasterCastTree } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { formatDistanceStrict } from "date-fns";
 import { EmbedPreview } from "../embeds";
-import { HeartFilledIcon, UpdateIcon } from "@radix-ui/react-icons";
+import {
+  ArrowLeftIcon,
+  HeartFilledIcon,
+  UpdateIcon,
+} from "@radix-ui/react-icons";
 import { useEffect, useRef } from "react";
 import { MobileCast } from "./cast";
 import { CopyLink } from "../copy-link";
@@ -17,93 +21,102 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
     : undefined;
   const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
   return (
-    <div className="flex flex-row space-x-2 max-w-2xl m-4">
-      <div className="flex flex-col w-12 items-center text-sm">
-        <div className="flex flex-row items-center space-x-1">
-          <HeartFilledIcon className="text-red-500" />
-          <div>{cast.likes}</div>
-        </div>
-        <div className="flex flex-row items-center space-x-1">
-          <UpdateIcon className="text-green-500" />
-          <div>{cast.recasts}</div>
-        </div>
-      </div>
-      <div className="flex flex-col space-y-2">
-        <div className="flex flex-row space-x-2">
-          <a href={`/${cast.user.fname}`}>
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={cast.user.pfp} className="object-cover" />
-              <AvatarFallback>?</AvatarFallback>
-            </Avatar>
-          </a>
-          <div className="flex flex-col text-sm">
-            <a
-              href={`/${cast.user.fname}`}
-              className="flex flex-row space-x-1 cursor-pointer"
-            >
-              <div className="font-semibold">
-                {cast.user.display || cast.user.fname}
-              </div>
-              <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${cast.user.fname}`}</div>
-            </a>
-            <div className="flex flex-row space-x-1 text-sm">
-              <div className="text-zinc-500">
-                {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
-                  addSuffix: true,
-                })}
-              </div>
-              {community && (
-                <>
-                  <div className="text-zinc-500">in</div>
-                  <a
-                    href={`/channel/${community.channelId}`}
-                    className="hover:underline"
-                  >
-                    <Avatar className="h-4 w-4">
-                      <AvatarImage
-                        src={community.image}
-                        className="object-cover"
-                      />
-                      <AvatarFallback>?</AvatarFallback>
-                    </Avatar>
-                  </a>
-                  <a
-                    href={`/channel/${community.channelId}`}
-                    className="hover:underline"
-                  >
-                    <div>{community.name}</div>
-                  </a>
-                </>
-              )}
-            </div>
+    <div className="flex flex-col space-y-2 max-w-2xl m-4">
+      <a
+        href={`/${cast.topParentCast?.user.fname}/${cast.topParentCast?.hash}`}
+        className="text-sm text-purple-600 dark:text-purple-400 hover:underline pl-2 flex flex-row space-x-2 items-center"
+      >
+        <ArrowLeftIcon />
+        view full thread
+      </a>
+      <div className="flex flex-row space-x-2">
+        <div className="flex flex-col w-12 items-center text-sm">
+          <div className="flex flex-row items-center space-x-1">
+            <HeartFilledIcon className="text-red-500" />
+            <div>{cast.likes}</div>
+          </div>
+          <div className="flex flex-row items-center space-x-1">
+            <UpdateIcon className="text-green-500" />
+            <div>{cast.recasts}</div>
           </div>
         </div>
-        <div className="flex flex-col whitespace-pre-wrap break-words leading-6 tracking-normal w-full space-y-2 border rounded-lg p-2">
-          <div dangerouslySetInnerHTML={{ __html: formattedText }} />
-          {cast.embeds.length > 0 && (
-            <div className="flex flex-row flex-wrap">
-              {cast.embeds
-                .filter(({ parsed }) => !parsed)
-                .map((embed, i) => (
-                  <EmbedPreview key={i} embed={embed} />
-                ))}
+        <div className="flex flex-col space-y-2">
+          <div className="flex flex-row space-x-2">
+            <a href={`/${cast.user.fname}`}>
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={cast.user.pfp} className="object-cover" />
+                <AvatarFallback>?</AvatarFallback>
+              </Avatar>
+            </a>
+            <div className="flex flex-col text-sm">
+              <a
+                href={`/${cast.user.fname}`}
+                className="flex flex-row space-x-1 cursor-pointer"
+              >
+                <div className="font-semibold">
+                  {cast.user.display || cast.user.fname}
+                </div>
+                <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${cast.user.fname}`}</div>
+              </a>
+              <div className="flex flex-row space-x-1 text-sm">
+                <div className="text-zinc-500">
+                  {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
+                    addSuffix: true,
+                  })}
+                </div>
+                {community && (
+                  <>
+                    <div className="text-zinc-500">in</div>
+                    <a
+                      href={`/channel/${community.channelId}`}
+                      className="hover:underline"
+                    >
+                      <Avatar className="h-4 w-4">
+                        <AvatarImage
+                          src={community.image}
+                          className="object-cover"
+                        />
+                        <AvatarFallback>?</AvatarFallback>
+                      </Avatar>
+                    </a>
+                    <a
+                      href={`/channel/${community.channelId}`}
+                      className="hover:underline"
+                    >
+                      <div>{community.name}</div>
+                    </a>
+                  </>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-        <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-4">
-          <a
-            href={`https://warpcast.com/${cast.user.fname}/${cast.hash.slice(
-              0,
-              8
-            )}`}
-            target="_blank"
-            className="hover:underline"
-          >
-            reply on warpcast
-          </a>
-          <CopyLink
-            link={`https://flink.fyi/${cast.user.fname}/${cast.hash}`}
-          />
+          </div>
+          <div className="flex flex-col whitespace-pre-wrap break-words leading-6 tracking-normal w-full space-y-2 border rounded-lg p-2">
+            <div dangerouslySetInnerHTML={{ __html: formattedText }} />
+            {cast.embeds.length > 0 && (
+              <div className="flex flex-row flex-wrap">
+                {cast.embeds
+                  .filter(({ parsed }) => !parsed)
+                  .map((embed, i) => (
+                    <EmbedPreview key={i} embed={embed} />
+                  ))}
+              </div>
+            )}
+          </div>
+          <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-4">
+            <a
+              href={`https://warpcast.com/${cast.user.fname}/${cast.hash.slice(
+                0,
+                8
+              )}`}
+              target="_blank"
+              className="hover:underline"
+            >
+              reply on warpcast
+            </a>
+            <CopyLink
+              link={`https://flink.fyi/${cast.user.fname}/${cast.hash}`}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -132,7 +145,7 @@ const CastChild = ({
       <div
         className={`flex flex-row space-x-2 ${
           highlight === cast.hash
-            ? "p-2 rounded-lg bg-zinc-200 dark:bg-zinc-800"
+            ? "p-2 rounded-lg bg-zinc-100 dark:bg-zinc-900 border"
             : ""
         }`}
         ref={castRef}
