@@ -27,6 +27,9 @@ model Farcaster {
     verified Boolean
     entityId Int
 
+    followers Int @default(0)
+    following Int @default(0)
+
     entity Entity @relation(fields: [entityId], references: [id])
 }
 
@@ -173,6 +176,34 @@ model FarcasterCastKeyword {
     @@id([fid, hash, keyword])
     @@index([keyword, timestamp])
     @@index([timestamp, keyword])
+}
+
+model FarcasterLink {
+    fid       Int
+    linkType  String
+    targetFid Int
+
+    timestamp        DateTime
+    displayTimestamp DateTime?
+
+    deleted Boolean @default(false)
+
+    @@id([fid, linkType, targetFid])
+}
+
+model FarcasterUserChannelStats {
+    url       String
+    fid       Int
+    posts     Int    @default(0)
+    replies   Int    @default(0)
+    likes     Int    @default(0)
+    recasts   Int    @default(0)
+    mentioned Int    @default(0)
+    liked     Int    @default(0)
+    recasted  Int    @default(0)
+
+    @@id([url, fid])
+    @@index([fid, url])
 }
 
 model Backfill {

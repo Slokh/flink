@@ -11,6 +11,14 @@ export interface Farcaster {
   source: Source;
 }
 
+export interface FarcasterLink {
+  fid: number;
+  linkType: string;
+  targetFid: number;
+  timestamp: Date;
+  displayTimestamp?: Date;
+}
+
 export const getFarcasterEntity = async (fid: number) => {
   const farcaster = await prisma.farcaster.findFirst({
     where: { fid },
@@ -54,4 +62,28 @@ export const upsertFarcaster = async (
   }
 
   return id;
+};
+
+export const upsertFarcasterLinks = async (links: FarcasterLink[]) => {
+  await prisma.farcasterLink.createMany({
+    data: links,
+    skipDuplicates: true,
+  });
+};
+
+export const deleteFarcasterLink = async (link: FarcasterLink) => {
+  await prisma.farcasterLink.upsert({
+    where: {
+      fid_linkType_targetFid: {
+        fid: link.fid,
+        targetFid: link.targetFid,
+        linkType: link.linkType,
+      },
+    },
+    create: {
+      ...link,
+      deleted: true,
+    },
+    update: { deleted: true },
+  });
 };

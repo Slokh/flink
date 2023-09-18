@@ -556,7 +556,11 @@ export const formatText = (
 
       text = text.replace(
         originalUrl,
-        `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${originalUrl}">${url}</a>`
+        `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${
+          originalUrl.startsWith("http")
+            ? originalUrl
+            : `https://${originalUrl}`
+        }">${url}</a>`
       );
     });
   } else {
@@ -577,6 +581,8 @@ export const formatText = (
       }
       text = text.replace(originalUrl, "");
     });
+
+    text = text.replace(/(https?:\/\/[^\s]+)/g, "");
   }
 
   return text;

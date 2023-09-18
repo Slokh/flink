@@ -1,4 +1,9 @@
-import { HubEventType, Message, MessageType } from "@farcaster/hub-nodejs";
+import {
+  FARCASTER_EPOCH,
+  HubEventType,
+  Message,
+  MessageType,
+} from "@farcaster/hub-nodejs";
 import { Client, convertToHex, getHubClient } from "../farcaster/hub";
 import { handleUserUpdate } from "../farcaster/users";
 import { handleCastMessages } from "../farcaster/casts";
@@ -13,6 +18,8 @@ import {
   upsertCastReactions,
   upsertUrlReactions,
 } from "../db/reaction";
+import { deleteFarcasterLink, upsertFarcasterLinks } from "../db/farcaster";
+import { generateLinkData } from "../farcaster/link";
 
 const run = async () => {
   const client = await getHubClient();
@@ -54,6 +61,10 @@ const run = async () => {
       await handleReactionAdd(message);
     } else if (messageType === MessageType.REACTION_REMOVE) {
       await handleReactionRemove(message);
+    } else if (messageType === MessageType.LINK_ADD) {
+      await handleLinkAdd(message);
+    } else if (messageType === MessageType.LINK_REMOVE) {
+      await handleLinkRemove(message);
     }
   }
 };
@@ -111,6 +122,18 @@ const handleReactionRemove = async (message: Message) => {
   console.log(
     `[react-remove] [${reactionData.fid}] unreacted ${reactionData.reactionType} from cast ${reactionData.targetHash}`
   );
+};
+
+const handleLinkAdd = async (message: Message) => {
+  const linkData = generateLinkData(message);
+  if (!linkData) return;
+  await upsertFarcasterLinks([linkData]);
+};
+
+const handleLinkRemove = async (message: Message) => {
+  const linkData = generateLinkData(message);
+  if (!linkData) return;
+  await deleteFarcasterLink(linkData);
 };
 
 run();
