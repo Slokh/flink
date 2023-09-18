@@ -192,6 +192,7 @@ export const getCastsResponseByTopLikes = async (
     WHERE
         "reactionType" = 'like'
         AND "FarcasterCast"."timestamp" >= NOW() - ${timeInterval}::interval
+        AND "FarcasterCast"."parentCast" IS NULL
     GROUP BY "targetFid", "targetHash"
     ORDER BY COUNT(*) DESC, "targetFid" DESC
     LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
