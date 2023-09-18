@@ -177,6 +177,11 @@ const CastChild = ({
               </div>
               <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${cast.user.fname}`}</div>
             </a>
+            <div className="text-zinc-500">
+              {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
+                addSuffix: true,
+              })}
+            </div>
           </div>
           <div className="max-w-2xl flex flex-col whitespace-pre-wrap break-words text-md leading-6 tracking-normal w-full space-y-2 p-2">
             <div dangerouslySetInnerHTML={{ __html: formattedText }} />
