@@ -560,8 +560,22 @@ export const formatText = (
       );
     });
   } else {
-    embeds.forEach((embed) => {
-      text = text.replace(`https://${embed.url}`, "").replace(embed.url, "");
+    embeds.forEach(({ url }) => {
+      let originalUrl = url;
+      if (text.includes(`https://www.${url}`)) {
+        originalUrl = `https://www.${url}`;
+      } else if (text.includes(`https://${url}`)) {
+        originalUrl = `https://${url}`;
+      } else if (text.includes(`http://${url}`)) {
+        originalUrl = `http://${url}`;
+      } else if (text.includes(`www.${url}`)) {
+        originalUrl = `www.${url}`;
+      }
+
+      if (text.includes(`${originalUrl}/`)) {
+        originalUrl = `${originalUrl}/`;
+      }
+      text = text.replace(originalUrl, "");
     });
   }
 
