@@ -128,12 +128,18 @@ const handleLinkAdd = async (message: Message) => {
   const linkData = generateLinkData(message);
   if (!linkData) return;
   await upsertFarcasterLinks([linkData]);
+  console.log(
+    `[link-add] [${linkData.fid}] added link [${linkData.linkType}] to [${linkData.targetFid}`
+  );
 };
 
 const handleLinkRemove = async (message: Message) => {
   const linkData = generateLinkData(message);
   if (!linkData) return;
   await deleteFarcasterLink(linkData);
+  console.log(
+    `[link-add] [${linkData.fid}] removed link [${linkData.linkType}] to [${linkData.targetFid}`
+  );
 };
 
 run();
