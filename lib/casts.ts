@@ -525,19 +525,19 @@ export const formatText = (
   // Convert the final Buffer back to a string
   text = textBuffer.toString("utf-8");
 
-  // Remove embeds from text
-  embeds
-    .filter(({ parsed }) => !parsed)
-    .forEach((embed) => {
-      text = text.replace(`https://${embed.url}`, "").replace(embed.url, "");
-    });
-
   // Replace urls with anchor tags
   if (withLinks) {
     text = text.replace(
       /(https?:\/\/[^\s]+)/g,
       '<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="$1">$1</a>'
     );
+  } else {
+    // Remove embeds from text
+    embeds
+      .filter(({ parsed }) => !parsed)
+      .forEach((embed) => {
+        text = text.replace(`https://${embed.url}`, "").replace(embed.url, "");
+      });
   }
 
   return text;

@@ -307,7 +307,12 @@ export const MobileCast = ({
   const community = cast.parentUrl
     ? CHANNELS_BY_URL[cast.parentUrl]
     : undefined;
-  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
+  const formattedText = formatText(
+    cast.text,
+    cast.mentions,
+    cast.embeds,
+    false
+  );
   return (
     <div className="flex md:hidden flex-col space-y-2 border-b p-2">
       {isReply && (
