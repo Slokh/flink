@@ -125,7 +125,7 @@ const UrlEmbed = ({ metadata }: { metadata: Metadata }) => {
 
 const ImageEmbed = ({ url }: { url: string }) => {
   return (
-    <div className="md:max-w-xl p-2">
+    <div className="md:max-w-xl">
       <Dialog>
         <DialogTrigger>
           <img src={url} alt={url} className="rounded-lg" />

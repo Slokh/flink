@@ -1,10 +1,6 @@
 import { FARCASTER_EPOCH, Message } from "@farcaster/hub-nodejs";
 import { FarcasterLink } from "../db/farcaster";
-import {
-  handleCastMessages,
-  extractReactionsFromCasts,
-  messagesToCastDatas,
-} from "../farcaster/casts";
+import { handleCastMessages } from "../farcaster/casts";
 import { Client, getHubClient } from "../farcaster/hub";
 import { generateLinkData } from "../farcaster/link";
 import prisma from "../lib/prisma";

@@ -148,12 +148,10 @@ const CastPreview = ({
 const WebCast = ({
   rank,
   cast,
-  showRank,
   isReply,
 }: {
-  rank: number;
   cast: FarcasterCast;
-  showRank?: boolean;
+  rank?: number;
   isReply?: boolean;
 }) => {
   const community = cast.parentUrl
@@ -175,7 +173,7 @@ const WebCast = ({
 
   return (
     <div className="hidden md:flex flex-row items-center border-b hover:bg-zinc-100 pl-4 hover:dark:bg-zinc-900 transition-all">
-      {showRank && (
+      {rank && (
         <div className="flex w-6 items-center justify-center text-zinc-500 font-semibold">
           {rank}
         </div>
@@ -297,11 +295,13 @@ const WebCast = ({
 
 export const MobileCast = ({
   cast,
+  rank,
   isParent,
   isReply,
   isLink,
 }: {
   cast: FarcasterCast;
+  rank?: number;
   isParent?: boolean;
   isReply?: boolean;
   isLink?: boolean;
@@ -315,8 +315,35 @@ export const MobileCast = ({
     cast.embeds,
     !isLink
   );
+
+  const { externalUrl } = getPreview(cast.embeds);
+
+  const isXpost = [
+    externalUrl?.includes("warpcast.com") ||
+      externalUrl?.includes("twitter.com") ||
+      externalUrl?.includes("x.com"),
+  ];
   return (
-    <div className="flex md:hidden flex-col space-y-2 border-b p-2">
+    <div className="flex md:hidden flex-col p-2 border-b hover:bg-zinc-100 hover:dark:bg-zinc-900 transition-all space-y-1">
+      <div className="flex flex-row items-center space-x-1 text-sm w-full justify-between">
+        <div className="flex flex-row items-center space-x-1">
+          {rank && (
+            <div className="flex text-zinc-500 font-semibold">{`${rank}.`}</div>
+          )}
+          <a href={`/${cast.user.fname}`}>
+            <Avatar className="h-4 w-4">
+              <AvatarImage src={cast.user.pfp} className="object-cover" />
+              <AvatarFallback>?</AvatarFallback>
+            </Avatar>
+          </a>
+          <a href={`/${cast.user.fname}`} className="hover:underline">
+            <div>{cast.user.fname}</div>
+          </a>
+        </div>
+        <div className="text-zinc-500">
+          {formatDistanceCustom(new Date(cast.timestamp), new Date())}
+        </div>
+      </div>
       {isReply && (
         <div className="text-xs text-zinc-500">
           replying to{" "}
@@ -326,94 +353,57 @@ export const MobileCast = ({
           >{`@${cast.parentCast?.user.fname}`}</a>
         </div>
       )}
-      <div className="flex flex-row space-x-2">
-        {!isParent && (
-          <a href={`/${cast.user.fname}`}>
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={cast.user.pfp} className="object-cover" />
+      <a
+        href={
+          cast.topParentCast && cast.hash === cast.topParentCast?.hash
+            ? `/${cast.user.fname}/${cast.hash}`
+            : `/${cast.topParentCast?.user?.fname}/${cast.topParentCast?.hash}/${cast.hash}`
+        }
+        className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-4 visited:text-purple-600 visited:dark:text-purple-400"
+      >
+        {formattedText ? (
+          <div dangerouslySetInnerHTML={{ __html: formattedText }} />
+        ) : isXpost ? (
+          "x-post"
+        ) : (
+          "untitled"
+        )}
+      </a>
+      <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center">
+        <a
+          href={
+            isReply
+              ? `/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`
+              : `/${cast.user.fname}/${cast.hash}`
+          }
+          className="hover:underline"
+        >
+          {`${cast.replies} replies`}
+        </a>
+        <div>{`${cast.likes} likes`}</div>
+        <div>{`${cast.recasts} recasts`}</div>
+      </div>
+      {cast.embeds.length > 0 && <EmbedPreview embed={cast.embeds[0]} />}
+      {community && (
+        <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center justify-end">
+          <div className="text-zinc-500">in</div>
+          <a
+            href={`/channel/${community.channelId}`}
+            className="hover:underline"
+          >
+            <Avatar className="h-4 w-4">
+              <AvatarImage src={community.image} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
           </a>
-        )}
-        <div className="flex flex-col space-y-1 w-full min-w-0 relative">
-          <div className="flex flex-row space-x-2">
-            {isParent && (
-              <a href={`/${cast.user.fname}`}>
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={cast.user.pfp} className="object-cover" />
-                  <AvatarFallback>?</AvatarFallback>
-                </Avatar>
-              </a>
-            )}
-            <div className="w-full flex flex-row space-x-2 justify-between">
-              <a href={`/${cast.user.fname}`} className="flex flex-col">
-                <div className="font-semibold text-sm">
-                  {cast.user.display || cast.user.fname}
-                </div>
-                <div className="font-normal text-sm text-zinc-500">{`@${cast.user.fname}`}</div>
-              </a>
-              <div className="font-normal text-sm text-zinc-500">
-                {formatDistanceCustom(new Date(cast.timestamp), new Date())}
-              </div>
-            </div>
-          </div>
-          {isLink ? (
-            <a
-              href={`/${cast.user.fname}/${cast.hash}`}
-              className="flex flex-col text-sm whitespace-pre-wrap break-words pb-2 text-base leading-5 tracking-normal"
-            >
-              <div dangerouslySetInnerHTML={{ __html: formattedText }} />
-            </a>
-          ) : (
-            <div className="flex flex-col text-sm whitespace-pre-wrap break-words pb-2 text-base leading-5 tracking-normal">
-              <div dangerouslySetInnerHTML={{ __html: formattedText }} />
-            </div>
-          )}
-          {cast.embeds
-            .filter(({ parsed }) => !parsed)
-            .map((embed, i) => (
-              <EmbedPreview key={i} embed={embed} />
-            ))}
-          <div className="flex flex-row justify-between items-center">
-            <div className="flex flex-row space-x-4 text-zinc-500">
-              <div className="flex flex-row space-x-1 items-center text-sm">
-                <ChatBubbleIcon />
-                <div>{cast.replies}</div>
-              </div>
-              <div className="flex flex-row space-x-1 items-center text-sm">
-                <UpdateIcon />
-                <div>{cast.recasts}</div>
-              </div>
-              <div className="flex flex-row space-x-1 items-center text-sm">
-                <HeartIcon />
-                <div>{cast.likes}</div>
-              </div>
-            </div>
-            {community && (
-              <div className="flex flex-row space-x-1 items-center text-purple-600 dark:text-purple-400 text-sm">
-                <a
-                  href={`/channel/${community.channelId}`}
-                  className="hover:underline"
-                >
-                  <Avatar className="h-4 w-4">
-                    <AvatarImage
-                      src={community.image}
-                      className="object-cover"
-                    />
-                    <AvatarFallback>?</AvatarFallback>
-                  </Avatar>
-                </a>
-                <a
-                  href={`/channel/${community.channelId}`}
-                  className="hover:underline"
-                >
-                  <div>{community.name}</div>
-                </a>
-              </div>
-            )}
-          </div>
+          <a
+            href={`/channel/${community.channelId}`}
+            className="hover:underline"
+          >
+            <div>{community.name}</div>
+          </a>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -421,20 +411,18 @@ export const MobileCast = ({
 export const Cast = ({
   rank,
   cast,
-  showRank,
   isReply,
   isLink,
 }: {
-  rank: number;
   cast: FarcasterCast;
-  showRank?: boolean;
+  rank?: number;
   isReply?: boolean;
   isLink?: boolean;
 }) => {
   return (
     <>
-      <WebCast rank={rank} cast={cast} showRank={showRank} isReply={isReply} />
-      <MobileCast cast={cast} isReply={isReply} isLink={isLink} />
+      <WebCast rank={rank} cast={cast} isReply={isReply} />
+      <MobileCast cast={cast} rank={rank} isReply={isReply} isLink={isLink} />
     </>
   );
 };
