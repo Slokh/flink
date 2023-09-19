@@ -83,7 +83,7 @@ const Group = ({
 
 export const ProfileOverview = ({
   id,
-  entity: { pfp, bio, display },
+  entity: { pfp, bio, display, followers, following },
 }: {
   id: string;
   entity: Entity;
@@ -96,6 +96,26 @@ export const ProfileOverview = ({
     <div className="font-semibold text-2xl text-center">
       {display?.value || id}
     </div>
+    {following !== undefined && followers !== undefined && (
+      <div className="flex flex-row space-x-2">
+        <div className="flex flex-row space-x-1 items-center">
+          <span className="font-semibold">
+            {following > 9999
+              ? `${Math.floor(following / 1000)}k`
+              : following.toLocaleString("en-US")}
+          </span>
+          <span className="text-sm text-zinc-500">following</span>
+        </div>
+        <div className="flex flex-row space-x-1 items-center">
+          <span className="font-semibold">
+            {followers > 9999
+              ? `${Math.floor(followers / 1000)}k`
+              : followers.toLocaleString("en-US")}
+          </span>
+          <span className="text-sm text-zinc-500">followers</span>
+        </div>
+      </div>
+    )}
     <div className="text-center">{bio?.value}</div>
   </div>
 );

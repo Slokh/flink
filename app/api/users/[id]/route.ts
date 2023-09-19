@@ -101,7 +101,20 @@ export const handleEntity = async (entityId: number): Promise<Entity> => {
   ]);
 
   const addressList = addresses.map((address) => address.address);
-  const addressesWithEnsNames = await getAddressesWithEnsNames(addressList);
+  const [addressesWithEnsNames, followers, following] = await Promise.all([
+    getAddressesWithEnsNames(addressList),
+    prisma.farcasterLink.count({
+      where: {
+        targetFid: farcaster?.fid,
+      },
+    }),
+    prisma.farcasterLink.count({
+      where: {
+        fid: farcaster?.fid,
+      },
+    }),
+  ]);
+
   const ethereum = addressesWithEnsNames.map((address, i) => ({
     chain: "Ethereum",
     address: address.address,
@@ -159,6 +172,8 @@ export const handleEntity = async (entityId: number): Promise<Entity> => {
     accounts,
     relatedLinks,
     emails,
+    followers,
+    following,
   };
 };
 

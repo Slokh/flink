@@ -34,6 +34,8 @@ export type Entity = {
   ethereum: Ethereum[];
   relatedLinks: Link[];
   emails: Link[];
+  followers?: number;
+  following?: number;
 };
 
 export type FarcasterUser = {

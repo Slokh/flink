@@ -185,7 +185,8 @@ model FarcasterLink {
 
     deleted Boolean @default(false)
 
-    @@id([fid, linkType, targetFid])
+    @@id([linkType, fid, targetFid])
+    @@index([linkType, targetFid, fid])
 }
 
 model FarcasterUserChannelStats {
