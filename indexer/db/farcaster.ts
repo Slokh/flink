@@ -74,7 +74,7 @@ export const upsertFarcasterLinks = async (links: FarcasterLink[]) => {
 export const deleteFarcasterLink = async (link: FarcasterLink) => {
   await prisma.farcasterLink.upsert({
     where: {
-      fid_linkType_targetFid: {
+      linkType_fid_targetFid: {
         fid: link.fid,
         targetFid: link.targetFid,
         linkType: link.linkType,
