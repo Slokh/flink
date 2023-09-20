@@ -67,11 +67,16 @@ export const CastsNavigation = ({
 
 export const UserCastsNavigation = ({
   selected,
+  time,
   id,
 }: {
   selected: CastsSort;
+  time?: string;
   id: string;
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const options = [
     CastsSort.New,
     CastsSort.Top,
@@ -81,6 +86,26 @@ export const UserCastsNavigation = ({
 
   return (
     <div className="flex flex-row space-x-1">
+      <div>
+        {selected === CastsSort.Top && (
+          <Select
+            defaultValue={time || "day"}
+            onValueChange={(value) => router.push(`${pathname}?time=${value}`)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Timeframe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="hour">Last hour</SelectItem>
+              <SelectItem value="day">Last day</SelectItem>
+              <SelectItem value="week">Last week</SelectItem>
+              <SelectItem value="month">Last month</SelectItem>
+              <SelectItem value="year">Last year</SelectItem>
+              <SelectItem value="all">All time</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+      </div>
       {options.map((sort) => (
         <Link
           key={sort}

@@ -119,10 +119,10 @@ export const UserCastsTable = async ({
     <div className="flex flex-col w-full h-full">
       <div className="flex flex-row items-center justify-between p-2">
         <div></div>
-        <UserCastsNavigation selected={sort} id={params.id} />
+        <UserCastsNavigation selected={sort} time={time} id={params.id} />
       </div>
       <ScrollArea className="h-full">
-        <Casts sort={sort} fid={entity.fid} page={page} />
+        <Casts sort={sort} time={time} fid={entity.fid} page={page} />
         <CastsPagination href={baseHref} page={page} />
       </ScrollArea>
     </div>
