@@ -12,17 +12,18 @@ import {
   upsertUrlReactions,
 } from "../db/reaction";
 
-const START_TIMESTAMP = 1695178800;
-const END_TIMESTAMP = 1695186000;
+const START_TIMESTAMP = 1695298377;
+const END_TIMESTAMP = 1695303057;
 
 const backfill = async () => {
   const client = await getHubClient();
-  let currentFid = await getCurrentFid();
+  // let currentFid = await getCurrentFid();
+  let currentFid = 1;
   for (let fid = currentFid; fid < 20150; fid++) {
     await handleFidCasts(client, fid);
     await handleReactions(client, fid);
     await handleLinks(client, fid);
-    await prisma.backfill.create({ data: { fid } });
+    // await prisma.backfill.create({ data: { fid } });
   }
 };
 
