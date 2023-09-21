@@ -9,7 +9,7 @@ export async function POST(
   const body = await request.json();
 
   const { signature, appFid, deadline } = await signMessage(
-    `0x${body.signerPublicKey}`
+    body.signerPublicKey
   );
 
   const data = await fetch(

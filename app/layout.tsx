@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import "@rainbow-me/rainbowkit/styles.css";
 import WalletProvider from "./wallet";
 import { AuthButton } from "@/components/auth-button";
+import { CastButton } from "@/components/cast-button";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -58,8 +59,9 @@ export default function RootLayout({
                       <span className="text-slate-400 font-normal">by</span>
                       <span>slokh</span>
                     </a> */}
-                  <ThemeToggle />
+                  {/* <ThemeToggle /> */}
                   <AuthButton />
+                  <CastButton />
                 </div>
               </div>
               <div

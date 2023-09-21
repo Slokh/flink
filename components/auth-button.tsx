@@ -13,6 +13,7 @@ import {
 import { CheckIcon } from "@radix-ui/react-icons";
 import { UserAuthState, useUser } from "@/context/user";
 import QRCode from "qrcode.react";
+import { Loading } from "./loading";
 
 export const AuthButton = () => {
   const [open, setOpen] = useState(false);
@@ -40,9 +41,22 @@ export const AuthButton = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authState, open]);
 
-  if (authState === UserAuthState.UNKNOWN) return <></>;
-
-  if (authState === UserAuthState.DISCONNECTED) {
+  if (authState === UserAuthState.UNKNOWN) {
+    return (
+      <div className="font-bold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center">
+        <Loading />
+      </div>
+    );
+  } else if (authState === UserAuthState.LOGGED_IN) {
+    return (
+      <a
+        href={`/${user?.fname}`}
+        // className="flex flex-row items-center font-bold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center"
+      >
+        <div className="font-bold text-sm">{`@${user?.fname}`}</div>
+      </a>
+    );
+  } else if (authState === UserAuthState.DISCONNECTED) {
     return (
       <ConnectButton
         label="Log in"
@@ -51,10 +65,6 @@ export const AuthButton = () => {
         accountStatus="address"
       />
     );
-  }
-
-  if (authState === UserAuthState.LOGGED_IN) {
-    return <div>{user?.display || user?.fname || user?.fid}</div>;
   }
 
   return (

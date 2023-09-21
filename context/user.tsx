@@ -55,6 +55,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [verifyState, setVerifyState] = useState<VerifyState>({});
   const [signerState, setSignerState] = useState<SignerState | undefined>();
   const [user, setUser] = useState<FarcasterUser | undefined>();
+  const [loading, setLoading] = useState(true);
 
   const fetchNonce = async () => {
     try {
@@ -66,7 +67,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     }
   };
 
-  const updateSignerState = async () => {
+  const fetchNewSigner = async () => {
     const signerData = await (
       await fetch("/api/signer", {
         method: "POST",
@@ -119,7 +120,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       setVerifyState((x) => ({ ...x, loading: false, address }));
 
       if (!signerState?.signerApprovalUrl) {
-        await updateSignerState();
+        await fetchNewSigner();
       }
     } catch (error) {
       setVerifyState((x) => ({ ...x, loading: false, nonce: undefined }));
@@ -135,17 +136,26 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     const handler = async () => {
       const signerRes = await fetch(`/api/signer/${address}`);
       if (signerRes.ok) {
-        setSignerState(await signerRes.json());
+        const signerData = await signerRes.json();
+        if (!signerData?.fid && signerData?.signerApprovalUrl) {
+          await fetchSignerData();
+        } else {
+          setSignerState(signerData);
+          if (signerData?.fid) {
+            setUser(await (await fetch(`/api/fid/${signerData.fid}`)).json());
+          }
+        }
       } else {
         try {
           const res = await fetch("/api/auth/user");
           const json = await res.json();
           setVerifyState((x) => ({ ...x, address: json.address }));
           if (json.address === address) {
-            await updateSignerState();
+            await fetchNewSigner();
           }
         } catch (_error) {}
       }
+      setLoading(false);
     };
     if (address) {
       handler();
@@ -156,18 +166,22 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   }, [address]);
 
   const fetchSignerData = async () => {
-    if (!address || !signerState?.signerUuid) return;
+    if (!address || !signerState?.signerApprovalUrl) return;
     const res = await fetch(
       `/api/signer/${address}/${signerState?.signerUuid}`
     );
     if (!res.ok) return;
     const data = await res.json();
     setSignerState(data);
-    setUser(await (await fetch(`/api/fid/${data.fid}`)).json());
+    if (data?.fid) {
+      setUser(await (await fetch(`/api/fid/${signerState.fid}`)).json());
+    }
   };
 
   useEffect(() => {
-    if (!isConnected) {
+    if (loading) {
+      setAuthState(UserAuthState.UNKNOWN);
+    } else if (!isConnected) {
       setAuthState(UserAuthState.DISCONNECTED);
     } else if (signerState?.fid) {
       setAuthState(UserAuthState.LOGGED_IN);
@@ -181,7 +195,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     } else {
       setAuthState(UserAuthState.CONNECTED);
     }
-  }, [address, isConnected, signerState, verifyState]);
+  }, [loading, address, isConnected, signerState, verifyState]);
 
   const value = {
     user,

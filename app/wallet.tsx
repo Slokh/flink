@@ -39,14 +39,14 @@ export default function WalletProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider
         modalSize="compact"
         chains={chains}
         theme={
-          theme === "dark"
+          resolvedTheme === "dark"
             ? darkTheme({
                 accentColor: "white",
                 accentColorForeground: "black",

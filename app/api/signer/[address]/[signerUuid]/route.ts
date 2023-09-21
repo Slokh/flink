@@ -33,13 +33,12 @@ export async function GET(
       signerUuid: signer.signer_uuid,
       signerStatus: signer.status,
       signerPublicKey: signer.public_key,
-      signerApprovalUrl: signer.signer_approval_url,
     },
     update: {
       signerUuid: signer.signer_uuid,
       signerStatus: signer.status,
       signerPublicKey: signer.public_key,
-      signerApprovalUrl: signer.signer_approval_url,
+      fid: signer.fid,
     },
   });
 
@@ -47,7 +46,6 @@ export async function GET(
     signerUuid: signer.signer_uuid,
     signerStatus: signer.status,
     signerPublicKey: signer.public_key,
-    signerApprovalUrl: signer.signer_approval_url,
     fid: signer.fid,
   });
 }
