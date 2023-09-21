@@ -395,7 +395,7 @@ const getRepliesForCast = async (casts: any) => {
 
   return replyCounts.reduce((acc: any, replyCount: any) => {
     acc[`${replyCount.topParentFid}-${replyCount.topParentCast}`] =
-      replyCount._count;
+      replyCount._count - 1;
     return acc;
   }, {} as Record<string, number>);
 };

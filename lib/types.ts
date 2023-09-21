@@ -43,6 +43,7 @@ export type FarcasterUser = {
   fname?: string;
   pfp?: string;
   display?: string;
+  bio?: string;
 };
 
 export type FarcasterMention = {
