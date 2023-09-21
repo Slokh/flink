@@ -309,20 +309,15 @@ export const MobileCast = ({
   const community = cast.parentUrl
     ? CHANNELS_BY_URL[cast.parentUrl]
     : undefined;
-  const formattedText = formatText(
-    cast.text,
-    cast.mentions,
-    cast.embeds,
-    !isLink
-  );
+  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
 
   const { externalUrl } = getPreview(cast.embeds);
 
-  const isXpost = [
+  const isXpost =
     externalUrl?.includes("warpcast.com") ||
-      externalUrl?.includes("twitter.com") ||
-      externalUrl?.includes("x.com"),
-  ];
+    externalUrl?.includes("twitter.com") ||
+    externalUrl?.includes("x.com");
+
   return (
     <div className="flex md:hidden flex-col p-2 border-b hover:bg-zinc-100 hover:dark:bg-zinc-900 transition-all space-y-1">
       <div className="flex flex-row items-center space-x-1 text-sm w-full justify-between">
@@ -353,22 +348,38 @@ export const MobileCast = ({
           >{`@${cast.parentCast?.user.fname}`}</a>
         </div>
       )}
-      <a
-        href={
-          cast.topParentCast && cast.hash === cast.topParentCast?.hash
-            ? `/${cast.user.fname}/${cast.hash}`
-            : `/${cast.topParentCast?.user?.fname}/${cast.topParentCast?.hash}/${cast.hash}`
-        }
-        className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-4 visited:text-purple-600 visited:dark:text-purple-400"
-      >
-        {formattedText ? (
-          <div dangerouslySetInnerHTML={{ __html: formattedText }} />
-        ) : isXpost ? (
-          "x-post"
-        ) : (
-          "untitled"
-        )}
-      </a>
+      {isLink ? (
+        <a
+          href={
+            cast.topParentCast && cast.hash === cast.topParentCast?.hash
+              ? `/${cast.user.fname}/${cast.hash}`
+              : `/${cast.topParentCast?.user?.fname}/${cast.topParentCast?.hash}/${cast.hash}`
+          }
+          className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-4 visited:text-purple-600 visited:dark:text-purple-400"
+        >
+          <div
+            dangerouslySetInnerHTML={{
+              __html: formattedText
+                ? formattedText
+                : isXpost
+                ? "x-post"
+                : "untitled",
+            }}
+          />
+        </a>
+      ) : (
+        <div className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-4 visited:text-purple-600 visited:dark:text-purple-400">
+          <div
+            dangerouslySetInnerHTML={{
+              __html: formattedText
+                ? formattedText
+                : isXpost
+                ? "x-post"
+                : "untitled",
+            }}
+          />
+        </div>
+      )}
       <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center">
         <a
           href={
@@ -412,7 +423,6 @@ export const Cast = ({
   rank,
   cast,
   isReply,
-  isLink,
 }: {
   cast: FarcasterCast;
   rank?: number;
@@ -422,7 +432,7 @@ export const Cast = ({
   return (
     <>
       <WebCast rank={rank} cast={cast} isReply={isReply} />
-      <MobileCast cast={cast} rank={rank} isReply={isReply} isLink={isLink} />
+      <MobileCast cast={cast} rank={rank} isReply={isReply} />
     </>
   );
 };

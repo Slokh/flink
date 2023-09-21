@@ -200,10 +200,10 @@ export const CastThread = async ({ cast }: { cast: FarcasterCastTree }) => {
         </ScrollArea>
       </div>
       <div className="flex md:hidden flex-col w-full">
-        <MobileCast cast={cast} isParent />
-        {cast.children.map((child) => (
+        <MobileCast cast={cast} isParent isLink={false} />
+        {/* {cast.children.map((child) => (
           <MobileCast key={child.hash} cast={child} />
-        ))}
+        ))} */}
       </div>
     </>
   );

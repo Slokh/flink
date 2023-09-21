@@ -1,0 +1,172 @@
+"use client";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { CheckIcon } from "@radix-ui/react-icons";
+import { UserAuthState, useUser } from "@/context/user";
+import QRCode from "qrcode.react";
+
+export const AuthButton = () => {
+  const [open, setOpen] = useState(false);
+  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>();
+  const {
+    user,
+    address,
+    authState,
+    verifyMessage,
+    verifyState,
+    signerState,
+    fetchSignerData,
+  } = useUser();
+
+  useEffect(() => {
+    if (authState === UserAuthState.NEEDS_APPROVAL && open) {
+      setPollInterval(setInterval(fetchSignerData, 2000));
+    } else if (
+      (authState === UserAuthState.LOGGED_IN || !open) &&
+      pollInterval
+    ) {
+      clearInterval(pollInterval);
+      setPollInterval(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authState, open]);
+
+  if (authState === UserAuthState.UNKNOWN) return <></>;
+
+  if (authState === UserAuthState.DISCONNECTED) {
+    return (
+      <ConnectButton
+        label="Log in"
+        chainStatus="none"
+        showBalance={false}
+        accountStatus="address"
+      />
+    );
+  }
+
+  if (authState === UserAuthState.LOGGED_IN) {
+    return <div>{user?.display || user?.fname || user?.fid}</div>;
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger className="font-bold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center">
+        Log in
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Authenticate to flink.fyi</DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
+        <Step
+          step={1}
+          title="Connect your wallet"
+          description={
+            <>
+              You are connected to{" "}
+              <span className="font-semibold text-foreground">
+                {`${address?.substring(0, 6)}...`}
+              </span>
+              .
+            </>
+          }
+          isComplete={true}
+        />
+        <Step
+          step={2}
+          title="Verify your address"
+          description="Sign a message to verify you own this address."
+          isComplete={authState >= UserAuthState.VERIFIED}
+          action={
+            authState === UserAuthState.CONNECTED ? (
+              <Button
+                disabled={!verifyState?.nonce || verifyState?.loading}
+                onClick={verifyMessage}
+                className="font-bold rounded-xl h-[40px] whitespace-nowrap"
+              >
+                Verify
+              </Button>
+            ) : (
+              <></>
+            )
+          }
+        />
+        <Step
+          step={3}
+          title="Sign in with Farcaster"
+          description="Scan the QR code to sign in with Farcaster using Warpcast."
+          isComplete={false}
+          content={
+            signerState?.signerApprovalUrl ? (
+              <div className="flex flex-col items-center space-y-1">
+                <QRCode value={signerState?.signerApprovalUrl} />
+                <a
+                  href={signerState.signerApprovalUrl}
+                  className="text-xs text-muted-foreground"
+                >
+                  Click for link
+                </a>
+              </div>
+            ) : (
+              <></>
+            )
+          }
+        />
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const Step = ({
+  step,
+  title,
+  description,
+  action,
+  content,
+  isComplete,
+}: {
+  step: number;
+  title: string;
+  description: React.ReactNode;
+  action?: React.ReactNode;
+  content?: React.ReactNode;
+  isComplete: boolean;
+}) => (
+  <div className="flex flex-col space-y-2">
+    <div className="flex flex-row space-x-2 items-center pb-2 sm:pb-0">
+      <div>
+        {isComplete ? (
+          <div className="flex font-semibold rounded-full bg-foreground w-8 h-8 justify-center items-center text-background">
+            {step}
+          </div>
+        ) : (
+          <div className="flex font-semibold rounded-full border-2 border-foreground w-8 h-8 justify-center items-center">
+            {step}
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col">
+        <div className="flex flex-row space-x-1 items-center">
+          <div className="font-semibold">{title}</div>
+          {isComplete && (
+            <div className="text-green-500">
+              <CheckIcon />
+            </div>
+          )}
+        </div>
+        <div className="text-sm text-muted-foreground">{description}</div>
+      </div>
+      {action}
+    </div>
+    {content}
+  </div>
+);
