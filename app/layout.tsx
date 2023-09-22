@@ -3,11 +3,12 @@ import "../styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
-import { ThemeToggle } from "@/components/theme-toggle";
 import "@rainbow-me/rainbowkit/styles.css";
 import WalletProvider from "./wallet";
 import { AuthButton } from "@/components/auth-button";
-import { CastButton } from "@/components/cast-button";
+import { NewCast } from "@/components/new-cast";
+import { PlusIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,12 +49,12 @@ export default function RootLayout({
           <WalletProvider>
             <div className="flex flex-col h-screen">
               <div className="flex flex-row border p-1 justify-between items-center w-full">
-                <a href="/" className="font-bold">
+                <Link href="/" className="font-bold">
                   flink{" "}
                   <span className="font-normal text-zinc-500 text-xs">
                     (read-only)
                   </span>
-                </a>
+                </Link>
                 <div className="flex flex-row text-sm font-medium items-center space-x-2">
                   {/* <a href="/slokh" className="h-full space-x-1">
                       <span className="text-slate-400 font-normal">by</span>
@@ -61,7 +62,12 @@ export default function RootLayout({
                     </a> */}
                   {/* <ThemeToggle /> */}
                   <AuthButton />
-                  <CastButton />
+                  <NewCast>
+                    <div className="flex flex-row space-x-2 items-center font-semibold rounded-xl bg-foreground text-background p-2 text-center">
+                      <PlusIcon />
+                      New cast
+                    </div>
+                  </NewCast>
                 </div>
               </div>
               <div

@@ -8,6 +8,7 @@ import { HeartFilledIcon, UpdateIcon } from "@radix-ui/react-icons";
 import { MobileCast } from "./cast";
 import { CopyLink } from "../copy-link";
 import { ScrollArea } from "../ui/scroll-area";
+import Link from "next/link";
 
 const CastParent = ({ cast }: { cast: FarcasterCast }) => {
   const community = cast.parentUrl
@@ -28,14 +29,14 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
       </div>
       <div className="flex flex-col space-y-1 w-full">
         <div className="flex flex-row space-x-2">
-          <a href={`/${cast.user.fname}`}>
+          <Link href={`/${cast.user.fname}`}>
             <Avatar className="h-10 w-10">
               <AvatarImage src={cast.user.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
-          </a>
+          </Link>
           <div className="flex flex-col text-sm">
-            <a
+            <Link
               href={`/${cast.user.fname}`}
               className="flex flex-row space-x-1 cursor-pointer"
             >
@@ -43,7 +44,7 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
                 {cast.user.display || cast.user.fname}
               </div>
               <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${cast.user.fname}`}</div>
-            </a>
+            </Link>
             <div className="flex flex-row space-x-1 text-sm">
               <div className="text-zinc-500">
                 {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
@@ -53,7 +54,7 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
               {community && (
                 <>
                   <div className="text-zinc-500">in</div>
-                  <a
+                  <Link
                     href={`/channel/${community.channelId}`}
                     className="hover:underline"
                   >
@@ -64,13 +65,13 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
                       />
                       <AvatarFallback>?</AvatarFallback>
                     </Avatar>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href={`/channel/${community.channelId}`}
                     className="hover:underline"
                   >
                     <div>{community.name}</div>
-                  </a>
+                  </Link>
                 </>
               )}
             </div>
@@ -125,13 +126,13 @@ const CastChild = ({ cast }: { cast: FarcasterCastTree }) => {
         </div>
         <div className="flex flex-col">
           <div className="flex flex-row space-x-2 text-sm">
-            <a href={`/${cast.user.fname}`}>
+            <Link href={`/${cast.user.fname}`}>
               <Avatar className="h-5 w-5">
                 <AvatarImage src={cast.user.pfp} className="object-cover" />
                 <AvatarFallback>?</AvatarFallback>
               </Avatar>
-            </a>
-            <a
+            </Link>
+            <Link
               href={`/${cast.user.fname}`}
               className="flex flex-row space-x-1 cursor-pointer"
             >
@@ -139,7 +140,7 @@ const CastChild = ({ cast }: { cast: FarcasterCastTree }) => {
                 {cast.user.display || cast.user.fname}
               </div>
               <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${cast.user.fname}`}</div>
-            </a>
+            </Link>
             <div className="text-zinc-500">
               {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
                 addSuffix: true,
