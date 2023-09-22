@@ -1,6 +1,7 @@
 import { handleUserUpdate } from "../farcaster/users";
-import { Client, getHubClient } from "../farcaster/hub";
+import { Client, convertToHex, getHubClient } from "../farcaster/hub";
 import { handleCastMessages } from "../farcaster/casts";
+import prisma from "../lib/prisma";
 
 const run = async () => {
   const args = process.argv.slice(2);
@@ -25,6 +26,7 @@ run();
 
 const handleFidCasts = async (client: Client, fid: number) => {
   let pageToken: Uint8Array | undefined = undefined;
+  const hashes = [];
   do {
     const response = await client.client.getCastsByFid({
       fid,
@@ -33,6 +35,7 @@ const handleFidCasts = async (client: Client, fid: number) => {
     if (response.isOk()) {
       const messages = response.value.messages;
       await handleCastMessages(client, messages, true);
+      hashes.push(...messages.map((m) => convertToHex(m.hash)));
 
       pageToken = response.value.nextPageToken;
     } else {
@@ -41,4 +44,16 @@ const handleFidCasts = async (client: Client, fid: number) => {
       );
     }
   } while (pageToken?.length);
+
+  await prisma.farcasterCast.updateMany({
+    where: {
+      fid,
+      hash: {
+        notIn: hashes,
+      },
+    },
+    data: {
+      deleted: true,
+    },
+  });
 };

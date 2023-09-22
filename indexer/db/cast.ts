@@ -108,6 +108,14 @@ export const upsertCasts = async (casts: Cast[]) => {
       data: batch,
       skipDuplicates: true,
     });
+    await prisma.farcasterCast.updateMany({
+      where: {
+        OR: batch.map(({ fid, hash }) => ({ fid, hash })),
+      },
+      data: {
+        deleted: false,
+      },
+    });
   }
 };
 

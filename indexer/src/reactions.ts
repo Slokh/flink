@@ -1,9 +1,4 @@
-import {
-  FARCASTER_EPOCH,
-  HubEventType,
-  Message,
-  MessageType,
-} from "@farcaster/hub-nodejs";
+import { HubEventType, Message, MessageType } from "@farcaster/hub-nodejs";
 import { Client, convertToHex, getHubClient } from "../farcaster/hub";
 import { handleUserUpdate } from "../farcaster/users";
 import { handleCastMessages } from "../farcaster/casts";
@@ -53,35 +48,12 @@ const run = async () => {
       await handleUserUpdate(client, fid);
     }
 
-    if (messageType === MessageType.CAST_ADD) {
-      await handleCastAdd(client, message);
-    } else if (messageType === MessageType.CAST_REMOVE) {
-      await handleCastRemove(message);
-    } else if (messageType === MessageType.REACTION_ADD) {
+    if (messageType === MessageType.REACTION_ADD) {
       await handleReactionAdd(message);
     } else if (messageType === MessageType.REACTION_REMOVE) {
       await handleReactionRemove(message);
-    } else if (messageType === MessageType.LINK_ADD) {
-      await handleLinkAdd(message);
-    } else if (messageType === MessageType.LINK_REMOVE) {
-      await handleLinkRemove(message);
     }
   }
-};
-
-const handleCastAdd = async (client: Client, message: Message) => {
-  const castData = await handleCastMessages(client, [message], false);
-  for (const data of castData) {
-    console.log(`[cast-add] [${data.fid}] added cast ${data.hash}`);
-  }
-};
-
-const handleCastRemove = async (message: Message) => {
-  if (!message.data?.castRemoveBody) return;
-  const fid = message.data.fid;
-  const hash = convertToHex(message.data.castRemoveBody.targetHash);
-  await deleteCast(fid, hash);
-  console.log(`[cast-remove] [${fid}] deleted cast ${hash}`);
 };
 
 const handleReactionAdd = async (message: Message) => {
@@ -121,24 +93,6 @@ const handleReactionRemove = async (message: Message) => {
   await deleteCastReaction(reactionData as CastReaction);
   console.log(
     `[react-remove] [${reactionData.fid}] unreacted ${reactionData.reactionType} from cast ${reactionData.targetHash}`
-  );
-};
-
-const handleLinkAdd = async (message: Message) => {
-  const linkData = generateLinkData(message);
-  if (!linkData) return;
-  await upsertFarcasterLinks([linkData]);
-  console.log(
-    `[link-add] [${linkData.fid}] added link ${linkData.linkType} to ${linkData.targetFid}`
-  );
-};
-
-const handleLinkRemove = async (message: Message) => {
-  const linkData = generateLinkData(message);
-  if (!linkData) return;
-  await deleteFarcasterLink(linkData);
-  console.log(
-    `[link-add] [${linkData.fid}] removed link ${linkData.linkType} to ${linkData.targetFid}`
   );
 };
 
