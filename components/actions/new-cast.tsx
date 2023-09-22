@@ -1,34 +1,34 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { UserAuthState, useUser } from "@/context/user";
-import {
-  CameraIcon,
-  Cross1Icon,
-  FileIcon,
-  PlusIcon,
-} from "@radix-ui/react-icons";
+import { CameraIcon, Cross1Icon } from "@radix-ui/react-icons";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
-import { Loading } from "./loading";
+import { Loading } from "../loading";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
-import { Input } from "./ui/input";
-import { usePathname } from "next/navigation";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { usePathname, useRouter } from "next/navigation";
 import { CHANNELS_BY_ID } from "@/lib/channels";
 import { Channel } from "@/lib/types";
-import { ChannelSelect } from "./channel-select";
+import { ChannelSelect } from "../channel-select";
 
 const formSchema = z.object({
   text: z.string().refine(
@@ -49,11 +49,12 @@ export const NewCastInput = ({
   onSuccess,
 }: {
   reply?: { fid: number; hash: string };
-  onSuccess: any;
+  onSuccess?: () => void;
 }) => {
+  const router = useRouter();
   const [loadingChannel, setLoadingChannel] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { signerState } = useUser();
+  const { signerState, user } = useUser();
   const [embeds, setEmbeds] = useState<string[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -86,7 +87,7 @@ export const NewCastInput = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
-    await fetch("/api/casts/new", {
+    const res = await fetch("/api/casts", {
       method: "POST",
       body: JSON.stringify({
         signer_uuid: signerState?.signerUuid,
@@ -95,8 +96,16 @@ export const NewCastInput = ({
         parent: reply?.hash || channel?.parentUrl,
       }),
     });
-    setLoading(false);
-    onSuccess();
+    const { hash } = await res.json();
+    while (true) {
+      const res2 = await fetch(`/api/casts/${hash}`);
+      if (res2.ok) {
+        router.push(`/${user?.fname}/${hash}`);
+        onSuccess?.();
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,7 +228,7 @@ export const NewCast = ({
           <DialogTitle>New cast</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <NewCastInput onSuccess={() => setOpen(false)} reply={reply} />
+        <NewCastInput reply={reply} onSuccess={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

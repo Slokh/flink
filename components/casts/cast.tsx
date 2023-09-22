@@ -28,8 +28,10 @@ import {
 } from "date-fns";
 import { EmbedPreview } from "../embeds";
 import { CopyLink } from "../copy-link";
-import { NewCast } from "../new-cast";
+import { NewCast } from "../actions/new-cast";
 import Link from "next/link";
+import { CastReactions } from "./cast-reactions";
+import { DeleteCast } from "../actions/delete-cast";
 
 const formatDistanceCustom = (date1: Date, date2: Date) => {
   const diffInSeconds = differenceInSeconds(date2, date1);
@@ -180,16 +182,11 @@ const WebCast = ({
           {rank}
         </div>
       )}
-      <div className="flex flex-col w-20 items-center justify-center text-sm">
-        <div className="flex flex-row items-center space-x-1">
-          <HeartFilledIcon className="text-red-500" />
-          <div>{cast.likes}</div>
-        </div>
-        <div className="flex flex-row items-center space-x-1">
-          <UpdateIcon className="text-green-500" />
-          <div>{cast.recasts}</div>
-        </div>
-      </div>
+      <CastReactions
+        likes={cast.likes}
+        recasts={cast.recasts}
+        hash={cast.hash}
+      />
       <div className="flex w-20 justify-center items-center text-zinc-500">
         <CastPreview previewImage={previewImage} externalUrl={externalUrl} />
       </div>
@@ -292,6 +289,9 @@ const WebCast = ({
                 : `https://flink.fyi/${cast.user.fname}/${cast.hash}`
             }
           />
+          <DeleteCast hash={cast.hash}>
+            <div className="hover:underline">delete</div>
+          </DeleteCast>
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ import { MobileCast } from "./cast";
 import { CopyLink } from "../copy-link";
 import { ScrollArea } from "../ui/scroll-area";
 import Link from "next/link";
+import { CastReactions } from "./cast-reactions";
 
 const CastParent = ({ cast }: { cast: FarcasterCast }) => {
   const community = cast.parentUrl
@@ -31,16 +32,11 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
         view full thread
       </Link>
       <div className="flex flex-row space-x-2">
-        <div className="flex flex-col w-12 items-center text-sm">
-          <div className="flex flex-row items-center space-x-1">
-            <HeartFilledIcon className="text-red-500" />
-            <div>{cast.likes}</div>
-          </div>
-          <div className="flex flex-row items-center space-x-1">
-            <UpdateIcon className="text-green-500" />
-            <div>{cast.recasts}</div>
-          </div>
-        </div>
+        <CastReactions
+          likes={cast.likes}
+          recasts={cast.recasts}
+          hash={cast.hash}
+        />
         <div className="flex flex-col space-y-2">
           <div className="flex flex-row space-x-2">
             <Link href={`/${cast.user.fname}`}>
@@ -151,16 +147,11 @@ const CastChild = ({
         }`}
         ref={castRef}
       >
-        <div className="flex flex-col min-w-12 items-end text-sm">
-          <div className="flex flex-row items-center space-x-1">
-            <HeartFilledIcon className="text-red-500" />
-            <div>{cast.likes}</div>
-          </div>
-          <div className="flex flex-row items-center space-x-1">
-            <UpdateIcon className="text-green-500" />
-            <div>{cast.recasts}</div>
-          </div>
-        </div>
+        <CastReactions
+          likes={cast.likes}
+          recasts={cast.recasts}
+          hash={cast.hash}
+        />
         <div className="flex flex-col">
           <div className="flex flex-row space-x-2 text-sm">
             <Link href={`/${cast.user.fname}`}>
