@@ -8,10 +8,11 @@ export async function GET(
 ) {
   const { hash } = params;
   const casts = await getCast(hash);
-  if (!casts) {
+  if (!casts || !casts.length) {
     return NextResponse.json({}, { status: 404 });
   }
-  const tree = buildTree(casts, hash);
+  const cast = casts.find((cast: any) => cast.hash === hash);
+  const tree = buildTree(casts, cast.parentCast?.hash || hash);
   if (!tree) {
     return NextResponse.json({}, { status: 404 });
   }

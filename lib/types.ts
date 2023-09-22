@@ -115,4 +115,5 @@ export type AuthenticatedUser = {
   likes: { [key: string]: boolean };
   recasts: { [key: string]: boolean };
   casts: { [key: string]: boolean };
+  follows: { [key: string]: boolean };
 };

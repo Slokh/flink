@@ -6,9 +6,8 @@ import { Analytics } from "@vercel/analytics/react";
 import "@rainbow-me/rainbowkit/styles.css";
 import WalletProvider from "./wallet";
 import { AuthButton } from "@/components/auth-button";
-import { NewCast } from "@/components/actions/new-cast";
-import { PlusIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
+import { NewCastButton } from "@/components/actions/new-cast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -62,12 +61,7 @@ export default function RootLayout({
                     </a> */}
                   {/* <ThemeToggle /> */}
                   <AuthButton />
-                  <NewCast>
-                    <div className="flex flex-row space-x-2 items-center font-semibold rounded-xl bg-foreground text-background p-2 text-center">
-                      <PlusIcon />
-                      New cast
-                    </div>
-                  </NewCast>
+                  <NewCastButton />
                 </div>
               </div>
               <div

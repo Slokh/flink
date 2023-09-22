@@ -14,12 +14,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  ChatBubbleIcon,
-  HeartFilledIcon,
-  HeartIcon,
-  UpdateIcon,
-} from "@radix-ui/react-icons";
-import {
   differenceInSeconds,
   differenceInMinutes,
   differenceInHours,
@@ -28,10 +22,11 @@ import {
 } from "date-fns";
 import { EmbedPreview } from "../embeds";
 import { CopyLink } from "../copy-link";
-import { NewCast } from "../actions/new-cast";
+import { ReplyCastButton } from "../actions/new-cast";
 import Link from "next/link";
-import { CastReactions } from "./cast-reactions";
 import { DeleteCast } from "../actions/delete-cast";
+import { LikeCast } from "../actions/like-cast";
+import { RecastCast } from "../actions/recast-cast";
 
 const formatDistanceCustom = (date1: Date, date2: Date) => {
   const diffInSeconds = differenceInSeconds(date2, date1);
@@ -182,11 +177,10 @@ const WebCast = ({
           {rank}
         </div>
       )}
-      <CastReactions
-        likes={cast.likes}
-        recasts={cast.recasts}
-        hash={cast.hash}
-      />
+      <div className="flex flex-col items-end justify-start text-sm cursor-pointer pr-1 pl-1">
+        <LikeCast hash={cast.hash} likes={cast.likes} mode="icons" />
+        <RecastCast hash={cast.hash} recasts={cast.recasts} mode="icons" />
+      </div>
       <div className="flex w-20 justify-center items-center text-zinc-500">
         <CastPreview previewImage={previewImage} externalUrl={externalUrl} />
       </div>
@@ -259,9 +253,6 @@ const WebCast = ({
           </div>
         </div>
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-2">
-          <NewCast reply={{ fid: cast.user.fid, hash: cast.hash }}>
-            <div className="hover:underline">reply</div>
-          </NewCast>
           <Link
             href={
               isReply
@@ -272,6 +263,7 @@ const WebCast = ({
           >
             {`${cast.replies} replies`}
           </Link>
+          <ReplyCastButton parent={cast} />
           <a
             href={`https://warpcast.com/${cast.user.fname}/${cast.hash.slice(
               0,
@@ -283,11 +275,7 @@ const WebCast = ({
             warpcast
           </a>
           <CopyLink
-            link={
-              isReply
-                ? `https://flink.fyi/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`
-                : `https://flink.fyi/${cast.user.fname}/${cast.hash}`
-            }
+            link={`https://flink.fyi/${cast.user.fname}/${cast.hash}`}
           />
           <DeleteCast hash={cast.hash}>
             <div className="hover:underline">delete</div>
@@ -360,7 +348,7 @@ export const MobileCast = ({
               ? `/${cast.user.fname}/${cast.hash}`
               : `/${cast.topParentCast?.user?.fname}/${cast.topParentCast?.hash}/${cast.hash}`
           }
-          className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-4 visited:text-purple-600 visited:dark:text-purple-400"
+          className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 visited:text-purple-600 visited:dark:text-purple-400 whitespace-pre-line break-words"
         >
           <div
             dangerouslySetInnerHTML={{
@@ -373,7 +361,7 @@ export const MobileCast = ({
           />
         </Link>
       ) : (
-        <div className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-4 visited:text-purple-600 visited:dark:text-purple-400">
+        <div className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 visited:text-purple-600 visited:dark:text-purple-400 whitespace-pre-line break-words">
           <div
             dangerouslySetInnerHTML={{
               __html: formattedText
@@ -396,8 +384,8 @@ export const MobileCast = ({
         >
           {`${cast.replies} replies`}
         </Link>
-        <div>{`${cast.likes} likes`}</div>
-        <div>{`${cast.recasts} recasts`}</div>
+        <LikeCast hash={cast.hash} likes={cast.likes} mode="text" />
+        <RecastCast hash={cast.hash} recasts={cast.recasts} mode="text" />
       </div>
       {cast.embeds.length > 0 && <EmbedPreview embed={cast.embeds[0]} />}
       {community && (

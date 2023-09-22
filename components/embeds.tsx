@@ -12,15 +12,21 @@ import {
 import { Embed, NftMetadata } from "@/lib/types";
 import { URL_REGEX } from "@/indexer/links";
 
-const TwitterEmbed = ({ metadata }: { metadata: Metadata }) => {
-  const url = metadata.open_graph?.url || metadata.canonical_url || "";
+const TwitterEmbed = ({
+  metadata,
+  url,
+}: {
+  metadata: Metadata;
+  url: string;
+}) => {
   const urlHost =
     (url.startsWith("http") ? url.split("/")[2] : url.split("/")[0]) || "";
   const image =
     metadata.twitter_card.images?.[0]?.url ||
     metadata.open_graph?.images?.[0]?.url;
+
   return (
-    <a href={url || "#"} target="_blank" className="max-w-lg">
+    <a href={url || "#"} target="_blank" className="max-w-lg w-full">
       <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
         {image && (
           <div>
@@ -48,7 +54,7 @@ const TwitterEmbed = ({ metadata }: { metadata: Metadata }) => {
             </div>
           </div>
           <div className="text-zinc-500 text-xs">{urlHost}</div>
-          <div className="text-zinc-500 text-sm">
+          <div className="text-zinc-500 text-sm line-clamp-4">
             {metadata.open_graph?.description
               ?.replaceAll(URL_REGEX, "")
               .replace(/0x([a-fA-F0-9]{4}).*/, "0x$1...")}
@@ -59,8 +65,7 @@ const TwitterEmbed = ({ metadata }: { metadata: Metadata }) => {
   );
 };
 
-const UrlEmbed = ({ metadata }: { metadata: Metadata }) => {
-  const url = metadata.open_graph?.url || metadata.canonical_url || "";
+const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
   const urlHost =
     (url.startsWith("https://") ? url.split("/")[2] : url.split("/")[0]) || "";
 
@@ -76,7 +81,7 @@ const UrlEmbed = ({ metadata }: { metadata: Metadata }) => {
   }
 
   return (
-    <a href={url || "#"} target="_blank" className="max-w-lg">
+    <a href={url || "#"} target="_blank" className="max-w-lg w-full">
       <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
         <div className="flex flex-col p-2 space-y-1">
           <div className="flex flex-row space-x-2 items-center">
@@ -185,8 +190,8 @@ export const EmbedPreview = ({ embed }: { embed: Embed }) => {
   const metadata = embed.contentMetadata as Metadata;
 
   if (metadata.twitter_card) {
-    return <TwitterEmbed metadata={metadata} />;
+    return <TwitterEmbed metadata={metadata} url={embed.url} />;
   }
 
-  return <UrlEmbed metadata={metadata} />;
+  return <UrlEmbed metadata={metadata} url={embed.url} />;
 };
