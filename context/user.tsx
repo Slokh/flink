@@ -137,13 +137,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       const signerRes = await fetch(`/api/signer/${address}`);
       if (signerRes.ok) {
         const signerData = await signerRes.json();
+        setSignerState(signerData);
         if (!signerData?.fid && signerData?.signerApprovalUrl) {
           await fetchSignerData();
-        } else {
-          setSignerState(signerData);
-          if (signerData?.fid) {
-            setUser(await (await fetch(`/api/fid/${signerData.fid}`)).json());
-          }
+        } else if (signerData?.fid) {
+          setUser(await (await fetch(`/api/fid/${signerData.fid}`)).json());
         }
       } else {
         try {
@@ -167,9 +165,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const fetchSignerData = async () => {
     if (!address || !signerState?.signerApprovalUrl) return;
-    const res = await fetch(
-      `/api/signer/${address}/${signerState?.signerUuid}`
-    );
+    const res = await fetch(`/api/signer/${address}/${signerState.signerUuid}`);
     if (!res.ok) return;
     const data = await res.json();
     setSignerState(data);
@@ -181,20 +177,25 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   useEffect(() => {
     if (loading) {
       setAuthState(UserAuthState.UNKNOWN);
-    } else if (!isConnected) {
+      return;
+    }
+    if (!isConnected) {
       setAuthState(UserAuthState.DISCONNECTED);
-    } else if (signerState?.fid) {
+      return;
+    }
+    if (signerState?.fid) {
       setAuthState(UserAuthState.LOGGED_IN);
       return;
-    } else if (signerState?.signerApprovalUrl) {
+    }
+    if (signerState?.signerApprovalUrl) {
       setAuthState(UserAuthState.NEEDS_APPROVAL);
       return;
-    } else if (verifyState?.address && verifyState.address === address) {
+    }
+    if (verifyState?.address && verifyState.address === address) {
       setAuthState(UserAuthState.VERIFIED);
       return;
-    } else {
-      setAuthState(UserAuthState.CONNECTED);
     }
+    setAuthState(UserAuthState.CONNECTED);
   }, [loading, address, isConnected, signerState, verifyState]);
 
   const value = {

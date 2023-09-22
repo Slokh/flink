@@ -11,14 +11,24 @@ import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { ScrollArea } from "./ui/scroll-area";
 
-export const ChannelSelect = ({ channel }: { channel?: string }) => {
+export const ChannelSelect = ({
+  channel,
+  onChange,
+  disableAll,
+}: {
+  channel?: string;
+  onChange?: any;
+  disableAll?: boolean;
+}) => {
   const router = useRouter();
   return (
     <div>
       <Select
         defaultValue={channel}
         onValueChange={(value) =>
-          router.push(value ? `/channel/${value}` : "/")
+          onChange
+            ? onChange(value)
+            : router.push(value ? `/channel/${value}` : "/")
         }
       >
         <SelectTrigger className="border-0 text-sm md:text-md font-semibold shadow-none p-0 h-6">
@@ -26,9 +36,14 @@ export const ChannelSelect = ({ channel }: { channel?: string }) => {
         </SelectTrigger>
         <SelectContent>
           <ScrollArea className="h-96">
-            {channel && (
+            {channel && !disableAll && (
               <SelectItem value="" className="cursor-pointer">
                 <div className="text-md font-semibold">All channels</div>
+              </SelectItem>
+            )}
+            {disableAll && (
+              <SelectItem value="" className="cursor-pointer">
+                <div className="text-md font-semibold">No channel</div>
               </SelectItem>
             )}
             {CHANNELS.map((item) => (

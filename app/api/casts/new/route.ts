@@ -18,5 +18,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     });
   }
 
+  console.log(await data.json());
+
   return NextResponse.json({});
 }

@@ -28,6 +28,8 @@ import {
 } from "date-fns";
 import { EmbedPreview } from "../embeds";
 import { CopyLink } from "../copy-link";
+import { NewCast } from "../new-cast";
+import Link from "next/link";
 
 const formatDistanceCustom = (date1: Date, date2: Date) => {
   const diffInSeconds = differenceInSeconds(date2, date1);
@@ -93,13 +95,13 @@ const CastPreview = ({
   if (previewImage) {
     if (externalUrl) {
       return (
-        <a href={externalUrl} target="_blank">
+        <Link href={externalUrl} target="_blank">
           <img
             src={previewImage}
             alt={previewImage}
             className="object-cover w-16 h-16"
           />
-        </a>
+        </Link>
       );
     }
     return (
@@ -195,13 +197,13 @@ const WebCast = ({
         {isReply && (
           <div className="text-xs text-zinc-500">
             replying to{" "}
-            <a
+            <Link
               href={`/${cast.parentCast?.user.fname}`}
               className="text-purple-600 dark:text-purple-400 hover:underline"
-            >{`@${cast.parentCast?.user.fname}`}</a>
+            >{`@${cast.parentCast?.user.fname}`}</Link>
           </div>
         )}
-        <a
+        <Link
           href={
             cast.topParentCast && cast.hash === cast.topParentCast?.hash
               ? `/${cast.user.fname}/${cast.hash}`
@@ -216,7 +218,7 @@ const WebCast = ({
           ) : (
             "untitled"
           )}
-        </a>
+        </Link>
         <div className="flex flex-row space-x-1">
           <div className="flex flex-row space-x-1 items-center text-purple-600 dark:text-purple-400 text-sm">
             <div className="text-zinc-500">
@@ -225,19 +227,19 @@ const WebCast = ({
               })}
             </div>
             <div className="text-zinc-500">by</div>
-            <a href={`/${cast.user.fname}`}>
+            <Link href={`/${cast.user.fname}`}>
               <Avatar className="h-4 w-4">
                 <AvatarImage src={cast.user.pfp} className="object-cover" />
                 <AvatarFallback>?</AvatarFallback>
               </Avatar>
-            </a>
-            <a href={`/${cast.user.fname}`} className="hover:underline">
+            </Link>
+            <Link href={`/${cast.user.fname}`} className="hover:underline">
               <div>{cast.user.fname}</div>
-            </a>
+            </Link>
             {community && (
               <>
                 <div className="text-zinc-500">in</div>
-                <a
+                <Link
                   href={`/channel/${community.channelId}`}
                   className="hover:underline"
                 >
@@ -248,19 +250,22 @@ const WebCast = ({
                     />
                     <AvatarFallback>?</AvatarFallback>
                   </Avatar>
-                </a>
-                <a
+                </Link>
+                <Link
                   href={`/channel/${community.channelId}`}
                   className="hover:underline"
                 >
                   <div>{community.name}</div>
-                </a>
+                </Link>
               </>
             )}
           </div>
         </div>
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-2">
-          <a
+          <NewCast reply={{ fid: cast.user.fid, hash: cast.hash }}>
+            <div className="hover:underline">reply</div>
+          </NewCast>
+          <Link
             href={
               isReply
                 ? `/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`
@@ -269,7 +274,7 @@ const WebCast = ({
             className="hover:underline"
           >
             {`${cast.replies} replies`}
-          </a>
+          </Link>
           <a
             href={`https://warpcast.com/${cast.user.fname}/${cast.hash.slice(
               0,
@@ -325,15 +330,15 @@ export const MobileCast = ({
           {rank && (
             <div className="flex text-zinc-500 font-semibold">{`${rank}.`}</div>
           )}
-          <a href={`/${cast.user.fname}`}>
+          <Link href={`/${cast.user.fname}`}>
             <Avatar className="h-4 w-4">
               <AvatarImage src={cast.user.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
-          </a>
-          <a href={`/${cast.user.fname}`} className="hover:underline">
+          </Link>
+          <Link href={`/${cast.user.fname}`} className="hover:underline">
             <div>{cast.user.fname}</div>
-          </a>
+          </Link>
         </div>
         <div className="text-zinc-500">
           {formatDistanceCustom(new Date(cast.timestamp), new Date())}
@@ -342,14 +347,14 @@ export const MobileCast = ({
       {isReply && (
         <div className="text-xs text-zinc-500">
           replying to{" "}
-          <a
+          <Link
             href={`/${cast.parentCast?.user.fname}`}
             className="text-purple-600 dark:text-purple-400 hover:underline"
-          >{`@${cast.parentCast?.user.fname}`}</a>
+          >{`@${cast.parentCast?.user.fname}`}</Link>
         </div>
       )}
       {isLink ? (
-        <a
+        <Link
           href={
             cast.topParentCast && cast.hash === cast.topParentCast?.hash
               ? `/${cast.user.fname}/${cast.hash}`
@@ -366,7 +371,7 @@ export const MobileCast = ({
                 : "untitled",
             }}
           />
-        </a>
+        </Link>
       ) : (
         <div className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-4 visited:text-purple-600 visited:dark:text-purple-400">
           <div
@@ -381,7 +386,7 @@ export const MobileCast = ({
         </div>
       )}
       <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center">
-        <a
+        <Link
           href={
             isReply
               ? `/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`
@@ -390,7 +395,7 @@ export const MobileCast = ({
           className="hover:underline"
         >
           {`${cast.replies} replies`}
-        </a>
+        </Link>
         <div>{`${cast.likes} likes`}</div>
         <div>{`${cast.recasts} recasts`}</div>
       </div>
@@ -398,7 +403,7 @@ export const MobileCast = ({
       {community && (
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center justify-end">
           <div className="text-zinc-500">in</div>
-          <a
+          <Link
             href={`/channel/${community.channelId}`}
             className="hover:underline"
           >
@@ -406,13 +411,13 @@ export const MobileCast = ({
               <AvatarImage src={community.image} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
-          </a>
-          <a
+          </Link>
+          <Link
             href={`/channel/${community.channelId}`}
             className="hover:underline"
           >
             <div>{community.name}</div>
-          </a>
+          </Link>
         </div>
       )}
     </div>

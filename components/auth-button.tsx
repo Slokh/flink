@@ -14,6 +14,7 @@ import { CheckIcon } from "@radix-ui/react-icons";
 import { UserAuthState, useUser } from "@/context/user";
 import QRCode from "qrcode.react";
 import { Loading } from "./loading";
+import Link from "next/link";
 
 export const AuthButton = () => {
   const [open, setOpen] = useState(false);
@@ -49,12 +50,12 @@ export const AuthButton = () => {
     );
   } else if (authState === UserAuthState.LOGGED_IN) {
     return (
-      <a
+      <Link
         href={`/${user?.fname}`}
         // className="flex flex-row items-center font-bold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center"
       >
         <div className="font-bold text-sm">{`@${user?.fname}`}</div>
-      </a>
+      </Link>
     );
   } else if (authState === UserAuthState.DISCONNECTED) {
     return (
