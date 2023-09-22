@@ -149,6 +149,7 @@ export const getCastsResponseByTopLikes = async (
         "reactionType" = 'like'
         AND "FarcasterCast"."timestamp" >= NOW() -  ${timeInterval}::interval
         AND "FarcasterCast"."parentUrl" = ${parentUrl}
+        AND NOT "FarcasterCast"."deleted"
     GROUP BY "targetFid", "targetHash"
     ORDER BY COUNT(*) DESC, "targetFid" DESC
     LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
@@ -167,6 +168,7 @@ export const getCastsResponseByTopLikes = async (
         AND "FarcasterCast"."timestamp" >= NOW() - ${timeInterval}::interval
         AND "FarcasterCast"."fid" = ${fid}
         AND "FarcasterCast"."parentCast" IS NOT NULL
+        AND NOT "FarcasterCast"."deleted"
     GROUP BY "targetFid", "targetHash"
     ORDER BY COUNT(*) DESC, "targetFid" DESC
     LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
@@ -183,6 +185,7 @@ export const getCastsResponseByTopLikes = async (
         AND "FarcasterCast"."timestamp" >= NOW() - ${timeInterval}::interval
         AND "FarcasterCast"."fid" = ${fid}
         AND "FarcasterCast"."parentCast" IS NULL
+        AND NOT "FarcasterCast"."deleted"
     GROUP BY "targetFid", "targetHash"
     ORDER BY COUNT(*) DESC, "targetFid" DESC
     LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
@@ -198,6 +201,7 @@ export const getCastsResponseByTopLikes = async (
         "reactionType" = 'like'
         AND "FarcasterCast"."timestamp" >= NOW() - ${timeInterval}::interval
         AND "FarcasterCast"."parentCast" IS NULL
+        AND NOT "FarcasterCast"."deleted"
     GROUP BY "targetFid", "targetHash"
     ORDER BY COUNT(*) DESC, "targetFid" DESC
     LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
@@ -239,6 +243,7 @@ export const getCastsResponseByNewness = async (
           },
       ...(parentUrl ? { parentUrl } : {}),
       ...(fid ? { fid } : {}),
+      deleted: false,
     },
     orderBy: {
       timestamp: "desc",
@@ -388,6 +393,7 @@ const getRepliesForCast = async (casts: any) => {
       OR: casts.map((cast: any) => ({
         topParentFid: cast.fid,
         topParentCast: cast.hash,
+        deleted: false,
       })),
     },
     _count: true,

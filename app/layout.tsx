@@ -6,7 +6,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "@rainbow-me/rainbowkit/styles.css";
 import WalletProvider from "./wallet";
 import { AuthButton } from "@/components/auth-button";
-import { NewCast } from "@/components/new-cast";
+import { NewCast } from "@/components/actions/new-cast";
 import { PlusIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 

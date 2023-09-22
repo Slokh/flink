@@ -105,3 +105,14 @@ export type CastsQuery = {
   params: { id: string; channel: string };
   searchParams: { time?: string; page?: string };
 };
+
+export type AuthenticatedUser = {
+  fid: number;
+  fname?: string;
+  pfp?: string;
+  display?: string;
+  bio?: string;
+  likes: { [key: string]: boolean };
+  recasts: { [key: string]: boolean };
+  casts: { [key: string]: boolean };
+};

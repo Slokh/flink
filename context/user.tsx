@@ -1,4 +1,4 @@
-import { FarcasterUser } from "@/lib/types";
+import { AuthenticatedUser } from "@/lib/types";
 import { formatSiweMessage } from "@/lib/utils";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -30,7 +30,7 @@ export type SignerState = {
 };
 
 type State = {
-  user?: FarcasterUser;
+  user?: AuthenticatedUser;
   address?: `0x${string}`;
   authState: UserAuthState;
   verifyMessage: () => void;
@@ -54,7 +54,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const { signMessageAsync } = useSignMessage();
   const [verifyState, setVerifyState] = useState<VerifyState>({});
   const [signerState, setSignerState] = useState<SignerState | undefined>();
-  const [user, setUser] = useState<FarcasterUser | undefined>();
+  const [user, setUser] = useState<AuthenticatedUser | undefined>();
   const [loading, setLoading] = useState(true);
 
   const fetchNonce = async () => {

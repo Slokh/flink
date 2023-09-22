@@ -9,6 +9,9 @@ import { MobileCast } from "./cast";
 import { CopyLink } from "../copy-link";
 import { ScrollArea } from "../ui/scroll-area";
 import Link from "next/link";
+import { CastReactions } from "./cast-reactions";
+import { DeleteCast } from "../actions/delete-cast";
+import { NewCast } from "../actions/new-cast";
 
 const CastParent = ({ cast }: { cast: FarcasterCast }) => {
   const community = cast.parentUrl
@@ -17,16 +20,11 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
   const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
   return (
     <div className="flex flex-row space-x-2 p-4 w-full">
-      <div className="flex flex-col w-12 items-center text-sm">
-        <div className="flex flex-row items-center space-x-1">
-          <HeartFilledIcon className="text-red-500" />
-          <div>{cast.likes}</div>
-        </div>
-        <div className="flex flex-row items-center space-x-1">
-          <UpdateIcon className="text-green-500" />
-          <div>{cast.recasts}</div>
-        </div>
-      </div>
+      <CastReactions
+        likes={cast.likes}
+        recasts={cast.recasts}
+        hash={cast.hash}
+      />
       <div className="flex flex-col space-y-1 w-full">
         <div className="flex flex-row space-x-2">
           <Link href={`/${cast.user.fname}`}>
@@ -90,6 +88,9 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
           )}
         </div>
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-4">
+          <NewCast reply={{ fid: cast.user.fid, hash: cast.hash }}>
+            <div className="hover:underline">reply</div>
+          </NewCast>
           <a
             href={`https://warpcast.com/${cast.user.fname}/${cast.hash.slice(
               0,
@@ -98,11 +99,14 @@ const CastParent = ({ cast }: { cast: FarcasterCast }) => {
             target="_blank"
             className="hover:underline"
           >
-            reply on warpcast
+            warpcast
           </a>
           <CopyLink
             link={`https://flink.fyi/${cast.user.fname}/${cast.hash}`}
           />
+          <DeleteCast hash={cast.hash}>
+            <div className="hover:underline">delete</div>
+          </DeleteCast>
         </div>
       </div>
     </div>
@@ -114,16 +118,11 @@ const CastChild = ({ cast }: { cast: FarcasterCastTree }) => {
   return (
     <div className="flex flex-col p-2">
       <div className="flex flex-row space-x-2">
-        <div className="flex flex-col min-w-12 items-end text-sm">
-          <div className="flex flex-row items-center space-x-1">
-            <HeartFilledIcon className="text-red-500" />
-            <div>{cast.likes}</div>
-          </div>
-          <div className="flex flex-row items-center space-x-1">
-            <UpdateIcon className="text-green-500" />
-            <div>{cast.recasts}</div>
-          </div>
-        </div>
+        <CastReactions
+          likes={cast.likes}
+          recasts={cast.recasts}
+          hash={cast.hash}
+        />
         <div className="flex flex-col">
           <div className="flex flex-row space-x-2 text-sm">
             <Link href={`/${cast.user.fname}`}>
@@ -160,6 +159,9 @@ const CastChild = ({ cast }: { cast: FarcasterCastTree }) => {
             )}
           </div>
           <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-4">
+            <NewCast reply={{ fid: cast.user.fid, hash: cast.hash }}>
+              <div className="hover:underline">reply</div>
+            </NewCast>
             <a
               href={`https://warpcast.com/${cast.user.fname}/${cast.hash.slice(
                 0,
@@ -168,11 +170,14 @@ const CastChild = ({ cast }: { cast: FarcasterCastTree }) => {
               target="_blank"
               className="hover:underline"
             >
-              reply on warpcast
+              warpcast
             </a>
             <CopyLink
               link={`https://flink.fyi/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`}
             />
+            <DeleteCast hash={cast.hash} isReply>
+              <div className="hover:underline">delete</div>
+            </DeleteCast>
           </div>
         </div>
       </div>
@@ -191,7 +196,7 @@ export const CastThread = async ({ cast }: { cast: FarcasterCastTree }) => {
   return (
     <>
       <div className="hidden md:flex flex-col w-full h-full">
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full pl-2">
           <CastParent cast={cast} />
           <div className="flex flex-col space-y-4 m-2">
             {cast.children.map((child) => (
