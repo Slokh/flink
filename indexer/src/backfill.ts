@@ -12,8 +12,8 @@ import {
   upsertUrlReactions,
 } from "../db/reaction";
 
-const START_TIMESTAMP = 1695298377;
-const END_TIMESTAMP = 1695303057;
+const START_TIMESTAMP = 1695329165;
+const END_TIMESTAMP = 1695329165;
 
 const backfill = async () => {
   const client = await getHubClient();
