@@ -46,7 +46,7 @@ export const Casts = async ({
 }) => {
   const casts = await getCasts(sort, page, community, time, fid);
   return (
-    <div>
+    <div className="w-full">
       {casts.map((cast, i) => (
         <Cast
           key={cast.hash}
@@ -90,10 +90,8 @@ export const CastsTable = async ({
         <ChannelSelect channel={channel} />
         <CastsNavigation selected={sort} time={time} community={channel} />
       </div>
-      <ScrollArea className="h-full">
-        <Casts sort={sort} time={time} page={page} community={channel} />
-        <CastsPagination href={baseHref} page={page} />
-      </ScrollArea>
+      <Casts sort={sort} time={time} page={page} community={channel} />
+      <CastsPagination href={baseHref} page={page} />
     </div>
   );
 };

@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { fid: string } }
 ) {
   const { fid } = params;
-  const [user, likes, recasts, casts] = await Promise.all([
+  const [user, likes, recasts, casts, follows] = await Promise.all([
     prisma.farcaster.findFirst({
       where: {
         fid: parseInt(fid),
@@ -33,6 +33,13 @@ export async function GET(
         deleted: false,
       },
     }),
+    prisma.farcasterLink.findMany({
+      where: {
+        fid: parseInt(fid),
+        deleted: false,
+        linkType: "follow",
+      },
+    }),
   ]);
 
   return NextResponse.json({
@@ -51,6 +58,10 @@ export async function GET(
     }, {} as Record<string, boolean>),
     casts: casts.reduce((acc, cur) => {
       acc[cur.hash] = true;
+      return acc;
+    }, {} as Record<string, boolean>),
+    follows: follows.reduce((acc, cur) => {
+      acc[cur.targetFid] = true;
       return acc;
     }, {} as Record<string, boolean>),
   } as AuthenticatedUser);

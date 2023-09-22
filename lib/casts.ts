@@ -24,6 +24,17 @@ export const getCast = async (hash: string) => {
     },
   });
 
+  const cast = casts.find((cast) => cast.hash === hash);
+  if (cast?.parentCast) {
+    const parentCasts = await prisma.farcasterCast.findMany({
+      where: { hash: cast.parentCast, deleted: false },
+      include: {
+        mentions: true,
+      },
+    });
+    casts.push(...parentCasts);
+  }
+
   return await getCastsResponse(casts);
 };
 

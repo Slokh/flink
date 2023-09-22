@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Loading } from "../loading";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 
 export const DeleteCast = ({
@@ -26,6 +26,7 @@ export const DeleteCast = ({
 }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const { user, signerState } = useUser();
 
@@ -43,7 +44,7 @@ export const DeleteCast = ({
     while (true) {
       const res2 = await fetch(`/api/casts/${hash}`);
       if (!res2.ok) {
-        if (isReply) {
+        if (isReply || pathname === `/${user?.fname}`) {
           router.refresh();
         } else {
           router.push(`/${user?.fname}`);

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { UserAuthState, useUser } from "@/context/user";
-import { CameraIcon, Cross1Icon } from "@radix-ui/react-icons";
+import { CameraIcon, Cross1Icon, PlusIcon } from "@radix-ui/react-icons";
 import {
   Dialog,
   DialogContent,
@@ -25,10 +25,12 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { CHANNELS_BY_ID } from "@/lib/channels";
-import { Channel } from "@/lib/types";
+import { Channel, FarcasterCast } from "@/lib/types";
 import { ChannelSelect } from "../channel-select";
+import { CastContent } from "../casts/cast-thread";
+import { ScrollArea } from "../ui/scroll-area";
 
 const formSchema = z.object({
   text: z.string().refine(
@@ -44,14 +46,17 @@ const formSchema = z.object({
   embeds: z.array(z.string().url()).max(2),
 });
 
-export const NewCastInput = ({
-  reply,
-  onSuccess,
+export const NewCast = ({
+  parent,
+  header,
+  children,
 }: {
-  reply?: { fid: number; hash: string };
-  onSuccess?: () => void;
+  parent?: FarcasterCast;
+  header?: React.ReactNode;
+  children: React.ReactNode;
 }) => {
-  const router = useRouter();
+  const { authState } = useUser();
+
   const [loadingChannel, setLoadingChannel] = useState(true);
   const [loading, setLoading] = useState(false);
   const { signerState, user } = useUser();
@@ -68,11 +73,11 @@ export const NewCastInput = ({
   const [channel, setChannel] = useState<Channel | undefined>(undefined);
 
   useEffect(() => {
-    if (!reply && pathname.includes("/channel/")) {
+    if (!parent && pathname.includes("/channel/")) {
       setChannel(CHANNELS_BY_ID[pathname.split("/")[2]]);
     }
     setLoadingChannel(false);
-  }, [reply, pathname]);
+  }, [parent, pathname]);
 
   const {
     watch,
@@ -93,15 +98,15 @@ export const NewCastInput = ({
         signer_uuid: signerState?.signerUuid,
         text: values.text,
         embeds: embeds.map((url) => ({ url })),
-        parent: reply?.hash || channel?.parentUrl,
+        parent: parent?.hash || channel?.parentUrl,
       }),
     });
     const { hash } = await res.json();
     while (true) {
       const res2 = await fetch(`/api/casts/${hash}`);
       if (res2.ok) {
-        router.push(`/${user?.fname}/${hash}`);
-        onSuccess?.();
+        // @ts-ignore
+        window.location = `/${user?.fname}/${hash}`;
         break;
       }
       await new Promise((resolve) => setTimeout(resolve, 200));
@@ -137,99 +142,114 @@ export const NewCastInput = ({
     }
   };
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <FormField
-          control={form.control}
-          name="text"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Textarea
-                  className="resize-none"
-                  placeholder="Type your message here..."
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e); // preserve the original onChange event from react-hook-form
-                    e.target.style.height = "inherit";
-                    e.target.style.height = `${e.target.scrollHeight}px`;
-                  }}
-                />
-              </FormControl>
-              {errors.text && <FormMessage>{errors.text.message}</FormMessage>}
-            </FormItem>
-          )}
-        />
-        <div className="flex flex-row">
-          {embeds.map((embed, i) => (
-            <div key={embed} className="m-2 relative">
-              <img src={embed} alt="embed" />
-              <div
-                className=" absolute top-0 right-0 cursor-pointer bg-background rounded-full p-1 m-1"
-                onClick={() => {
-                  const newEmbeds = [...embeds];
-                  newEmbeds.splice(i, 1);
-                  setEmbeds(newEmbeds);
-                }}
-              >
-                <Cross1Icon className="h-2 w-2" />
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-row justify-between items-center mt-2 space-x-2">
-          <label htmlFor="embed">
-            <div className="p-2 cursor-pointer border rounded-lg">
-              <CameraIcon className="h-4 w-4" />
-            </div>
-          </label>
-          <Input
-            id="embed"
-            type="file"
-            className="hidden"
-            onChange={handleFileSelect}
-          />
-          <div className="flex flex-row space-x-2 items-center">
-            {!loadingChannel && !reply && (
-              <ChannelSelect
-                channel={channel?.channelId}
-                onChange={(value: string) => setChannel(CHANNELS_BY_ID[value])}
-                disableAll
-              />
-            )}
-            <Button type="submit" disabled={loading}>
-              {loading ? <Loading /> : "Cast"}
-            </Button>
-          </div>
-        </div>
-      </form>
-    </Form>
-  );
-};
-
-export const NewCast = ({
-  reply,
-  children,
-}: {
-  reply?: { fid: number; hash: string };
-  children: React.ReactNode;
-}) => {
-  const [open, setOpen] = useState(false);
-  const { authState } = useUser();
-
   if (authState !== UserAuthState.LOGGED_IN) return <></>;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog>
       <DialogTrigger>{children}</DialogTrigger>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>New cast</DialogTitle>
-          <DialogDescription></DialogDescription>
-        </DialogHeader>
-        <NewCastInput reply={reply} onSuccess={() => setOpen(false)} />
+        {header}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <FormField
+              control={form.control}
+              name="text"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      className="resize-none"
+                      placeholder="Type your message here..."
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e); // preserve the original onChange event from react-hook-form
+                        e.target.style.height = "inherit";
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
+                    />
+                  </FormControl>
+                  {errors.text && (
+                    <FormMessage>{errors.text.message}</FormMessage>
+                  )}
+                </FormItem>
+              )}
+            />
+            <div className="flex flex-row">
+              {embeds.map((embed, i) => (
+                <div key={embed} className="m-2 relative">
+                  <img src={embed} alt="embed" />
+                  <div
+                    className=" absolute top-0 right-0 cursor-pointer bg-background rounded-full p-1 m-1"
+                    onClick={() => {
+                      const newEmbeds = [...embeds];
+                      newEmbeds.splice(i, 1);
+                      setEmbeds(newEmbeds);
+                    }}
+                  >
+                    <Cross1Icon className="h-2 w-2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-row justify-between items-center mt-2 space-x-2">
+              <label htmlFor="embed">
+                <div className="p-2 cursor-pointer border rounded-lg">
+                  <CameraIcon className="h-4 w-4" />
+                </div>
+              </label>
+              <Input
+                id="embed"
+                type="file"
+                className="hidden"
+                onChange={handleFileSelect}
+              />
+              <div className="flex flex-row space-x-2 items-center">
+                {!loadingChannel && !parent && (
+                  <ChannelSelect
+                    channel={channel?.channelId}
+                    onChange={(value: string) =>
+                      setChannel(CHANNELS_BY_ID[value])
+                    }
+                    disableAll
+                  />
+                )}
+                <Button type="submit" disabled={loading}>
+                  {loading ? <Loading /> : "Cast"}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
 };
+
+export const NewCastButton = () => (
+  <NewCast
+    header={
+      <DialogHeader>
+        <DialogTitle>New cast</DialogTitle>
+        <DialogDescription></DialogDescription>
+      </DialogHeader>
+    }
+  >
+    <div className="flex flex-row space-x-2 items-center font-semibold rounded-xl bg-foreground text-background p-2 text-center">
+      <PlusIcon />
+      New cast
+    </div>
+  </NewCast>
+);
+
+export const ReplyCastButton = ({ parent }: { parent: FarcasterCast }) => (
+  <NewCast
+    header={
+      <ScrollArea className="max-h-96">
+        <CastContent cast={parent} />
+      </ScrollArea>
+    }
+    parent={parent}
+  >
+    <div className="hover:underline">reply</div>
+  </NewCast>
+);
