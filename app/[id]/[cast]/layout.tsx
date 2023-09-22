@@ -14,8 +14,6 @@ export const generateMetadata = async ({
     getEntity(params.id, false),
     getCast(params.cast),
   ]);
-  const host = headers().get("host");
-  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
 
   // @ts-ignore
   if (!entity || entity?.error || !cast || cast?.error) {

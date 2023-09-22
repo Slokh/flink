@@ -7,9 +7,10 @@
     "calculate-channel-stats": "ts-node -P tsconfig.json -r dotenv/config src/calculate-channel-stats.ts",
     "backfill": "ts-node -P tsconfig.json -r dotenv/config src/backfill.ts",
     "casts": "ts-node -P tsconfig.json -r dotenv/config src/casts.ts",
+    "users": "ts-node -P tsconfig.json -r dotenv/config src/users.ts",
     "reactions": "ts-node -P tsconfig.json -r dotenv/config src/reactions.ts",
     "links": "ts-node -P tsconfig.json -r dotenv/config src/links.ts",
-    "live": "yarn casts & yarn reactions & yarn links",
+    "live": "yarn casts & yarn reactions & yarn links & yarn users",
     "manual": "ts-node -P tsconfig.json -r dotenv/config src/manual.ts",
     "start": "npm run live"
   },

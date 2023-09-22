@@ -1,20 +1,7 @@
 import { HubEventType, Message, MessageType } from "@farcaster/hub-nodejs";
 import { Client, convertToHex, getHubClient } from "../farcaster/hub";
-import { handleUserUpdate } from "../farcaster/users";
 import { handleCastMessages } from "../farcaster/casts";
-import prisma from "../lib/prisma";
 import { deleteCast } from "../db/cast";
-import { generateReactionData } from "../farcaster/reactions";
-import {
-  CastReaction,
-  UrlReaction,
-  deleteCastReaction,
-  deleteUrlReaction,
-  upsertCastReactions,
-  upsertUrlReactions,
-} from "../db/reaction";
-import { deleteFarcasterLink, upsertFarcasterLinks } from "../db/farcaster";
-import { generateLinkData } from "../farcaster/link";
 
 const run = async () => {
   const client = await getHubClient();
@@ -32,20 +19,6 @@ const run = async () => {
     const messageType = message.data?.type;
     if (!fid || !messageType) {
       continue;
-    }
-
-    if (
-      messageType === MessageType.VERIFICATION_ADD_ETH_ADDRESS ||
-      messageType === MessageType.USER_DATA_ADD
-    ) {
-      await handleUserUpdate(client, fid);
-      continue;
-    }
-
-    // check if fid exists yet
-    const farcasterUser = await prisma.farcaster.findFirst({ where: { fid } });
-    if (!farcasterUser) {
-      await handleUserUpdate(client, fid);
     }
 
     if (messageType === MessageType.CAST_ADD) {
