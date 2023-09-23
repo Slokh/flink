@@ -144,7 +144,8 @@ model FarcasterCastReaction {
     deleted Boolean @default(false)
 
     @@id([fid, targetHash, targetFid, reactionType])
-    @@index([targetFid, targetHash, reactionType])
+    @@index([timestamp])
+    @@index([targetFid, targetHash])
 }
 
 model FarcasterUrlReaction {

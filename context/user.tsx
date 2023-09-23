@@ -149,14 +149,18 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   useEffect(() => {
     const handler = async () => {
-      if (!address) return;
-      setAuthState(UserAuthState.CONNECTED);
+      if (!address) {
+        setAuthState(UserAuthState.DISCONNECTED);
+        return;
+      }
+
+      let authState = UserAuthState.CONNECTED;
 
       let signer = await fetchSignerForAddress(address);
       if (!signer) {
         return;
       }
-      setAuthState(UserAuthState.VERIFIED);
+      authState = UserAuthState.VERIFIED;
 
       if (!signer.fid) {
         const latestSigner = await fetchLatestSigner(
@@ -168,18 +172,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
       if (signer.fid) {
         const user = await fetchUserForFid(signer.fid);
-        setAuthState(UserAuthState.LOGGED_IN);
-        setSignerState(signer);
         setUser(user);
-        return;
+        authState = UserAuthState.LOGGED_IN;
       }
 
-      setAuthState(UserAuthState.NEEDS_APPROVAL);
+      setAuthState(authState);
       setSignerState(signer);
     };
-    if (address) {
-      handler();
-    }
+    handler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 

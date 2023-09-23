@@ -10,7 +10,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Embed, NftMetadata } from "@/lib/types";
-import { URL_REGEX } from "@/indexer/links";
+
+const URL_REGEX =
+  /\b(?:https?:\/\/|www\.|ftp:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?\b/gi;
 
 const TwitterEmbed = ({
   metadata,

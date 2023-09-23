@@ -1,4 +1,3 @@
-import { fetchWithRetry } from "@/indexer/util";
 import { createPublicClient, http } from "viem";
 import { mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
@@ -44,7 +43,7 @@ export const getEnsTextRecords = async (ensNames: string[]) => {
 };
 
 const getEnsTextRecord = async (ensName: string) => {
-  const { data } = await fetchWithRetry(
+  const res = await fetch(
     "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
     {
       method: "POST",
@@ -64,6 +63,7 @@ const getEnsTextRecord = async (ensName: string) => {
       }),
     }
   );
+  const { data } = await res.json();
 
   if (!data?.domains?.length) {
     return [];

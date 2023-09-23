@@ -22,8 +22,7 @@ export async function GET(
     : undefined;
 
   if (sort === CastsSort.Hot) {
-    const y = await getCastsResponseByHotness(page, parentUrl);
-    return NextResponse.json(y);
+    return NextResponse.json(await getCastsResponseByHotness(page, parentUrl));
   } else if (sort === CastsSort.Top || sort === CastsSort.TopReplies) {
     const time = url.searchParams.get("time") as
       | "hour"

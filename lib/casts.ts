@@ -1,7 +1,6 @@
 import { getEmbedMetadata } from "@/indexer/embeds";
-import { normalizeLink } from "@/indexer/links";
 import prisma from "@/lib/prisma";
-import { Embed, FarcasterMention, FarcasterUser } from "@/lib/types";
+import { Embed, FarcasterUser } from "@/lib/types";
 
 const PAGE_SIZE = 25;
 
@@ -502,105 +501,4 @@ const getReactionsForCasts = async (
     acc[`${reaction.targetFid}-${reaction.targetHash}`] = reaction._count;
     return acc;
   }, {} as Record<string, number>);
-};
-
-export const formatText = (
-  text: string,
-  mentions: FarcasterMention[],
-  embeds: Embed[],
-  withLinks: boolean
-) => {
-  let offset = 0;
-  let updatedMentionsPositions = []; // Array to store updated positions
-
-  // Convert text to a Buffer object to deal with bytes
-  let textBuffer = Buffer.from(text, "utf-8");
-
-  for (let i = 0; i < mentions.length; i++) {
-    // Assuming mentionsPositions consider newlines as bytes, so no newline adjustment
-    const adjustedMentionPosition = mentions[i].position;
-    const mentionUsername = mentions[i].mention.fname;
-
-    const mentionLink = withLinks
-      ? `<a href="/${mentionUsername}" class="current relative hover:underline text-purple-600 dark:text-purple-400">@${mentionUsername}</a>`
-      : `<span class="current relative text-purple-600 dark:text-purple-400">@${mentionUsername}</span>`;
-    const mentionLinkBuffer = Buffer.from(mentionLink, "utf-8");
-
-    // Apply the offset only when slicing the text
-    const actualPosition = adjustedMentionPosition + offset;
-
-    const beforeMention = textBuffer.slice(0, actualPosition);
-    const afterMention = textBuffer.slice(actualPosition);
-
-    // Concatenating buffers
-    textBuffer = Buffer.concat([
-      beforeMention,
-      mentionLinkBuffer,
-      afterMention,
-    ]);
-
-    // Update the offset based on the added mention
-    offset += mentionLinkBuffer.length;
-
-    // Store the adjusted position in the new array
-    updatedMentionsPositions.push(actualPosition);
-  }
-
-  // Convert the final Buffer back to a string
-  text = textBuffer.toString("utf-8");
-
-  // Replace urls with anchor tags
-  if (withLinks) {
-    const urls = embeds
-      .map(({ url }) => normalizeLink(url))
-      .filter((url, index, self) => self.indexOf(url) === index);
-
-    urls.forEach((url) => {
-      let originalUrl = url;
-      if (text.includes(`https://www.${url}`)) {
-        originalUrl = `https://www.${url}`;
-      } else if (text.includes(`https://${url}`)) {
-        originalUrl = `https://${url}`;
-      } else if (text.includes(`http://${url}`)) {
-        originalUrl = `http://${url}`;
-      } else if (text.includes(`www.${url}`)) {
-        originalUrl = `www.${url}`;
-      }
-
-      if (text.includes(`${originalUrl}/`)) {
-        originalUrl = `${originalUrl}/`;
-      }
-
-      text = text.replace(
-        originalUrl,
-        `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${
-          originalUrl.startsWith("http")
-            ? originalUrl
-            : `https://${originalUrl}`
-        }">${url}</a>`
-      );
-    });
-  } else {
-    embeds.forEach(({ url }) => {
-      let originalUrl = url;
-      if (text.includes(`https://www.${url}`)) {
-        originalUrl = `https://www.${url}`;
-      } else if (text.includes(`https://${url}`)) {
-        originalUrl = `https://${url}`;
-      } else if (text.includes(`http://${url}`)) {
-        originalUrl = `http://${url}`;
-      } else if (text.includes(`www.${url}`)) {
-        originalUrl = `www.${url}`;
-      }
-
-      if (text.includes(`${originalUrl}/`)) {
-        originalUrl = `${originalUrl}/`;
-      }
-      text = text.replace(originalUrl, "");
-    });
-
-    text = text.replace(/(https?:\/\/[^\s]+)/g, "");
-  }
-
-  return text;
 };

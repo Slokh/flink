@@ -1,4 +1,4 @@
-import { formatText } from "@/lib/casts";
+import { formatText } from "@/lib/utils";
 import { CHANNELS_BY_URL } from "@/lib/channels";
 import { FarcasterCast, FarcasterCastTree } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
