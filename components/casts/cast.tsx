@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { Embed, FarcasterCast, NftMetadata } from "@/lib/types";
-import { formatText } from "@/lib/casts";
+import { formatText } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { formatDistanceStrict } from "date-fns";
 import { CHANNELS_BY_URL } from "@/lib/channels";

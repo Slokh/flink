@@ -13,6 +13,7 @@ export const FollowUser = ({ fid }: { fid: number }) => {
   }, [fid, user?.follows]);
 
   const handleFollow = async () => {
+    setIsFollowing(!isFollowing);
     const method = isFollowing ? "DELETE" : "POST";
     await fetch("/api/follows", {
       method,
@@ -21,7 +22,6 @@ export const FollowUser = ({ fid }: { fid: number }) => {
         target_fids: [fid],
       }),
     });
-    setIsFollowing(!isFollowing);
   };
 
   if (!user) return <></>;

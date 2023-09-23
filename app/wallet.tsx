@@ -3,10 +3,16 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import {
   RainbowKitProvider,
+  connectorsForWallets,
   darkTheme,
-  getDefaultWallets,
   lightTheme,
 } from "@rainbow-me/rainbowkit";
+import {
+  rainbowWallet,
+  walletConnectWallet,
+  metaMaskWallet,
+  coinbaseWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 import { WagmiConfig, configureChains, createConfig } from "wagmi";
 import { mainnet, polygon, optimism, arbitrum, base, zora } from "viem/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -22,11 +28,23 @@ const { chains, publicClient } = configureChains(
   ]
 );
 
-const { connectors } = getDefaultWallets({
-  appName: "flink",
-  projectId: "502257870646298f5289fef1a3ae41ed",
-  chains,
-});
+const connectors = connectorsForWallets([
+  {
+    groupName: "Recommended",
+    wallets: [
+      metaMaskWallet({ projectId: "502257870646298f5289fef1a3ae41ed", chains }),
+      coinbaseWallet({ appName: "flink", chains }),
+      rainbowWallet({
+        projectId: "502257870646298f5289fef1a3ae41ed",
+        chains,
+      }),
+      walletConnectWallet({
+        projectId: "502257870646298f5289fef1a3ae41ed",
+        chains,
+      }),
+    ],
+  },
+]);
 
 const wagmiConfig = createConfig({
   autoConnect: true,

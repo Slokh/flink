@@ -22,6 +22,8 @@ export const RecastCast = ({
   }, [hash, user?.recasts]);
 
   const recastCast = async () => {
+    setIsRecastd(!isRecastd);
+    setTotalRecasts(isRecastd ? totalRecasts - 1 : totalRecasts + 1);
     const method = isRecastd ? "DELETE" : "POST";
     await fetch("/api/reactions", {
       method,
@@ -31,8 +33,6 @@ export const RecastCast = ({
         reaction_type: "recast",
       }),
     });
-    setTotalRecasts(isRecastd ? totalRecasts - 1 : totalRecasts + 1);
-    setIsRecastd(!isRecastd);
   };
 
   return (

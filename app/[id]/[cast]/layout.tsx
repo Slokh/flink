@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { headers } from "next/headers";
 
 import { getCast, getEntity } from "@/lib/requests";
-import { formatText } from "@/lib/casts";
+import { formatText } from "@/lib/utils";
 import { getPreview } from "@/components/casts/cast";
 
 export const generateMetadata = async ({
