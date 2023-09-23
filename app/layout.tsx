@@ -51,7 +51,7 @@ export default function RootLayout({
                 <Link href="/" className="font-bold">
                   flink{" "}
                   <span className="font-normal text-zinc-500 text-xs">
-                    (read-only)
+                    v0.2
                   </span>
                 </Link>
                 <div className="flex flex-row text-sm font-medium items-center space-x-2">
