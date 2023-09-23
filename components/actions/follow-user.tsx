@@ -1,0 +1,50 @@
+"use client";
+
+import { useUser } from "@/context/user";
+import { useEffect, useState } from "react";
+import { Button } from "../ui/button";
+
+export const FollowUser = ({ fid }: { fid: number }) => {
+  const [isFollowing, setIsFollowing] = useState(false);
+  const { signerState, user } = useUser();
+
+  useEffect(() => {
+    setIsFollowing(user?.follows[fid] ?? false);
+  }, [fid, user?.follows]);
+
+  const handleFollow = async () => {
+    const method = isFollowing ? "DELETE" : "POST";
+    await fetch("/api/follows", {
+      method,
+      body: JSON.stringify({
+        signer_uuid: signerState?.signerUuid,
+        target_fids: [fid],
+      }),
+    });
+    setIsFollowing(!isFollowing);
+  };
+
+  if (!user) return <></>;
+
+  return (
+    <div className="m-2">
+      {isFollowing ? (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleFollow}
+          className="hover:lg:border-destructive hover:lg:text-destructive group w-20"
+        >
+          <span className="hidden group-hover:lg:inline group-hover:lg:text-destructive">
+            Unfollow
+          </span>
+          <span className="group-hover:lg:hidden">Following</span>
+        </Button>
+      ) : (
+        <Button size="sm" onClick={handleFollow} className="w-20">
+          Follow
+        </Button>
+      )}
+    </div>
+  );
+};
