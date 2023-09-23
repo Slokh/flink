@@ -1,6 +1,6 @@
 import { Channel } from "./types";
 
-export const CHANNELS = [
+const channels = [
   {
     name: "/dev",
     parentUrl:
@@ -539,18 +539,31 @@ export const CHANNELS = [
   },
 ];
 
-export const CHANNELS_BY_URL: { [key: string]: Channel } = CHANNELS.reduce(
-  (acc, community) => {
-    acc[community.parentUrl] = community;
+export const CHANNELS_BY_URL: { [key: string]: Channel } = channels.reduce(
+  (acc, channel) => {
+    acc[channel.parentUrl] = {
+      ...channel,
+      image: `/channels/${channel.channelId}.jpg`,
+    };
     return acc;
   },
   {} as { [key: string]: Channel }
 );
 
-export const CHANNELS_BY_ID: { [key: string]: Channel } = CHANNELS.reduce(
-  (acc, community) => {
-    acc[community.channelId] = community;
+export const CHANNELS_BY_ID: { [key: string]: Channel } = channels.reduce(
+  (acc, channel) => {
+    acc[channel.channelId] = {
+      ...channel,
+      image: `/channels/${channel.channelId}.jpg`,
+    };
     return acc;
   },
   {} as { [key: string]: Channel }
 );
+
+export const CHANNELS = channels
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .map((channel) => ({
+    ...channel,
+    image: `/channels/${channel.channelId}.jpg`,
+  }));

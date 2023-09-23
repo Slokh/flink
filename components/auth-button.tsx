@@ -24,14 +24,13 @@ export const AuthButton = () => {
     address,
     authState,
     verifyMessage,
-    verifyState,
     signerState,
-    fetchSignerData,
+    watchForLatestSigner,
   } = useUser();
 
   useEffect(() => {
     if (authState === UserAuthState.NEEDS_APPROVAL && open) {
-      setPollInterval(setInterval(fetchSignerData, 2000));
+      setPollInterval(setInterval(watchForLatestSigner, 2000));
     } else if (
       (authState === UserAuthState.LOGGED_IN || !open) &&
       pollInterval
@@ -100,7 +99,6 @@ export const AuthButton = () => {
           action={
             authState === UserAuthState.CONNECTED ? (
               <Button
-                disabled={!verifyState?.nonce || verifyState?.loading}
                 onClick={verifyMessage}
                 className="font-bold rounded-xl h-[40px] whitespace-nowrap"
               >

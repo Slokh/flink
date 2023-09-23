@@ -1,8 +1,12 @@
 import { AuthenticatedUser } from "@/lib/types";
 import { formatSiweMessage } from "@/lib/utils";
-import { useEffect } from "react";
-import { useState } from "react";
-import { createContext, ReactNode, useContext } from "react";
+import {
+  useEffect,
+  useState,
+  createContext,
+  ReactNode,
+  useContext,
+} from "react";
 import { SiweMessage } from "siwe";
 import { useAccount, useNetwork, useSignMessage } from "wagmi";
 
@@ -14,12 +18,6 @@ export enum UserAuthState {
   NEEDS_APPROVAL,
   LOGGED_IN,
 }
-
-type VerifyState = {
-  loading?: boolean;
-  nonce?: string;
-  address?: `0x${string}` | undefined;
-};
 
 export type SignerState = {
   signerUuid: string;
@@ -34,10 +32,9 @@ type State = {
   address?: `0x${string}`;
   authState: UserAuthState;
   verifyMessage: () => void;
-  verifyState?: VerifyState;
   signerState?: SignerState;
 
-  fetchSignerData: () => Promise<void>;
+  watchForLatestSigner: () => Promise<void>;
 };
 
 type UserContextType = State | undefined;
@@ -49,51 +46,20 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [authState, setAuthState] = useState<UserAuthState>(
     UserAuthState.UNKNOWN
   );
-  const { isConnected, address } = useAccount();
+  const { address } = useAccount();
   const { chain } = useNetwork();
   const { signMessageAsync } = useSignMessage();
-  const [verifyState, setVerifyState] = useState<VerifyState>({});
   const [signerState, setSignerState] = useState<SignerState | undefined>();
   const [user, setUser] = useState<AuthenticatedUser | undefined>();
-  const [loading, setLoading] = useState(true);
-
-  const fetchNonce = async () => {
-    try {
-      const nonceRes = await fetch("/api/auth/nonce");
-      const { nonce } = await nonceRes.json();
-      setVerifyState((x) => ({ ...x, nonce }));
-    } catch (error) {
-      setVerifyState((x) => ({ ...x, error: error as Error }));
-    }
-  };
-
-  const fetchNewSigner = async () => {
-    const signerData = await (
-      await fetch("/api/signer", {
-        method: "POST",
-      })
-    ).json();
-    const res = await fetch(`/api/signer/key`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        address,
-        signerUuid: signerData.signerUuid,
-        signerPublicKey: signerData.signerPublicKey,
-      }),
-    });
-    setSignerState(await res.json());
-  };
 
   const verifyMessage = async () => {
     try {
       const chainId = chain?.id;
       if (!address || !chainId) return;
 
-      setVerifyState((x) => ({ ...x, loading: true }));
-      // Create SIWE message with pre-fetched nonce and sign with wallet
+      const nonceRes = await fetch("/api/auth/nonce");
+      const { nonce } = await nonceRes.json();
+
       const message = {
         domain: window.location.host,
         address,
@@ -101,7 +67,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         uri: window.location.origin,
         version: "1",
         chainId,
-        nonce: verifyState.nonce,
+        nonce: nonce,
       } as SiweMessage;
       const signature = await signMessageAsync({
         message: formatSiweMessage(message),
@@ -117,95 +83,111 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       });
       if (!verifyRes.ok) throw new Error("Error verifying message");
 
-      setVerifyState((x) => ({ ...x, loading: false, address }));
-
-      if (!signerState?.signerApprovalUrl) {
-        await fetchNewSigner();
-      }
+      setSignerState(await initializeNewSigner(address));
+      setAuthState(UserAuthState.VERIFIED);
     } catch (error) {
-      setVerifyState((x) => ({ ...x, loading: false, nonce: undefined }));
-      fetchNonce();
+      console.error(error);
     }
   };
 
-  useEffect(() => {
-    fetchNonce();
-  }, []);
+  const fetchSignerForAddress = async (
+    address: string
+  ): Promise<SignerState | undefined> => {
+    const res = await fetch(`/api/signer/${address}`);
+    if (!res.ok) return;
+    return await res.json();
+  };
+
+  const initializeNewSigner = async (
+    address: string
+  ): Promise<SignerState | undefined> => {
+    const res = await fetch("/api/signer", {
+      method: "POST",
+    });
+    const json = await res.json();
+    const res2 = await fetch(`/api/signer/key`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        address,
+        signerUuid: json.signerUuid,
+        signerPublicKey: json.signerPublicKey,
+      }),
+    });
+    return await res2.json();
+  };
+
+  const fetchLatestSigner = async (
+    address: string,
+    signerUuid: string
+  ): Promise<SignerState | undefined> => {
+    const res = await fetch(`/api/signer/${address}/${signerUuid}`);
+    if (!res.ok) return;
+    return await res.json();
+  };
+
+  const fetchUserForFid = async (
+    fid: number
+  ): Promise<AuthenticatedUser | undefined> => {
+    const res = await fetch(`/api/fid/${fid}`);
+    if (!res.ok) return;
+    return await res.json();
+  };
+
+  const watchForLatestSigner = async () => {
+    if (!address || !signerState?.signerUuid) return;
+    const signer = await fetchLatestSigner(address, signerState?.signerUuid);
+    if (!signer?.fid) return;
+    setSignerState(signer);
+    const user = await fetchUserForFid(signer.fid);
+    if (!user) return;
+    setUser(user);
+  };
 
   useEffect(() => {
     const handler = async () => {
-      const signerRes = await fetch(`/api/signer/${address}`);
-      if (signerRes.ok) {
-        const signerData = await signerRes.json();
-        setSignerState(signerData);
-        if (!signerData?.fid && signerData?.signerApprovalUrl) {
-          await fetchSignerData();
-        } else if (signerData?.fid) {
-          setUser(await (await fetch(`/api/fid/${signerData.fid}`)).json());
-        }
-      } else {
-        try {
-          const res = await fetch("/api/auth/user");
-          const json = await res.json();
-          setVerifyState((x) => ({ ...x, address: json.address }));
-          if (json.address === address) {
-            await fetchNewSigner();
-          }
-        } catch (_error) {}
+      if (!address) return;
+      setAuthState(UserAuthState.CONNECTED);
+
+      let signer = await fetchSignerForAddress(address);
+      if (!signer) {
+        return;
       }
-      setLoading(false);
+      setAuthState(UserAuthState.VERIFIED);
+
+      if (!signer.fid) {
+        const latestSigner = await fetchLatestSigner(
+          address,
+          signer.signerUuid
+        );
+        if (latestSigner) signer = latestSigner;
+      }
+
+      if (signer.fid) {
+        const user = await fetchUserForFid(signer.fid);
+        setAuthState(UserAuthState.LOGGED_IN);
+        setUser(user);
+        return;
+      }
+
+      setAuthState(UserAuthState.NEEDS_APPROVAL);
+      setSignerState(signer);
     };
     if (address) {
       handler();
-      window.addEventListener("focus", handler);
-      return () => window.removeEventListener("focus", handler);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
-
-  const fetchSignerData = async () => {
-    if (!address || !signerState?.signerApprovalUrl) return;
-    const res = await fetch(`/api/signer/${address}/${signerState.signerUuid}`);
-    if (!res.ok) return;
-    const data = await res.json();
-    setSignerState(data);
-    if (data?.fid) {
-      setUser(await (await fetch(`/api/fid/${signerState.fid}`)).json());
-    }
-  };
-
-  useEffect(() => {
-    if (loading) {
-      setAuthState(UserAuthState.UNKNOWN);
-      return;
-    }
-    if (!isConnected) {
-      setAuthState(UserAuthState.DISCONNECTED);
-      return;
-    }
-    if (signerState?.fid) {
-      setAuthState(UserAuthState.LOGGED_IN);
-      return;
-    }
-    if (signerState?.signerApprovalUrl) {
-      setAuthState(UserAuthState.NEEDS_APPROVAL);
-      return;
-    }
-    if (verifyState?.address && verifyState.address === address) {
-      setAuthState(UserAuthState.VERIFIED);
-      return;
-    }
-    setAuthState(UserAuthState.CONNECTED);
-  }, [loading, address, isConnected, signerState, verifyState]);
 
   const value = {
     user,
     address,
     authState,
     verifyMessage,
-    verifyState,
     signerState,
-    fetchSignerData,
+    watchForLatestSigner,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
