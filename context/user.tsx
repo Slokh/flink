@@ -32,7 +32,8 @@ type State = {
   address?: `0x${string}`;
   authState: UserAuthState;
   verifyMessage: () => void;
-  signerState?: SignerState;
+  signerApprovalUrl?: string;
+  signerUuid?: string;
 
   watchForLatestSigner: () => Promise<void>;
 };
@@ -168,6 +169,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       if (signer.fid) {
         const user = await fetchUserForFid(signer.fid);
         setAuthState(UserAuthState.LOGGED_IN);
+        setSignerState(signer);
         setUser(user);
         return;
       }
@@ -186,7 +188,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     address,
     authState,
     verifyMessage,
-    signerState,
+    signerApprovalUrl: signerState?.signerApprovalUrl,
+    signerUuid: signerState?.signerUuid,
     watchForLatestSigner,
   };
 

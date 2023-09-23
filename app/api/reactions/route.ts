@@ -23,7 +23,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
 export async function DELETE(request: Request): Promise<NextResponse> {
   const data = await fetch("https://api.neynar.com/v2/farcaster/reaction", {
-    method: "POST",
+    method: "DELETE",
     headers: {
       "content-type": "application/json",
       api_key: process.env.NEYNAR_API_KEY as string,

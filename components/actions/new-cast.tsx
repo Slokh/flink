@@ -59,7 +59,7 @@ export const NewCast = ({
 
   const [loadingChannel, setLoadingChannel] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { signerState, user } = useUser();
+  const { signerUuid, user } = useUser();
   const [embeds, setEmbeds] = useState<string[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -95,7 +95,7 @@ export const NewCast = ({
     const res = await fetch("/api/casts", {
       method: "POST",
       body: JSON.stringify({
-        signer_uuid: signerState?.signerUuid,
+        signer_uuid: signerUuid,
         text: values.text,
         embeds: embeds.map((url) => ({ url })),
         parent: parent?.hash || channel?.parentUrl,
