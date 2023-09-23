@@ -1,4 +1,4 @@
-import { signerUuid } from "@/context/user";
+import { SignerState } from "@/context/user";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
