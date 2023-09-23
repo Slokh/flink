@@ -48,6 +48,12 @@ export async function GET(
   { params }: { params: { id: string; create: boolean } }
 ) {
   const { id } = params;
+
+  const response = await tryFarcaster(id);
+  if (response) {
+    return NextResponse.json(response);
+  }
+
   const url = new URL(request.url);
 
   const identity = await getIdentityForInput(
@@ -71,6 +77,104 @@ export async function GET(
 
   return NextResponse.json({ error: "User not found" }, { status: 404 });
 }
+
+const tryFarcaster = async (input: string) => {
+  const farcaster = await prisma.farcaster.findFirst({
+    where: { fname: input },
+  });
+  if (!farcaster) {
+    return undefined;
+  }
+
+  const [entity, followers, following] = await Promise.all([
+    prisma.entity.findFirst({
+      where: { id: farcaster.entityId },
+      include: {
+        ethereumAccounts: true,
+        links: true,
+      },
+    }),
+    prisma.farcasterLink.count({
+      where: {
+        linkType: "follow",
+        targetFid: farcaster.fid,
+      },
+    }),
+    prisma.farcasterLink.count({
+      where: {
+        linkType: "follow",
+        fid: farcaster.fid,
+      },
+    }),
+  ]);
+
+  const addresses =
+    entity?.ethereumAccounts.map((account) => account.address) || [];
+  const ensNames = await getAddressesWithEnsNames(addresses);
+
+  const ethereum = ensNames.map((address, i) => ({
+    chain: "Ethereum",
+    address: address.address,
+    ensName: address.ensName,
+    verified: entity?.ethereumAccounts[i].verified,
+  }));
+
+  const { pfps, bios, displays, accounts, relatedLinks, emails } = parseLinks(
+    entity?.links || []
+  );
+
+  if (farcaster?.pfp) {
+    pfps.unshift({
+      value: farcaster.pfp,
+      platform: "Farcaster",
+    });
+  }
+
+  if (farcaster?.bio) {
+    bios.unshift({
+      value: farcaster.bio,
+      platform: "Farcaster",
+    });
+  }
+
+  if (farcaster?.fname) {
+    displays.unshift({
+      value: farcaster.fname,
+      platform: "Farcaster",
+    });
+  }
+
+  if (farcaster?.display) {
+    displays.unshift({
+      value: farcaster.display,
+      platform: "Farcaster",
+    });
+  }
+
+  if (farcaster?.fname) {
+    accounts.unshift({
+      platform: "Farcaster",
+      username: farcaster.fname,
+      verified: true,
+      link: `warpcast.com/${farcaster.fname}`,
+    });
+  }
+
+  return {
+    fname: farcaster?.fname || undefined,
+    fid: farcaster?.fid,
+    pfp: pfps.length > 0 ? pfps[0] : undefined,
+    bio: bios.length > 0 ? bios[0] : undefined,
+    display: displays.length > 0 ? displays[0] : undefined,
+    ethereum,
+    accounts,
+    relatedLinks,
+    emails,
+    followers,
+    following,
+  };
+};
+
 export const handleEntity = async (entityId: number): Promise<Entity> => {
   const [farcaster, addresses, links] = await Promise.all([
     prisma.farcaster.findFirst({

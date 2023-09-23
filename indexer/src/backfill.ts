@@ -11,10 +11,9 @@ import {
   upsertCastReactions,
   upsertUrlReactions,
 } from "../db/reaction";
-import { handleUserUpdate } from "../farcaster/users";
 
-const START_TIMESTAMP = 1695355200;
-const END_TIMESTAMP = 1695441600;
+const START_TIMESTAMP = 1695461443;
+const END_TIMESTAMP = 1695586647;
 
 const backfill = async () => {
   const client = await getHubClient();

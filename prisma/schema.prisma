@@ -28,6 +28,8 @@ model Farcaster {
     entityId Int
 
     entity Entity @relation(fields: [entityId], references: [id])
+
+    @@index([fname])
 }
 
 model Ethereum {
@@ -76,8 +78,11 @@ model FarcasterCast {
     mentions   FarcasterCastMention[]
 
     @@id([fid, hash])
-    @@index([timestamp(sort: Desc), fid])
-    @@index([fid, timestamp(sort: Desc)])
+    @@index([timestamp(sort: Desc), fid, deleted])
+    @@index([fid, timestamp(sort: Desc), deleted])
+    @@index([hash, deleted])
+    @@index([parentCast, deleted])
+    @@index([topParentCast, deleted])
 }
 
 model FarcasterCastEmbedUrl {

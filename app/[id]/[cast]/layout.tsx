@@ -14,7 +14,6 @@ export const generateMetadata = async ({
     getEntity(params.id, false),
     getCast(params.cast),
   ]);
-
   // @ts-ignore
   if (!entity || entity?.error || !cast || cast?.error) {
     return {

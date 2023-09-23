@@ -21,8 +21,9 @@ export async function GET(
     ? CHANNELS_BY_ID[community]?.parentUrl
     : undefined;
 
+  let response = [];
   if (sort === CastsSort.Hot) {
-    return NextResponse.json(await getCastsResponseByHotness(page, parentUrl));
+    response = await getCastsResponseByHotness(page, parentUrl);
   } else if (sort === CastsSort.Top || sort === CastsSort.TopReplies) {
     const time = url.searchParams.get("time") as
       | "hour"
@@ -31,27 +32,23 @@ export async function GET(
       | "month"
       | "year"
       | "all";
-    return NextResponse.json(
-      await getCastsResponseByTopLikes(
-        page,
-        sort === CastsSort.TopReplies,
-        time || "all",
-        parentUrl,
-        fidParsed
-      )
+    response = await getCastsResponseByTopLikes(
+      page,
+      sort === CastsSort.TopReplies,
+      time || "all",
+      parentUrl,
+      fidParsed
     );
   } else if (sort === CastsSort.New || sort === CastsSort.NewReplies) {
-    return NextResponse.json(
-      await getCastsResponseByNewness(
-        page,
-        sort === CastsSort.NewReplies,
-        parentUrl,
-        fidParsed
-      )
+    response = await getCastsResponseByNewness(
+      page,
+      sort === CastsSort.NewReplies,
+      parentUrl,
+      fidParsed
     );
   }
 
-  return NextResponse.json([]);
+  return NextResponse.json(response);
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
