@@ -195,11 +195,7 @@ const WebCast = ({
           </div>
         )}
         <Link
-          href={
-            cast.topParentCast && cast.hash === cast.topParentCast?.hash
-              ? `/${cast.user.fname}/${cast.hash}`
-              : `/${cast.topParentCast?.user?.fname}/${cast.topParentCast?.hash}/${cast.hash}`
-          }
+          href={`/${cast.user.fname}/${cast.hash}`}
           className="transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-2 visited:text-purple-600 visited:dark:text-purple-400"
         >
           {formattedText ? (
@@ -254,11 +250,7 @@ const WebCast = ({
         </div>
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-2">
           <Link
-            href={
-              isReply
-                ? `/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`
-                : `/${cast.user.fname}/${cast.hash}`
-            }
+            href={`/${cast.user.fname}/${cast.hash}`}
             className="hover:underline"
           >
             {`${cast.replies} replies`}
@@ -289,13 +281,11 @@ const WebCast = ({
 export const MobileCast = ({
   cast,
   rank,
-  isParent,
   isReply,
   isLink,
 }: {
   cast: FarcasterCast;
   rank?: number;
-  isParent?: boolean;
   isReply?: boolean;
   isLink?: boolean;
 }) => {
@@ -343,11 +333,7 @@ export const MobileCast = ({
       )}
       {isLink ? (
         <Link
-          href={
-            cast.topParentCast && cast.hash === cast.topParentCast?.hash
-              ? `/${cast.user.fname}/${cast.hash}`
-              : `/${cast.topParentCast?.user?.fname}/${cast.topParentCast?.hash}/${cast.hash}`
-          }
+          href={`/${cast.user.fname}/${cast.hash}`}
           className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 visited:text-purple-600 visited:dark:text-purple-400 whitespace-pre-line break-words"
         >
           <div
@@ -375,11 +361,7 @@ export const MobileCast = ({
       )}
       <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center">
         <Link
-          href={
-            isReply
-              ? `/${cast.parentCast?.user.fname}/${cast.parentCast?.hash}/${cast.hash}`
-              : `/${cast.user.fname}/${cast.hash}`
-          }
+          href={`/${cast.user.fname}/${cast.hash}`}
           className="hover:underline"
         >
           {`${cast.replies} replies`}
