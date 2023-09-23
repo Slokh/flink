@@ -24,7 +24,7 @@ export const AuthButton = () => {
     address,
     authState,
     verifyMessage,
-    signerState,
+    signerApprovalUrl,
     watchForLatestSigner,
   } = useUser();
 
@@ -115,11 +115,11 @@ export const AuthButton = () => {
           description="Scan the QR code to sign in with Farcaster using Warpcast."
           isComplete={false}
           content={
-            signerState?.signerApprovalUrl ? (
+            signerApprovalUrl ? (
               <div className="flex flex-col items-center space-y-1">
-                <QRCode value={signerState?.signerApprovalUrl} />
+                <QRCode value={signerApprovalUrl} />
                 <a
-                  href={signerState.signerApprovalUrl}
+                  href={signerApprovalUrl}
                   className="text-xs text-muted-foreground"
                 >
                   Click for link

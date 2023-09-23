@@ -15,7 +15,7 @@ export const RecastCast = ({
 }) => {
   const [isRecastd, setIsRecastd] = useState(false);
   const [totalRecasts, setTotalRecasts] = useState(recasts);
-  const { signerState, user } = useUser();
+  const { signerUuid, user } = useUser();
 
   useEffect(() => {
     setIsRecastd(user?.recasts[hash] ?? false);
@@ -26,7 +26,7 @@ export const RecastCast = ({
     await fetch("/api/reactions", {
       method,
       body: JSON.stringify({
-        signer_uuid: signerState?.signerUuid,
+        signer_uuid: signerUuid,
         target: hash,
         reaction_type: "recast",
       }),

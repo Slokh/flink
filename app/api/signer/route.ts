@@ -1,4 +1,4 @@
-import { SignerState } from "@/context/user";
+import { signerUuid } from "@/context/user";
 import { NextResponse } from "next/server";
 
 export async function POST(

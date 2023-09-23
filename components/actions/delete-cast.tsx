@@ -28,7 +28,7 @@ export const DeleteCast = ({
   const router = useRouter();
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
-  const { user, signerState } = useUser();
+  const { user, signerUuid } = useUser();
 
   if (!user?.casts[hash]) return <></>;
 
@@ -37,7 +37,7 @@ export const DeleteCast = ({
     await fetch("/api/casts", {
       method: "DELETE",
       body: JSON.stringify({
-        signer_uuid: signerState?.signerUuid,
+        signer_uuid: signerUuid,
         target_hash: hash,
       }),
     });

@@ -15,7 +15,7 @@ export const LikeCast = ({
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [totalLikes, setTotalLikes] = useState(likes);
-  const { signerState, user } = useUser();
+  const { signerUuid, user } = useUser();
 
   useEffect(() => {
     setIsLiked(user?.likes[hash] ?? false);
@@ -26,7 +26,7 @@ export const LikeCast = ({
     await fetch("/api/reactions", {
       method,
       body: JSON.stringify({
-        signer_uuid: signerState?.signerUuid,
+        signer_uuid: signerUuid,
         target: hash,
         reaction_type: "like",
       }),
