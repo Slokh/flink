@@ -1,4 +1,4 @@
-import { Loading as LoadingIcon } from "../../components/loading";
+import { Loading as LoadingIcon } from "@/components/loading";
 
 export default function Loading() {
   return (
