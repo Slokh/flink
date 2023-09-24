@@ -14,11 +14,10 @@ export const Nav = () => {
 
   return (
     <>
-      <div className="hidden lg: flex flex-row border p-1 justify-between items-center w-full">
+      <div className="hidden lg:flex flex-row border p-1 justify-between items-center w-full">
         <div className="flex flex-row space-x-8 items-center">
           <Link href="/" className="font-bold">
-            flink{" "}
-            <span className="font-normal text-zinc-500 text-xs">v0.2</span>
+            flink
           </Link>
           <div className="flex flex-row items-center text-sm font-medium space-x-4 text-muted-foreground">
             <Link
@@ -47,8 +46,7 @@ export const Nav = () => {
       <div className="flex lg:hidden flex-col border p-1 w-full">
         <div className="flex flex-row justify-between items-center w-full">
           <Link href="/" className="font-bold">
-            flink{" "}
-            <span className="font-normal text-zinc-500 text-xs">v0.2</span>
+            flink
           </Link>
           <HamburgerMenuIcon onClick={() => setOpen(!open)} />
         </div>

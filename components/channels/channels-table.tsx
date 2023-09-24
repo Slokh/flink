@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { usePathname, useRouter } from "next/navigation";
+import { ScrollArea } from "../ui/scroll-area";
 
 export const ChannelsNavigation = ({ time }: { time: string }) => {
   const router = useRouter();
@@ -267,16 +268,18 @@ export const ChannelsTable = ({
   ];
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full">
       <div className="flex flex-row items-center justify-end p-2 border-b">
         <ChannelsNavigation time={time} />
       </div>
-      <DataTable
-        columns={columns}
-        data={channels}
-        onSortingChange={(state) => setSorted(state?.[0]?.id)}
-        defaultSorting={[{ id: "engagement", desc: true }]}
-      />
+      <ScrollArea>
+        <DataTable
+          columns={columns}
+          data={channels}
+          onSortingChange={(state) => setSorted(state?.[0]?.id)}
+          defaultSorting={[{ id: "engagement", desc: true }]}
+        />
+      </ScrollArea>
     </div>
   );
 };
