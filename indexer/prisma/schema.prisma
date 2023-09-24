@@ -28,6 +28,8 @@ model Farcaster {
     entityId Int
 
     entity Entity @relation(fields: [entityId], references: [id])
+
+    @@index([fname])
 }
 
 model Ethereum {
@@ -76,8 +78,11 @@ model FarcasterCast {
     mentions   FarcasterCastMention[]
 
     @@id([fid, hash])
-    @@index([timestamp(sort: Desc), fid])
-    @@index([fid, timestamp(sort: Desc)])
+    @@index([timestamp(sort: Desc), fid, deleted])
+    @@index([fid, timestamp(sort: Desc), deleted])
+    @@index([hash, deleted])
+    @@index([parentCast, deleted])
+    @@index([topParentCast, deleted])
 }
 
 model FarcasterCastEmbedUrl {
@@ -144,7 +149,8 @@ model FarcasterCastReaction {
     deleted Boolean @default(false)
 
     @@id([fid, targetHash, targetFid, reactionType])
-    @@index([targetFid, targetHash, reactionType])
+    @@index([timestamp])
+    @@index([targetFid, targetHash])
 }
 
 model FarcasterUrlReaction {
@@ -189,19 +195,15 @@ model FarcasterLink {
     @@index([linkType, targetFid, fid])
 }
 
-model FarcasterUserChannelStats {
+model FarcasterChannelStats {
     url       String
-    fid       Int
-    posts     Int    @default(0)
-    replies   Int    @default(0)
-    likes     Int    @default(0)
-    recasts   Int    @default(0)
-    mentioned Int    @default(0)
-    liked     Int    @default(0)
-    recasted  Int    @default(0)
+    timestamp DateTime
+    posts     Int      @default(0)
+    replies   Int      @default(0)
+    likes     Int      @default(0)
+    recasts   Int      @default(0)
 
-    @@id([url, fid])
-    @@index([fid, url])
+    @@id([url, timestamp])
 }
 
 model Backfill {
