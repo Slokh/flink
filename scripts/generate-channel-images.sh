@@ -8,10 +8,10 @@ rm -rf $folder
 mkdir $folder
 
 # Get JSON data
-json=$(curl -s "https://raw.githubusercontent.com/neynarxyz/farcaster-channels/main/warpcast.json")
+json=$(cat ../lib/channels.json)
 
 # Parse JSON to get image URLs and channel IDs
-data=$(echo $json | jq -r '.[] | "\(.image) \(.channel_id)"')
+data=$(echo $json | jq -r '.[] | "\(.image) \(.channelId)"')
 
 # Loop through data, download each image, rename it to channel_id and resize it to 256x256
 while read -r url id; do
