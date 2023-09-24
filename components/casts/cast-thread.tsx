@@ -47,7 +47,7 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
               <>
                 <div className="text-zinc-500">in</div>
                 <Link
-                  href={`/channel/${community.channelId}`}
+                  href={`/channels/${community.channelId}`}
                   className="hover:underline"
                 >
                   <Avatar className="h-4 w-4">
@@ -59,7 +59,7 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
                   </Avatar>
                 </Link>
                 <Link
-                  href={`/channel/${community.channelId}`}
+                  href={`/channels/${community.channelId}`}
                   className="hover:underline"
                 >
                   <div>{community.name}</div>
@@ -85,7 +85,66 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
   );
 };
 
-export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
+const CastMinContent = ({ cast }: { cast: FarcasterCast }) => {
+  const community = cast.parentUrl
+    ? CHANNELS_BY_URL[cast.parentUrl]
+    : undefined;
+  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
+  return (
+    <div className="flex flex-col space-y-1">
+      <div className="flex flex-row space-x-1 text-sm items-center">
+        <div className="text-zinc-500">
+          {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
+            addSuffix: true,
+          })}
+        </div>
+        {community && (
+          <>
+            <div className="text-zinc-500">in</div>
+            <Link
+              href={`/channels/${community.channelId}`}
+              className="hover:underline"
+            >
+              <Avatar className="h-4 w-4">
+                <AvatarImage src={community.image} className="object-cover" />
+                <AvatarFallback>?</AvatarFallback>
+              </Avatar>
+            </Link>
+            <Link
+              href={`/channels/${community.channelId}`}
+              className="hover:underline"
+            >
+              <div>{community.name}</div>
+            </Link>
+          </>
+        )}
+      </div>
+      <div className="flex flex-col whitespace-pre-wrap break-words leading-6 tracking-normal w-full space-y-2 border rounded-lg p-2">
+        <div dangerouslySetInnerHTML={{ __html: formattedText }} />
+        {cast.embeds.length > 0 && (
+          <div className="flex flex-row flex-wrap">
+            {cast.embeds
+              .filter(({ parsed }) => !parsed)
+              .map((embed, i) => (
+                <EmbedPreview key={i} embed={embed} />
+              ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export const CastParent = ({
+  cast,
+  isMinified,
+}: {
+  cast: FarcasterCast;
+  isMinified?: boolean;
+}) => {
+  const community = cast.parentUrl
+    ? CHANNELS_BY_URL[cast.parentUrl]
+    : undefined;
   return (
     <div className="flex flex-row space-x-2 p-4 w-full">
       <div className="flex flex-col items-end justify-start text-sm cursor-pointer pr-1 pl-1">
@@ -93,8 +152,12 @@ export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
         <RecastCast hash={cast.hash} recasts={cast.recasts} mode="icons" />
       </div>
       <div className="flex flex-col space-y-1 w-full">
-        <CastContent cast={cast} />
-        <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-4">
+        {isMinified ? (
+          <CastMinContent cast={cast} />
+        ) : (
+          <CastContent cast={cast} />
+        )}
+        <div className="text-zinc-500 text-sm flex flex-row space-x-4">
           <ReplyCastButton parent={cast} />
           <a
             href={`https://warpcast.com/${cast.user.fname}/${cast.hash.slice(
@@ -107,7 +170,9 @@ export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
             warpcast
           </a>
           <CopyLink
-            link={`https://flink.fyi/${cast.user.fname}/${cast.hash}`}
+            link={`https://flink.fyi/${
+              community ? `channels/${community.channelId}` : cast.user.fname
+            }/${cast.hash}`}
           />
           <DeleteCast hash={cast.hash}>
             <div className="hover:underline">delete</div>
@@ -174,7 +239,7 @@ const CastChild = ({
               </div>
             )}
           </div>
-          <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-4">
+          <div className="text-zinc-500 text-sm flex flex-row space-x-4">
             <ReplyCastButton parent={cast} />
             <a
               href={`https://warpcast.com/${cast.user.fname}/${cast.hash.slice(
@@ -209,15 +274,17 @@ const CastChild = ({
 export const CastThread = async ({
   cast,
   hash,
+  isMinified,
 }: {
   cast: FarcasterCastTree;
   hash: string;
+  isMinified?: boolean;
 }) => {
   return (
     <>
       <div className="hidden md:flex flex-col w-full h-full">
         <ScrollArea className="h-full pl-2">
-          <CastParent cast={cast} />
+          <CastParent cast={cast} isMinified={isMinified} />
           <div className="flex flex-col space-y-4 m-2">
             {cast.children.map((child) => (
               <CastChild

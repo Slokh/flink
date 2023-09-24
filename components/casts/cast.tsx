@@ -171,7 +171,7 @@ const WebCast = ({
   ];
 
   return (
-    <div className="hidden md:flex flex-row items-center border-b hover:bg-zinc-100 pl-4 hover:dark:bg-zinc-900 transition-all">
+    <div className="hidden md:flex flex-row items-center border-t hover:bg-zinc-100 pl-4 hover:dark:bg-zinc-900 transition-all">
       {rank && (
         <div className="flex w-6 items-center justify-center text-zinc-500 font-semibold">
           {rank}
@@ -195,7 +195,9 @@ const WebCast = ({
           </div>
         )}
         <Link
-          href={`/${cast.user.fname}/${cast.hash}`}
+          href={`/${
+            community ? `channels/${community.channelId}` : cast.user.fname
+          }/${cast.hash}`}
           className="transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-2 visited:text-purple-600 visited:dark:text-purple-400"
         >
           {formattedText ? (
@@ -227,7 +229,7 @@ const WebCast = ({
               <>
                 <div className="text-zinc-500">in</div>
                 <Link
-                  href={`/channel/${community.channelId}`}
+                  href={`/channels/${community.channelId}`}
                   className="hover:underline"
                 >
                   <Avatar className="h-4 w-4">
@@ -239,7 +241,7 @@ const WebCast = ({
                   </Avatar>
                 </Link>
                 <Link
-                  href={`/channel/${community.channelId}`}
+                  href={`/channels/${community.channelId}`}
                   className="hover:underline"
                 >
                   <div>{community.name}</div>
@@ -250,7 +252,9 @@ const WebCast = ({
         </div>
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-2">
           <Link
-            href={`/${cast.user.fname}/${cast.hash}`}
+            href={`/${
+              community ? `channels/${community.channelId}` : cast.user.fname
+            }/${cast.hash}`}
             className="hover:underline"
           >
             {`${cast.replies} replies`}
@@ -292,7 +296,12 @@ export const MobileCast = ({
   const community = cast.parentUrl
     ? CHANNELS_BY_URL[cast.parentUrl]
     : undefined;
-  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
+  const formattedText = formatText(
+    cast.text,
+    cast.mentions,
+    cast.embeds,
+    false
+  );
 
   const { externalUrl } = getPreview(cast.embeds);
 
@@ -333,7 +342,9 @@ export const MobileCast = ({
       )}
       {isLink ? (
         <Link
-          href={`/${cast.user.fname}/${cast.hash}`}
+          href={`/${
+            community ? `channels/${community.channelId}` : cast.user.fname
+          }/${cast.hash}`}
           className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 visited:text-purple-600 visited:dark:text-purple-400 whitespace-pre-line break-words"
         >
           <div
@@ -374,7 +385,7 @@ export const MobileCast = ({
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center justify-end">
           <div className="text-zinc-500">in</div>
           <Link
-            href={`/channel/${community.channelId}`}
+            href={`/channels/${community.channelId}`}
             className="hover:underline"
           >
             <Avatar className="h-4 w-4">
@@ -383,7 +394,7 @@ export const MobileCast = ({
             </Avatar>
           </Link>
           <Link
-            href={`/channel/${community.channelId}`}
+            href={`/channels/${community.channelId}`}
             className="hover:underline"
           >
             <div>{community.name}</div>

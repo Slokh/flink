@@ -13,13 +13,9 @@ export async function GET(
   const url = new URL(request.url);
   const fid = url.searchParams.get("fid");
   const fidParsed = fid ? parseInt(fid) : undefined;
-  const community = url.searchParams.get("community");
+  const parentUrl = url.searchParams.get("parentUrl") || undefined;
   const page = parseInt(url.searchParams.get("page") || "1");
   const sort = url.searchParams.get("sort") as CastsSort;
-
-  const parentUrl = community
-    ? CHANNELS_BY_ID[community]?.parentUrl
-    : undefined;
 
   let response = [];
   if (sort === CastsSort.Hot) {

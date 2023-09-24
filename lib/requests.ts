@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { Entity, FarcasterCastTree } from "./types";
+import { ChannelStats, Entity, FarcasterCastTree } from "./types";
 
 export const getEntity = async (
   id: string,
@@ -20,5 +20,14 @@ export const getCast = async (
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(`${protocol}://${host}/api/casts/${cast}`);
   if (data.status === 404) return undefined;
+  return await data.json();
+};
+
+export const getChannels = async (time: string): Promise<ChannelStats[]> => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(
+    `${protocol}://${host}/api/channels${time ? `?time=${time}` : ""}`
+  );
   return await data.json();
 };

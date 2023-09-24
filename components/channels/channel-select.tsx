@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/select";
 import { CHANNELS } from "@/lib/channels";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { ScrollArea } from "./ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { ScrollArea } from "../ui/scroll-area";
 
 export const ChannelSelect = ({
   channel,
@@ -28,11 +28,11 @@ export const ChannelSelect = ({
         onValueChange={(value) =>
           onChange
             ? onChange(value)
-            : router.push(value ? `/channel/${value}` : "/")
+            : router.push(value ? `/channels/${value}` : "/")
         }
       >
         <SelectTrigger className="border-0 text-sm md:text-md font-semibold shadow-none p-0 h-6">
-          <SelectValue placeholder="Browse channels" />
+          <SelectValue placeholder="Go to..." />
         </SelectTrigger>
         <SelectContent>
           <ScrollArea className="h-96">

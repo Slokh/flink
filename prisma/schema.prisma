@@ -195,19 +195,15 @@ model FarcasterLink {
     @@index([linkType, targetFid, fid])
 }
 
-model FarcasterUserChannelStats {
+model FarcasterChannelStats {
     url       String
-    fid       Int
-    posts     Int    @default(0)
-    replies   Int    @default(0)
-    likes     Int    @default(0)
-    recasts   Int    @default(0)
-    mentioned Int    @default(0)
-    liked     Int    @default(0)
-    recasted  Int    @default(0)
+    timestamp DateTime
+    posts     Int      @default(0)
+    replies   Int      @default(0)
+    likes     Int      @default(0)
+    recasts   Int      @default(0)
 
-    @@id([url, fid])
-    @@index([fid, url])
+    @@id([url, timestamp])
 }
 
 model Backfill {

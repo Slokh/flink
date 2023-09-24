@@ -84,7 +84,9 @@ export const getCastsResponseByHotness = async (
             ) AS weighted_votes,
             EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCastReaction"."timestamp"))) AS age_in_seconds
         FROM "public"."FarcasterCastReaction"
-          WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '7 days'::interval
+          JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+        WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '7 days'::interval
+          AND "FarcasterCast"."parentCast" IS NULL
         GROUP BY "targetFid", "targetHash"
     )
 

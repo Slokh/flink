@@ -33,14 +33,32 @@ const run = async () => {
     .map((p) => p.parentUrl)
     .filter(Boolean) as string[];
 
-  console.log(`[cast-stats] [channels] processing ${channels.length}`);
+  console.log(`[cast-stats] [channels] processing ${channels.length} channels`);
 
   const stats = await getStats();
-  console.log(`[cast-stats] [channels] processing ${stats.length}`);
-  await prisma.farcasterChannelStats.createMany({
-    data: stats,
-    skipDuplicates: true,
-  });
+
+  console.log(
+    `[cast-stats] [channels] processing ${stats.length} stats in ${
+      stats.length / 1000
+    } batches`
+  );
+
+  for (let i = 0; i < stats.length; i += 1000) {
+    const batch = stats.slice(i, i + 1000);
+    console.log(`[cast-stats] [channels] processing batch ${i}`);
+    await prisma.farcasterChannelStats.deleteMany({
+      where: {
+        OR: batch.map((s) => ({
+          url: s.url,
+          timestamp: s.timestamp,
+        })),
+      },
+    });
+    await prisma.farcasterChannelStats.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+  }
 };
 
 const getStats = async () => {
@@ -72,6 +90,7 @@ const getReactions = async () => {
       SUM(CASE WHEN "FarcasterCastReaction"."reactionType" = 'recast' THEN 1 ELSE 0 END) as recasts
     FROM "public"."FarcasterCast"
         JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE "FarcasterCast"."timestamp" > NOW() - INTERVAL '3 hour'
     GROUP BY
       "topParentUrl", date
   `;
@@ -97,6 +116,7 @@ const getCounts = async () => {
       SUM(CASE WHEN "FarcasterCast"."parentCast" IS NULL THEN 1 ELSE 0 END) as posts,
       SUM(CASE WHEN "FarcasterCast"."parentCast" IS NOT NULL THEN 1 ELSE 0 END) as replies
     FROM "public"."FarcasterCast"
+    WHERE "FarcasterCast"."timestamp" > NOW() - INTERVAL '3 hour'
     GROUP BY
       "topParentUrl", date
   `;

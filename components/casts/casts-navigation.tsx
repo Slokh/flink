@@ -23,7 +23,7 @@ export const CastsNavigation = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const path = community ? `/channel/${community}` : "";
+  const path = community ? `/channels/${community}` : "";
 
   const options = [CastsSort.Hot, CastsSort.New, CastsSort.Top];
 

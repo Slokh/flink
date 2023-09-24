@@ -43,7 +43,7 @@ export const AuthButton = () => {
 
   if (authState === UserAuthState.UNKNOWN) {
     return (
-      <div className="font-bold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center">
+      <div className="font-semibold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center">
         <Loading />
       </div>
     );
@@ -53,7 +53,7 @@ export const AuthButton = () => {
         href={`/${user?.fname}`}
         // className="flex flex-row items-center font-bold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center"
       >
-        <div className="font-bold text-sm">{`@${user?.fname}`}</div>
+        <div className="font-semibold text-sm">{`@${user?.fname}`}</div>
       </Link>
     );
   } else if (authState === UserAuthState.DISCONNECTED) {

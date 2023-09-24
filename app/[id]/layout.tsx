@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import { headers } from "next/headers";
 
-import { Profile } from "@/components/ui/profile";
+import { Profile } from "@/components/profile";
 import { SearchInput } from "@/components/search-input";
 import { Separator } from "@/components/ui/separator";
 import { getEntity } from "@/lib/requests";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const generateMetadata = async ({
   params,
@@ -88,17 +89,11 @@ export default async function Layout({
   }
 
   return (
-    <div className="flex flex-col lg:flex-row lg:justify-center w-full">
-      <div className="flex flex-col flex-grow w-full">{children}</div>
-      <div className="hidden lg:flex h-full">
-        <Separator orientation="vertical" />
-      </div>
-      <div className="flex lg:hidden">
-        <Separator orientation="horizontal" />
-      </div>
-      <div className="hidden lg:flex">
+    <div className="flex flex-col w-full h-full">
+      <ScrollArea>
         <Profile id={params.id} entity={entity} />
-      </div>
+        {children}
+      </ScrollArea>
     </div>
   );
 }

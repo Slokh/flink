@@ -5,9 +5,9 @@ import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "@rainbow-me/rainbowkit/styles.css";
 import WalletProvider from "./wallet";
-import { AuthButton } from "@/components/auth-button";
-import Link from "next/link";
-import { NewCastButton } from "@/components/actions/new-cast";
+import { Nav } from "@/components/nav";
+import { Separator } from "@/components/ui/separator";
+import { ChannelSidebar } from "@/components/channels/channel-sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -47,28 +47,18 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <WalletProvider>
             <div className="flex flex-col h-screen">
-              <div className="flex flex-row border p-1 justify-between items-center w-full">
-                <Link href="/" className="font-bold">
-                  flink{" "}
-                  <span className="font-normal text-zinc-500 text-xs">
-                    v0.2
-                  </span>
-                </Link>
-                <div className="flex flex-row text-sm font-medium items-center space-x-2">
-                  {/* <a href="/slokh" className="h-full space-x-1">
-                      <span className="text-slate-400 font-normal">by</span>
-                      <span>slokh</span>
-                    </a> */}
-                  {/* <ThemeToggle /> */}
-                  <AuthButton />
-                  <NewCastButton />
-                </div>
-              </div>
+              <Nav />
               <div
                 className="w-full flex"
                 style={{ height: "calc(100vh - 40px)" }}
               >
-                {children}
+                <div className="flex flex-row justify-center w-full">
+                  {children}
+                  <div className="hidden lg:flex">
+                    <Separator orientation="vertical" />
+                    <ChannelSidebar />
+                  </div>
+                </div>
               </div>
             </div>
           </WalletProvider>

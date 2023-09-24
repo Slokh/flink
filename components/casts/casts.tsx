@@ -2,7 +2,6 @@
 import { headers } from "next/headers";
 import { FarcasterCast, CastsSort, CastsQuery } from "@/lib/types";
 import { Cast } from "./cast";
-import { ChannelSelect } from "../channel-select";
 import {
   CastsNavigation,
   CastsPagination,
@@ -11,11 +10,13 @@ import {
 import { CHANNELS_BY_ID } from "@/lib/channels";
 import { getEntity } from "@/lib/requests";
 import { ScrollArea } from "../ui/scroll-area";
+import { Separator } from "../ui/separator";
+import { ChannelSidebar } from "../channels/channel-sidebar";
 
 const getCasts = async (
   sort: CastsSort,
   page: number,
-  community?: string,
+  parentUrl?: string,
   time?: string,
   fid?: number
 ): Promise<FarcasterCast[]> => {
@@ -23,7 +24,7 @@ const getCasts = async (
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(
     `${protocol}://${host}/api/casts?sort=${sort}${
-      community ? `&community=${community}` : ""
+      parentUrl ? `&parentUrl=${parentUrl}` : ""
     }${time ? `&time=${time}` : ""}${fid ? `&fid=${fid}` : ""}${
       page ? `&page=${page}` : ""
     }`
@@ -33,18 +34,18 @@ const getCasts = async (
 
 export const Casts = async ({
   sort,
-  community,
+  parentUrl,
   time,
   fid,
   page,
 }: {
   sort: CastsSort;
-  community?: string;
+  parentUrl?: string;
   time?: string;
   fid?: number;
   page: number;
 }) => {
-  const casts = await getCasts(sort, page, community, time, fid);
+  const casts = await getCasts(sort, page, parentUrl, time, fid);
   return (
     <div className="w-full">
       {casts.map((cast, i) => (
@@ -66,16 +67,24 @@ export const CastsTable = async ({
   sort,
   params,
   searchParams,
-}: { sort: CastsSort } & CastsQuery) => {
+}: { sort: CastsSort; sidebar?: React.ReactNode } & CastsQuery) => {
   const page = parseInt(searchParams.page || "1");
   const time = sort === CastsSort.Top ? searchParams.time || "day" : undefined;
   const channel = params.channel
-    ? CHANNELS_BY_ID[params.channel]?.channelId
+    ? CHANNELS_BY_ID[params.channel] || {
+        name: decodeURIComponent(params.channel),
+        channelId: params.channel,
+        image: {
+          url: "/favicon.ico",
+        },
+        parentUrl: decodeURIComponent(params.channel),
+      }
     : undefined;
+  const channelId = channel?.channelId;
 
   let baseHref = "/";
-  if (channel) {
-    baseHref += `channel/${channel}/`;
+  if (channelId) {
+    baseHref += `channel/${channelId}/`;
   }
   if (sort !== CastsSort.Hot) {
     baseHref += sort.toLowerCase();
@@ -85,13 +94,20 @@ export const CastsTable = async ({
   }
 
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full h-full flex-grow">
       <div className="flex flex-row items-center justify-between p-2 border-b">
-        <ChannelSelect channel={channel} />
-        <CastsNavigation selected={sort} time={time} community={channel} />
+        <div></div>
+        <CastsNavigation selected={sort} time={time} community={channelId} />
       </div>
-      <Casts sort={sort} time={time} page={page} community={channel} />
-      <CastsPagination href={baseHref} page={page} />
+      <ScrollArea className="h-full">
+        <Casts
+          sort={sort}
+          time={time}
+          page={page}
+          parentUrl={channel?.parentUrl}
+        />
+        <CastsPagination href={baseHref} page={page} />
+      </ScrollArea>
     </div>
   );
 };
@@ -103,7 +119,7 @@ export const UserCastsTable = async ({
 }: { sort: CastsSort } & CastsQuery) => {
   const entity = await getEntity(params.id, false);
   const page = parseInt(searchParams.page || "1");
-  const time = sort === CastsSort.Top ? searchParams.time || "day" : undefined;
+  const time = sort === CastsSort.Top ? searchParams.time || "all" : undefined;
 
   let baseHref = `/${params.id}/`;
   if (sort !== CastsSort.Hot) {
@@ -114,15 +130,13 @@ export const UserCastsTable = async ({
   }
 
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full">
       <div className="flex flex-row items-center justify-between p-2">
         <div></div>
         <UserCastsNavigation selected={sort} time={time} id={params.id} />
       </div>
-      <ScrollArea className="h-full">
-        <Casts sort={sort} time={time} fid={entity.fid} page={page} />
-        <CastsPagination href={baseHref} page={page} />
-      </ScrollArea>
+      <Casts sort={sort} time={time} fid={entity.fid} page={page} />
+      <CastsPagination href={baseHref} page={page} />
     </div>
   );
 };

@@ -28,7 +28,7 @@ import { Input } from "../ui/input";
 import { usePathname } from "next/navigation";
 import { CHANNELS_BY_ID } from "@/lib/channels";
 import { Channel, FarcasterCast } from "@/lib/types";
-import { ChannelSelect } from "../channel-select";
+import { ChannelSelect } from "../channels/channel-select";
 import { CastContent } from "../casts/cast-thread";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -73,7 +73,7 @@ export const NewCast = ({
   const [channel, setChannel] = useState<Channel | undefined>(undefined);
 
   useEffect(() => {
-    if (!parent && pathname.includes("/channel/")) {
+    if (!parent && pathname.includes("/channels/")) {
       setChannel(CHANNELS_BY_ID[pathname.split("/")[2]]);
     }
     setLoadingChannel(false);

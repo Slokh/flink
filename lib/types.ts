@@ -117,3 +117,18 @@ export type AuthenticatedUser = {
   casts: { [key: string]: boolean };
   follows: { [key: string]: boolean };
 };
+
+export type ChannelStatsEntries = {
+  likes: number;
+  recasts: number;
+  replies: number;
+  posts: number;
+  engagement: number;
+};
+
+export type ChannelStats = ChannelStatsEntries & {
+  url: string;
+  channel: Channel;
+  previous?: ChannelStatsEntries;
+  rankDeltas: ChannelStatsEntries;
+};

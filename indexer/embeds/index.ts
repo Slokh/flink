@@ -28,8 +28,11 @@ const getHeadMetadata = async (url: string) => {
   let contentLastModified: Date | undefined;
 
   try {
-    const response = await fetch(url, { method: "HEAD" });
-    if (response.ok) {
+    const response = await Promise.race<Response | undefined>([
+      fetch(url, { method: "HEAD" }),
+      timeout(10000),
+    ]);
+    if (response?.ok) {
       const headers = response.headers;
       const rawContentType = headers.get("Content-Type");
       const rawContentLength = headers.get("Content-Length");
@@ -53,9 +56,12 @@ const getMetadata = async (url: string) => {
   let contentMetadata = {};
   try {
     if (!url.startsWith("chain://")) {
-      contentMetadata = await unfurl(url);
+      contentMetadata = await Promise.race<any>([unfurl(url), timeout(10000)]);
     } else {
-      contentMetadata = await getNftMetadata(url);
+      contentMetadata = await Promise.race<any>([
+        getNftMetadata(url),
+        timeout(10000),
+      ]);
     }
   } catch (e) {}
 
@@ -77,4 +83,12 @@ const getNftMetadata = async (url: string) => {
     }
   );
   return await response;
+};
+
+const timeout = (ms: number): Promise<Response> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject(undefined);
+    }, ms);
+  });
 };
