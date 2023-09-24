@@ -42,7 +42,7 @@
     "eslint-config-next": "13.5.1",
     "ethers": "^5",
     "iron-session": "^6.3.1",
-    "next": "13.5.1",
+    "next": "13.4.19",
     "next-themes": "^0.2.1",
     "postcss": "8.4.28",
     "qrcode.react": "^3.1.0",

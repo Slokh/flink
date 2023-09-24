@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 
 import { Profile } from "@/components/profile";
 import { SearchInput } from "@/components/search-input";
-import { Separator } from "@/components/ui/separator";
 import { getEntity } from "@/lib/requests";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -13,8 +12,6 @@ export const generateMetadata = async ({
   params: { id: string };
 }): Promise<Metadata> => {
   const entity = await getEntity(params.id, false);
-  const host = headers().get("host");
-  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
 
   // @ts-ignore
   if (!entity || entity?.error) {

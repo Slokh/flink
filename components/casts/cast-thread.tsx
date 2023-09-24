@@ -14,9 +14,7 @@ import { LikeCast } from "../actions/like-cast";
 import { RecastCast } from "../actions/recast-cast";
 
 export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
-  const community = cast.parentUrl
-    ? CHANNELS_BY_URL[cast.parentUrl]
-    : undefined;
+  const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
   const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
   return (
     <div className="flex flex-col space-y-1">
@@ -43,26 +41,23 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
                 addSuffix: true,
               })}
             </div>
-            {community && (
+            {channel && (
               <>
                 <div className="text-zinc-500">in</div>
                 <Link
-                  href={`/channels/${community.channelId}`}
+                  href={`/channels/${channel.channelId}`}
                   className="hover:underline"
                 >
                   <Avatar className="h-4 w-4">
-                    <AvatarImage
-                      src={community.image}
-                      className="object-cover"
-                    />
+                    <AvatarImage src={channel.image} className="object-cover" />
                     <AvatarFallback>?</AvatarFallback>
                   </Avatar>
                 </Link>
                 <Link
-                  href={`/channels/${community.channelId}`}
+                  href={`/channels/${channel.channelId}`}
                   className="hover:underline"
                 >
-                  <div>{community.name}</div>
+                  <div>{channel.name}</div>
                 </Link>
               </>
             )}
@@ -86,9 +81,7 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
 };
 
 const CastMinContent = ({ cast }: { cast: FarcasterCast }) => {
-  const community = cast.parentUrl
-    ? CHANNELS_BY_URL[cast.parentUrl]
-    : undefined;
+  const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
   const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
   return (
     <div className="flex flex-col space-y-1">
@@ -98,23 +91,23 @@ const CastMinContent = ({ cast }: { cast: FarcasterCast }) => {
             addSuffix: true,
           })}
         </div>
-        {community && (
+        {channel && (
           <>
             <div className="text-zinc-500">in</div>
             <Link
-              href={`/channels/${community.channelId}`}
+              href={`/channels/${channel.channelId}`}
               className="hover:underline"
             >
               <Avatar className="h-4 w-4">
-                <AvatarImage src={community.image} className="object-cover" />
+                <AvatarImage src={channel.image} className="object-cover" />
                 <AvatarFallback>?</AvatarFallback>
               </Avatar>
             </Link>
             <Link
-              href={`/channels/${community.channelId}`}
+              href={`/channels/${channel.channelId}`}
               className="hover:underline"
             >
-              <div>{community.name}</div>
+              <div>{channel.name}</div>
             </Link>
           </>
         )}
@@ -142,9 +135,7 @@ export const CastParent = ({
   cast: FarcasterCast;
   isMinified?: boolean;
 }) => {
-  const community = cast.parentUrl
-    ? CHANNELS_BY_URL[cast.parentUrl]
-    : undefined;
+  const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
   return (
     <div className="flex flex-row space-x-2 p-4 w-full">
       <div className="flex flex-col items-end justify-start text-sm cursor-pointer pr-1 pl-1">
@@ -171,7 +162,7 @@ export const CastParent = ({
           </a>
           <CopyLink
             link={`https://flink.fyi/${
-              community ? `channels/${community.channelId}` : cast.user.fname
+              channel ? `channels/${channel.channelId}` : cast.user.fname
             }/${cast.hash}`}
           />
           <DeleteCast hash={cast.hash}>

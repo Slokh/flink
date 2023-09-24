@@ -10,8 +10,6 @@ import {
 import { CHANNELS_BY_ID } from "@/lib/channels";
 import { getEntity } from "@/lib/requests";
 import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
-import { ChannelSidebar } from "../channels/channel-sidebar";
 
 const getCasts = async (
   sort: CastsSort,
@@ -67,7 +65,7 @@ export const CastsTable = async ({
   sort,
   params,
   searchParams,
-}: { sort: CastsSort; sidebar?: React.ReactNode } & CastsQuery) => {
+}: { sort: CastsSort } & CastsQuery) => {
   const page = parseInt(searchParams.page || "1");
   const time = sort === CastsSort.Top ? searchParams.time || "day" : undefined;
   const channel = params.channel
@@ -97,7 +95,7 @@ export const CastsTable = async ({
     <div className="flex flex-col w-full h-full flex-grow">
       <div className="flex flex-row items-center justify-between p-2 border-b">
         <div></div>
-        <CastsNavigation selected={sort} time={time} community={channelId} />
+        <CastsNavigation selected={sort} time={time} channel={channelId} />
       </div>
       <ScrollArea className="h-full">
         <Casts

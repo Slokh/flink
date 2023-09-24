@@ -34,7 +34,7 @@ export const getCast = async (hash: string) => {
     casts.push(...parentCasts);
   }
 
-  return await getCastsResponse(casts);
+  return await getCastsResponse(casts.filter(Boolean));
 };
 
 export const getCastsResponseByHotness = async (
@@ -116,7 +116,7 @@ export const getCastsResponseByHotness = async (
     (result) => castMap[`${result.fid}-${result.hash}`]
   );
 
-  return await getCastsResponse(orderedCasts);
+  return await getCastsResponse(orderedCasts.filter(Boolean));
 };
 
 const getTimeInterval = (
@@ -235,7 +235,7 @@ export const getCastsResponseByTopLikes = async (
     (result) => castMap[`${result.fid}-${result.hash}`]
   );
 
-  return await getCastsResponse(orderedCasts);
+  return await getCastsResponse(orderedCasts.filter(Boolean));
 };
 
 export const getCastsResponseByNewness = async (
@@ -267,7 +267,7 @@ export const getCastsResponseByNewness = async (
     skip: (page - 1) * PAGE_SIZE,
   });
 
-  return await getCastsResponse(casts);
+  return await getCastsResponse(casts.filter(Boolean));
 };
 
 export const getCastsResponseByFid = async (page: number, fid?: number) => {
@@ -288,7 +288,7 @@ export const getCastsResponseByFid = async (page: number, fid?: number) => {
     skip: (page - 1) * PAGE_SIZE,
   });
 
-  return await getCastsResponse(casts);
+  return await getCastsResponse(casts.filter(Boolean));
 };
 
 const getCastsResponse = async (casts: any) => {

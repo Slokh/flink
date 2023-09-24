@@ -14,16 +14,16 @@ import { usePathname, useRouter } from "next/navigation";
 
 export const CastsNavigation = ({
   selected,
-  community,
+  channel,
   time,
 }: {
   selected: CastsSort;
-  community?: string;
+  channel?: string;
   time?: string;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const path = community ? `/channels/${community}` : "";
+  const path = channel ? `/channels/${channel}` : "";
 
   const options = [CastsSort.Hot, CastsSort.New, CastsSort.Top];
 

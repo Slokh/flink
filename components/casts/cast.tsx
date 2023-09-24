@@ -153,9 +153,7 @@ const WebCast = ({
   rank?: number;
   isReply?: boolean;
 }) => {
-  const community = cast.parentUrl
-    ? CHANNELS_BY_URL[cast.parentUrl]
-    : undefined;
+  const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
   const formattedText = formatText(
     cast.text,
     cast.mentions,
@@ -196,7 +194,7 @@ const WebCast = ({
         )}
         <Link
           href={`/${
-            community ? `channels/${community.channelId}` : cast.user.fname
+            channel ? `channels/${channel.channelId}` : cast.user.fname
           }/${cast.hash}`}
           className="transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-2 visited:text-purple-600 visited:dark:text-purple-400"
         >
@@ -225,26 +223,23 @@ const WebCast = ({
             <Link href={`/${cast.user.fname}`} className="hover:underline">
               <div>{cast.user.fname}</div>
             </Link>
-            {community && (
+            {channel && (
               <>
                 <div className="text-zinc-500">in</div>
                 <Link
-                  href={`/channels/${community.channelId}`}
+                  href={`/channels/${channel.channelId}`}
                   className="hover:underline"
                 >
                   <Avatar className="h-4 w-4">
-                    <AvatarImage
-                      src={community.image}
-                      className="object-cover"
-                    />
+                    <AvatarImage src={channel.image} className="object-cover" />
                     <AvatarFallback>?</AvatarFallback>
                   </Avatar>
                 </Link>
                 <Link
-                  href={`/channels/${community.channelId}`}
+                  href={`/channels/${channel.channelId}`}
                   className="hover:underline"
                 >
-                  <div>{community.name}</div>
+                  <div>{channel.name}</div>
                 </Link>
               </>
             )}
@@ -253,7 +248,7 @@ const WebCast = ({
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-2">
           <Link
             href={`/${
-              community ? `channels/${community.channelId}` : cast.user.fname
+              channel ? `channels/${channel.channelId}` : cast.user.fname
             }/${cast.hash}`}
             className="hover:underline"
           >
@@ -293,9 +288,7 @@ export const MobileCast = ({
   isReply?: boolean;
   isLink?: boolean;
 }) => {
-  const community = cast.parentUrl
-    ? CHANNELS_BY_URL[cast.parentUrl]
-    : undefined;
+  const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
   const formattedText = formatText(
     cast.text,
     cast.mentions,
@@ -343,7 +336,7 @@ export const MobileCast = ({
       {isLink ? (
         <Link
           href={`/${
-            community ? `channels/${community.channelId}` : cast.user.fname
+            channel ? `channels/${channel.channelId}` : cast.user.fname
           }/${cast.hash}`}
           className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 visited:text-purple-600 visited:dark:text-purple-400 whitespace-pre-line break-words"
         >
@@ -381,23 +374,23 @@ export const MobileCast = ({
         <RecastCast hash={cast.hash} recasts={cast.recasts} mode="text" />
       </div>
       {cast.embeds.length > 0 && <EmbedPreview embed={cast.embeds[0]} />}
-      {community && (
+      {channel && (
         <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center justify-end">
           <div className="text-zinc-500">in</div>
           <Link
-            href={`/channels/${community.channelId}`}
+            href={`/channels/${channel.channelId}`}
             className="hover:underline"
           >
             <Avatar className="h-4 w-4">
-              <AvatarImage src={community.image} className="object-cover" />
+              <AvatarImage src={channel.image} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
           </Link>
           <Link
-            href={`/channels/${community.channelId}`}
+            href={`/channels/${channel.channelId}`}
             className="hover:underline"
           >
-            <div>{community.name}</div>
+            <div>{channel.name}</div>
           </Link>
         </div>
       )}
