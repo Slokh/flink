@@ -211,10 +211,11 @@ model Backfill {
 }
 
 model User {
-    address           String  @id
+    address           String   @id
     signerUuid        String
     signerStatus      String
     signerPublicKey   String
     signerApprovalUrl String?
     fid               Int?
+    timestamp         DateTime @default(now())
 }

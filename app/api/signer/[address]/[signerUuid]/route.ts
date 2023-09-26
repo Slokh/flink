@@ -20,6 +20,8 @@ export async function GET(
 
   const signer = await data.json();
 
+  console.log(signer);
+
   if (signer.status !== "approved") {
     return NextResponse.json({}, { status: 404 });
   }
