@@ -65,7 +65,7 @@ export const CastsTable = async ({
   sort,
   params,
   searchParams,
-}: { sort: CastsSort } & CastsQuery) => {
+}: { sort: CastsSort; nav?: React.ReactNode } & CastsQuery) => {
   const page = parseInt(searchParams.page || "1");
   const time = sort === CastsSort.Top ? searchParams.time || "day" : undefined;
   const channel = params.channel
@@ -94,7 +94,7 @@ export const CastsTable = async ({
   return (
     <div className="flex flex-col w-full h-full flex-grow">
       <div className="flex flex-row items-center justify-between p-2 border-b">
-        <div></div>
+        <div />
         <CastsNavigation selected={sort} time={time} channel={channelId} />
       </div>
       <ScrollArea className="h-full">

@@ -137,13 +137,8 @@ const ImageEmbed = ({ url }: { url: string }) => {
         <DialogTrigger>
           <img src={url} alt={url} className="rounded-lg" />
         </DialogTrigger>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle className="h-4"></DialogTitle>
-            <DialogDescription>
-              <img src={url} alt={url} className="rounded-lg" />
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-w-4xl p-0">
+          <img src={url} alt={url} className="rounded-lg" />
         </DialogContent>
       </Dialog>
     </div>

@@ -15,12 +15,11 @@ export async function GET(
       headers: {
         api_key: process.env.NEYNAR_API_KEY as string,
       },
+      cache: "no-store",
     }
   );
 
   const signer = await data.json();
-
-  console.log(signer);
 
   if (signer.status !== "approved") {
     return NextResponse.json({}, { status: 404 });

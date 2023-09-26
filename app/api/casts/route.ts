@@ -60,8 +60,6 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const res = await data.json();
 
-  console.log(`request: ${body}, response: ${JSON.stringify(res)}`);
-
   if (!data.ok) {
     return NextResponse.json({
       status: data.status,

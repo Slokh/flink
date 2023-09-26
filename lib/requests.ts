@@ -23,11 +23,24 @@ export const getCast = async (
   return await data.json();
 };
 
-export const getChannels = async (time: string): Promise<ChannelStats[]> => {
+export const getChannelEngagementStats = async (
+  time: string
+): Promise<ChannelStats[]> => {
   const host = headers().get("host");
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(
-    `${protocol}://${host}/api/channels${time ? `?time=${time}` : ""}`
+    `${protocol}://${host}/api/stats/channels/engagement${
+      time ? `?time=${time}` : ""
+    }`
+  );
+  return await data.json();
+};
+
+export const getChannelStats = async (channel: string) => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(
+    `${protocol}://${host}/api/stats/channels/${channel}`
   );
   return await data.json();
 };

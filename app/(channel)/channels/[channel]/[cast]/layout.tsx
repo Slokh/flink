@@ -1,20 +1,18 @@
 import { Metadata } from "next";
 
-import { getCast, getEntity } from "@/lib/requests";
+import { getCast } from "@/lib/requests";
 import { formatText } from "@/lib/utils";
 import { getPreview } from "@/components/casts/cast";
 
 export const generateMetadata = async ({
   params,
 }: {
-  params: { id: string; cast: string };
+  params: { cast: string; channel: string };
 }): Promise<Metadata> => {
-  const [entity, cast] = await Promise.all([
-    getEntity(params.id, false),
-    getCast(params.cast),
-  ]);
+  const cast = await getCast(params.cast);
+
   // @ts-ignore
-  if (!entity || entity?.error || !cast || cast?.error) {
+  if (!cast || cast?.error) {
     return {
       title: "flink",
       description:
@@ -42,9 +40,9 @@ export const generateMetadata = async ({
     };
   }
 
-  const { display, fname } = entity;
+  const { display, fname, fid } = cast.user;
 
-  const title = `${display?.value || params.id} ${fname ? `(@${fname})` : ""}`;
+  const title = `${display || fname || fid} ${fname ? `(@${fname})` : ""}`;
   const description = formatText(cast.text, cast.mentions, cast.embeds, false);
   const { previewImage } = getPreview(cast.embeds);
 
@@ -57,7 +55,7 @@ export const generateMetadata = async ({
     openGraph: {
       type: "website",
       locale: "en_US",
-      url: `https://flink.fyi/${params.id}`,
+      url: `https://flink.fyi/channels/${params.channel}/${params.cast}`,
       title,
       description,
       images: [previewImage || "/flink.png"],

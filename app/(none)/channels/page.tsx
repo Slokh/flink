@@ -1,6 +1,6 @@
 import { Channels } from "@/components/channels/channels";
 
-export default function Home({
+export default async function Home({
   searchParams,
 }: {
   searchParams: { time?: string };

@@ -1,8 +1,8 @@
 import { ChannelsTable } from "./channels-table";
-import { getChannels } from "@/lib/requests";
+import { getChannelEngagementStats } from "@/lib/requests";
 
 export const Channels = async ({ time }: { time: string }) => {
-  const channels = await getChannels(time);
+  const channels = await getChannelEngagementStats(time);
 
   return (
     <div className="w-full">
