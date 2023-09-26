@@ -124,6 +124,9 @@ export const AuthButton = () => {
                 >
                   Click for link
                 </a>
+                <div className="text-xs text-muted-foreground">
+                  This modal will close automatically once you are logged in.
+                </div>
               </div>
             ) : (
               <></>

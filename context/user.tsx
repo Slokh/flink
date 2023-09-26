@@ -85,7 +85,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       if (!verifyRes.ok) throw new Error("Error verifying message");
 
       setSignerState(await initializeNewSigner(address));
-      setAuthState(UserAuthState.VERIFIED);
+      setAuthState(UserAuthState.NEEDS_APPROVAL);
     } catch (error) {
       console.error(error);
     }
@@ -144,6 +144,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     setSignerState(signer);
     const user = await fetchUserForFid(signer.fid);
     if (!user) return;
+    setAuthState(UserAuthState.LOGGED_IN);
     setUser(user);
   };
 
@@ -175,6 +176,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         const user = await fetchUserForFid(signer.fid);
         setUser(user);
         authState = UserAuthState.LOGGED_IN;
+      } else {
+        authState = UserAuthState.NEEDS_APPROVAL;
       }
 
       setAuthState(authState);
