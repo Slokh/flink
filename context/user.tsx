@@ -184,8 +184,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, isConnected]);
 
-  console.log(authState);
-
   const value = {
     user,
     address,
