@@ -33,7 +33,7 @@ export async function POST(
 
   await prisma.user.upsert({
     where: {
-      address: body.address,
+      address: body.address.toLowerCase(),
     },
     create: {
       address: body.address,

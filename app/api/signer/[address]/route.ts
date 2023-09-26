@@ -8,7 +8,7 @@ export async function GET(
 ): Promise<NextResponse<SignerState | {}>> {
   const data = await prisma.user.findFirst({
     where: {
-      address: params.address,
+      address: params.address.toLowerCase(),
     },
   });
 

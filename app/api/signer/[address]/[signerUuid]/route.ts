@@ -28,7 +28,7 @@ export async function GET(
 
   await prisma.user.upsert({
     where: {
-      address,
+      address: address.toLowerCase(),
     },
     create: {
       address,
