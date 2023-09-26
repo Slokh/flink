@@ -48,24 +48,29 @@ export async function GET(
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
+  const body = JSON.stringify(await request.json());
   const data = await fetch("https://api.neynar.com/v2/farcaster/cast", {
     method: "POST",
     headers: {
       "content-type": "application/json",
       api_key: process.env.NEYNAR_API_KEY as string,
     },
-    body: JSON.stringify(await request.json()),
+    body,
   });
+
+  const res = await data.json();
+
+  console.log(`request: ${body}, response: ${JSON.stringify(res)}`);
 
   if (!data.ok) {
     return NextResponse.json({
       status: data.status,
       statusText: data.statusText,
-      error: await data.json(),
+      error: res,
     });
   }
 
-  const { cast } = await data.json();
+  const { cast } = await res;
 
   return NextResponse.json(cast);
 }
