@@ -31,7 +31,7 @@ export async function GET(
       address: address.toLowerCase(),
     },
     create: {
-      address,
+      address: address.toLowerCase(),
       signerUuid: signer.signer_uuid,
       signerStatus: signer.status,
       signerPublicKey: signer.public_key,

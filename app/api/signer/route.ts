@@ -1,10 +1,7 @@
 import { SignerState } from "@/context/user";
 import { NextResponse } from "next/server";
 
-export async function POST(
-  request: Request,
-  { params }: { params: { hash: string } }
-): Promise<NextResponse<SignerState>> {
+export async function POST(): Promise<NextResponse<SignerState>> {
   const data = await fetch("https://api.neynar.com/v2/farcaster/signer", {
     method: "POST",
     headers: {

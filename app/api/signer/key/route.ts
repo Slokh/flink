@@ -36,7 +36,7 @@ export async function POST(
       address: body.address.toLowerCase(),
     },
     create: {
-      address: body.address,
+      address: body.address.toLowerCase(),
       signerUuid: signer.signer_uuid,
       signerStatus: signer.status,
       signerPublicKey: signer.public_key,
