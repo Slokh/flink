@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { usePathname, useRouter } from "next/navigation";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export const ChannelsNavigation = ({ time }: { time: string }) => {
   const router = useRouter();
@@ -268,11 +268,12 @@ export const ChannelsTable = ({
   ];
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col w-full h-full">
       <div className="flex flex-row items-center justify-end p-2 border-b">
         <ChannelsNavigation time={time} />
       </div>
       <ScrollArea>
+        <ScrollBar orientation="horizontal" />
         <DataTable
           columns={columns}
           data={channels}

@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { CHANNELS_BY_ID } from "@/lib/channels";
 import { Metadata } from "next";
 
@@ -52,21 +53,23 @@ export default async function Layout({
   const isUnknownChannel = !CHANNELS_BY_ID[params.channel];
   return (
     <div className="flex flex-col w-full">
-      <div className="flex flex-row items-center p-4 space-x-2">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={channel.image} className="object-cover" />
-          <AvatarFallback>?</AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col">
-          <div className="font-semibold text-xl">
-            {isUnknownChannel ? "Unknown" : channel.name}
-          </div>
-          <div className="text-zinc-500 text-xs hidden lg:flex">
-            {channel.parentUrl}
+      <ScrollArea>
+        <div className="flex flex-row items-center p-4 space-x-2">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={channel.image} className="object-cover" />
+            <AvatarFallback>?</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <div className="font-semibold text-xl">
+              {isUnknownChannel ? "Unknown" : channel.name}
+            </div>
+            <div className="text-zinc-500 text-xs hidden lg:flex">
+              {channel.parentUrl}
+            </div>
           </div>
         </div>
-      </div>
-      <div>{children}</div>
+        <div>{children}</div>
+      </ScrollArea>
     </div>
   );
 }
