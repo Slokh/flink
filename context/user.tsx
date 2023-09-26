@@ -47,7 +47,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [authState, setAuthState] = useState<UserAuthState>(
     UserAuthState.UNKNOWN
   );
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const { chain } = useNetwork();
   const { signMessageAsync } = useSignMessage();
   const [signerState, setSignerState] = useState<SignerState | undefined>();
@@ -158,6 +158,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
       let signer = await fetchSignerForAddress(address);
       if (!signer) {
+        setAuthState(authState);
         return;
       }
       authState = UserAuthState.VERIFIED;
@@ -181,7 +182,9 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     };
     handler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address]);
+  }, [address, isConnected]);
+
+  console.log(authState);
 
   const value = {
     user,
