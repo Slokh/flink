@@ -43,16 +43,13 @@ export const AuthButton = () => {
 
   if (authState === UserAuthState.UNKNOWN) {
     return (
-      <div className="font-semibold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center">
+      <div className="font-semibold rounded-md bg-foreground text-background p-2 pr-3 pl-3 text-center">
         <Loading />
       </div>
     );
   } else if (authState === UserAuthState.LOGGED_IN) {
     return (
-      <Link
-        href={`/${user?.fname}`}
-        // className="flex flex-row items-center font-bold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center"
-      >
+      <Link href={`/${user?.fname}`}>
         <div className="font-semibold text-sm">{`@${user?.fname}`}</div>
       </Link>
     );
@@ -69,7 +66,7 @@ export const AuthButton = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="font-bold rounded-xl bg-foreground text-background p-2 pr-3 pl-3 text-center">
+      <DialogTrigger className="font-semibold rounded-md bg-foreground text-background p-2 pr-3 pl-3 text-center">
         Log in
       </DialogTrigger>
       <DialogContent>
@@ -100,7 +97,7 @@ export const AuthButton = () => {
             authState === UserAuthState.CONNECTED ? (
               <Button
                 onClick={verifyMessage}
-                className="font-bold rounded-xl h-[40px] whitespace-nowrap"
+                className="font-bold rounded-md h-[40px] whitespace-nowrap"
               >
                 Verify
               </Button>

@@ -6,12 +6,14 @@ import { Analytics } from "@vercel/analytics/react";
 import "@rainbow-me/rainbowkit/styles.css";
 import WalletProvider from "./wallet";
 import { Nav } from "@/components/nav";
+import Scroll from "@/components/scroll";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "flink",
-  description: "Automatically linked identities across platforms and protocols",
+  description:
+    "A Reddit-like interface for Farcaster to see hot & trending conversations",
   icons: {
     icon: "/favicon.ico",
   },
@@ -21,7 +23,7 @@ export const metadata: Metadata = {
     url: "https://flink.fyi",
     title: "flink",
     description:
-      "Automatically linked identities across platforms and protocols",
+      "A Reddit-like interface for Farcaster to see hot & trending conversations",
     images: [
       {
         url: "/flink.png",

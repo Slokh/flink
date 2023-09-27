@@ -154,12 +154,7 @@ const WebCast = ({
   isReply?: boolean;
 }) => {
   const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
-  const formattedText = formatText(
-    cast.text,
-    cast.mentions,
-    cast.embeds,
-    false
-  );
+  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
   const { previewImage, externalUrl } = getPreview(cast.embeds);
 
   const isXpost = [
@@ -289,12 +284,7 @@ export const MobileCast = ({
   isLink?: boolean;
 }) => {
   const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
-  const formattedText = formatText(
-    cast.text,
-    cast.mentions,
-    cast.embeds,
-    false
-  );
+  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
 
   const { externalUrl } = getPreview(cast.embeds);
 

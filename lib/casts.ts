@@ -474,6 +474,14 @@ const getEmbedsForCasts = async (casts: any) => {
   return urlEmbeds.reduce((acc: any, embed: any) => {
     const key = `${embed.fid}-${embed.hash}`;
     if (!acc[key]) acc[key] = [];
+    if (
+      acc[key].some(
+        (e: any) =>
+          e.url.replace("https://", "") === embed.url.replace("https://", "")
+      )
+    ) {
+      return acc;
+    }
     acc[key].push({
       ...embed,
       ...fetchedEmbedsMap[embed.url],

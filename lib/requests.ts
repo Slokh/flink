@@ -1,5 +1,11 @@
 import { headers } from "next/headers";
-import { ChannelStats, Entity, FarcasterCastTree } from "./types";
+import {
+  CastsSort,
+  ChannelStats,
+  Entity,
+  FarcasterCast,
+  FarcasterCastTree,
+} from "./types";
 
 export const getEntity = async (
   id: string,
@@ -41,6 +47,25 @@ export const getChannelStats = async (channel: string) => {
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(
     `${protocol}://${host}/api/stats/channels/${channel}`
+  );
+  return await data.json();
+};
+
+export const getCasts = async (
+  sort: CastsSort,
+  page: number,
+  parentUrl?: string,
+  time?: string,
+  fid?: number
+): Promise<FarcasterCast[]> => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(
+    `${protocol}://${host}/api/casts?sort=${sort}${
+      parentUrl ? `&parentUrl=${parentUrl}` : ""
+    }${time ? `&time=${time}` : ""}${fid ? `&fid=${fid}` : ""}${
+      page ? `&page=${page}` : ""
+    }`
   );
   return await data.json();
 };

@@ -1,14 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Metadata } from "unfurl.js/dist/types";
 import { Card } from "./ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Embed, NftMetadata } from "@/lib/types";
 
 const URL_REGEX =

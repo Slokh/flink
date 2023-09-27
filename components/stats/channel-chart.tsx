@@ -12,7 +12,6 @@ import {
 } from "recharts";
 
 export const ChannelChart = ({ url, data }: { url: string; data: any[] }) => {
-  const channel = CHANNELS_BY_URL[url];
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart

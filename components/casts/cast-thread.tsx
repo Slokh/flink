@@ -69,13 +69,11 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
         <div dangerouslySetInnerHTML={{ __html: formattedText }} />
         {cast.embeds.length > 0 && (
           <div className="flex flex-row flex-wrap">
-            {cast.embeds
-              .filter(({ parsed }) => !parsed)
-              .map((embed, i) => (
-                <div key={i} className="w-1/2 pr-2">
-                  <EmbedPreview embed={embed} />
-                </div>
-              ))}
+            {cast.embeds.map((embed, i) => (
+              <div key={i} className="w-1/2 pr-2">
+                <EmbedPreview embed={embed} />
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -83,61 +81,7 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
   );
 };
 
-const CastMinContent = ({ cast }: { cast: FarcasterCast }) => {
-  const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
-  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
-  return (
-    <div className="flex flex-col space-y-1">
-      <div className="flex flex-row space-x-1 text-sm items-center">
-        <div className="text-zinc-500">
-          {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
-            addSuffix: true,
-          })}
-        </div>
-        {channel && (
-          <>
-            <div className="text-zinc-500">in</div>
-            <Link
-              href={`/channels/${channel.channelId}`}
-              className="hover:underline"
-            >
-              <Avatar className="h-4 w-4">
-                <AvatarImage src={channel.image} className="object-cover" />
-                <AvatarFallback>?</AvatarFallback>
-              </Avatar>
-            </Link>
-            <Link
-              href={`/channels/${channel.channelId}`}
-              className="hover:underline"
-            >
-              <div>{channel.name}</div>
-            </Link>
-          </>
-        )}
-      </div>
-      <div className="flex flex-col whitespace-pre-wrap break-words leading-6 tracking-normal w-full space-y-2 border rounded-lg p-2">
-        <div dangerouslySetInnerHTML={{ __html: formattedText }} />
-        {cast.embeds.length > 0 && (
-          <div className="flex flex-row flex-wrap">
-            {cast.embeds
-              .filter(({ parsed }) => !parsed)
-              .map((embed, i) => (
-                <EmbedPreview key={i} embed={embed} />
-              ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export const CastParent = ({
-  cast,
-  isMinified,
-}: {
-  cast: FarcasterCast;
-  isMinified?: boolean;
-}) => {
+export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
   const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
   return (
     <div className="flex flex-row space-x-2 p-4 w-full">
@@ -146,11 +90,7 @@ export const CastParent = ({
         <RecastCast hash={cast.hash} recasts={cast.recasts} mode="icons" />
       </div>
       <div className="flex flex-col space-y-1 w-full">
-        {isMinified ? (
-          <CastMinContent cast={cast} />
-        ) : (
-          <CastContent cast={cast} />
-        )}
+        <CastContent cast={cast} />
         <div className="text-zinc-500 text-sm flex flex-row space-x-4">
           <ReplyCastButton parent={cast} />
           <a
@@ -233,11 +173,9 @@ const CastChild = ({
               <div dangerouslySetInnerHTML={{ __html: formattedText }} />
               {cast.embeds.length > 0 && (
                 <div className="flex flex-row flex-wrap">
-                  {cast.embeds
-                    .filter(({ parsed }) => !parsed)
-                    .map((embed, i) => (
-                      <EmbedPreview key={i} embed={embed} />
-                    ))}
+                  {cast.embeds.map((embed, i) => (
+                    <EmbedPreview key={i} embed={embed} />
+                  ))}
                 </div>
               )}
             </div>
@@ -276,17 +214,15 @@ const CastChild = ({
 export const CastThread = async ({
   cast,
   hash,
-  isMinified,
 }: {
   cast: FarcasterCastTree;
   hash: string;
-  isMinified?: boolean;
 }) => {
   return (
     <>
       <div className="hidden md:flex flex-col w-full h-full">
         <ScrollArea className="h-full pl-2">
-          <CastParent cast={cast} isMinified={isMinified} />
+          <CastParent cast={cast} />
           <div className="flex flex-col space-y-4 m-2">
             {cast.children.map((child) => (
               <CastChild

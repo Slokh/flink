@@ -1,65 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import { headers } from "next/headers";
-import { FarcasterCast, CastsSort, CastsQuery } from "@/lib/types";
+import { CastsSort, CastsQuery } from "@/lib/types";
 import { Cast } from "./cast";
-import {
-  CastsNavigation,
-  CastsPagination,
-  UserCastsNavigation,
-} from "./casts-navigation";
 import { CHANNELS_BY_ID } from "@/lib/channels";
-import { getEntity } from "@/lib/requests";
+import { getCasts, getEntity } from "@/lib/requests";
 import { ScrollArea } from "../ui/scroll-area";
-
-const getCasts = async (
-  sort: CastsSort,
-  page: number,
-  parentUrl?: string,
-  time?: string,
-  fid?: number
-): Promise<FarcasterCast[]> => {
-  const host = headers().get("host");
-  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
-  const data = await fetch(
-    `${protocol}://${host}/api/casts?sort=${sort}${
-      parentUrl ? `&parentUrl=${parentUrl}` : ""
-    }${time ? `&time=${time}` : ""}${fid ? `&fid=${fid}` : ""}${
-      page ? `&page=${page}` : ""
-    }`
-  );
-  return await data.json();
-};
-
-export const Casts = async ({
-  sort,
-  parentUrl,
-  time,
-  fid,
-  page,
-}: {
-  sort: CastsSort;
-  parentUrl?: string;
-  time?: string;
-  fid?: number;
-  page: number;
-}) => {
-  const casts = await getCasts(sort, page, parentUrl, time, fid);
-  return (
-    <div className="w-full">
-      {casts.map((cast, i) => (
-        <Cast
-          key={cast.hash}
-          cast={cast}
-          rank={sort !== CastsSort.New ? i + 1 : undefined}
-          isReply={
-            sort === CastsSort.NewReplies || sort === CastsSort.TopReplies
-          }
-          isLink
-        />
-      ))}
-    </div>
-  );
-};
+import Link from "next/link";
+import { buttonVariants } from "../ui/button";
 
 export const CastsTable = async ({
   sort,
@@ -91,50 +37,64 @@ export const CastsTable = async ({
     }
   }
 
+  let entity;
+  if (params.id) {
+    entity = await getEntity(params.id, true);
+  }
+
+  const casts = await getCasts(
+    sort,
+    page,
+    channel?.parentUrl,
+    time,
+    entity?.fid
+  );
+
   return (
-    <div className="flex flex-col w-full h-full flex-grow">
-      <div className="flex flex-row items-center justify-between p-2 border-b">
-        <div />
-        <CastsNavigation selected={sort} time={time} channel={channelId} />
+    <ScrollArea className="h-full">
+      <div className="w-full">
+        {casts.map((cast, i) => (
+          <Cast
+            key={cast.hash}
+            cast={cast}
+            rank={sort !== CastsSort.New ? (page - 1) * 25 + i + 1 : undefined}
+            isReply={
+              sort === CastsSort.NewReplies || sort === CastsSort.TopReplies
+            }
+            isLink
+          />
+        ))}
       </div>
-      <ScrollArea className="h-full">
-        <Casts
-          sort={sort}
-          time={time}
-          page={page}
-          parentUrl={channel?.parentUrl}
-        />
-        <CastsPagination href={baseHref} page={page} />
-      </ScrollArea>
-    </div>
+      <CastsPagination href={baseHref} page={page} />
+    </ScrollArea>
   );
 };
 
-export const UserCastsTable = async ({
-  sort,
-  params,
-  searchParams,
-}: { sort: CastsSort } & CastsQuery) => {
-  const entity = await getEntity(params.id, false);
-  const page = parseInt(searchParams.page || "1");
-  const time = sort === CastsSort.Top ? searchParams.time || "all" : undefined;
-
-  let baseHref = `/${params.id}/`;
-  if (sort !== CastsSort.Hot) {
-    baseHref += sort.toLowerCase();
-    if (sort === CastsSort.Top) {
-      baseHref += `?time=${time}`;
-    }
-  }
-
+const CastsPagination = ({ href, page }: { href: string; page: number }) => {
   return (
-    <div className="flex flex-col w-full">
-      <div className="flex flex-row items-center justify-between p-2">
-        <div></div>
-        <UserCastsNavigation selected={sort} time={time} id={params.id} />
-      </div>
-      <Casts sort={sort} time={time} fid={entity.fid} page={page} />
-      <CastsPagination href={baseHref} page={page} />
+    <div className="flex flex-row space-x-2 p-2 border-t justify-end items-end">
+      <a
+        href={
+          page > 1
+            ? `${href}${href.includes("?") ? "&" : "?"}page=${page - 1}`
+            : "#"
+        }
+        className={buttonVariants({
+          variant: "outline",
+          size: "sm",
+        })}
+      >
+        prev
+      </a>
+      <a
+        href={`${href}${href.includes("?") ? "&" : "?"}page=${page + 1}`}
+        className={buttonVariants({
+          variant: "outline",
+          size: "sm",
+        })}
+      >
+        next
+      </a>
     </div>
   );
 };

@@ -27,10 +27,11 @@ import {
 import { Input } from "../ui/input";
 import { usePathname } from "next/navigation";
 import { CHANNELS_BY_ID } from "@/lib/channels";
-import { Channel, FarcasterCast } from "@/lib/types";
+import { Channel, Embed, FarcasterCast } from "@/lib/types";
 import { ChannelSelect } from "../channels/channel-select";
 import { CastContent } from "../casts/cast-thread";
 import { ScrollArea } from "../ui/scroll-area";
+import { EmbedPreview } from "../embeds";
 
 const formSchema = z.object({
   text: z.string().refine(
@@ -68,6 +69,8 @@ export const NewCast = ({
       embeds: [],
     },
   });
+  const [url, setUrl] = useState<string | undefined>(undefined);
+  const [urlEmbed, setUrlEmbed] = useState<Embed | undefined>(undefined);
 
   const pathname = usePathname();
   const [channel, setChannel] = useState<Channel | undefined>(undefined);
@@ -86,7 +89,34 @@ export const NewCast = ({
   const textValue = watch("text");
 
   useEffect(() => {
+    const fetchEmbed = async () => {
+      const res = await fetch("/api/embeds", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      });
+      const metadata = await res.json();
+      setUrlEmbed(metadata);
+    };
+    if (url) {
+      fetchEmbed();
+    } else {
+      setUrlEmbed(undefined);
+    }
+  }, [url]);
+
+  useEffect(() => {
     form.trigger("text");
+
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urls = textValue.match(urlRegex);
+    if (urls) {
+      setUrl(urls[0]);
+    } else {
+      setUrl(undefined);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textValue]);
 
@@ -191,6 +221,11 @@ export const NewCast = ({
                 </div>
               ))}
             </div>
+            {urlEmbed && (
+              <div className="mt-2">
+                <EmbedPreview embed={urlEmbed} />
+              </div>
+            )}
             <div className="flex flex-row justify-between items-center mt-2 space-x-2">
               <label htmlFor="embed">
                 <div className="p-2 cursor-pointer border rounded-lg">
@@ -234,7 +269,7 @@ export const NewCastButton = () => (
       </DialogHeader>
     }
   >
-    <div className="flex flex-row space-x-2 items-center font-semibold rounded-xl bg-foreground text-background p-2 text-center">
+    <div className="flex flex-row space-x-2 items-center font-semibold rounded-md bg-foreground text-background p-2 text-center">
       <PlusIcon />
       New cast
     </div>
