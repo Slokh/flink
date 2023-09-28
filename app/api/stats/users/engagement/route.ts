@@ -46,7 +46,7 @@ export async function GET(
             sum(liked) as liked,
             sum(recasted) as recasted,
             sum(mentions) as mentions,
-            sum(1 * posts + 0.5 * replies + 0.1 * likes + 0.25 * recasts) as engagement
+            sum(1 * posts + 0.5 * replies + 0.1 * liked + 0.25 * recasted) as engagement
         FROM "public"."FarcasterUserStats"
         WHERE timestamp > NOW() - ${`${curHours} hour`}::INTERVAL
         GROUP BY fid
@@ -62,7 +62,7 @@ export async function GET(
         sum(liked) as liked,
         sum(recasted) as recasted,
         sum(mentions) as mentions,
-        sum(1 * posts + 0.5 * replies + 0.1 * likes + 0.25 * recasts) as engagement
+        sum(1 * posts + 0.5 * replies + 0.1 * liked + 0.25 * recasted) as engagement
     FROM "public"."FarcasterUserStats"
         WHERE timestamp > NOW() - ${`${prevHours} hour`}::INTERVAL
             AND timestamp < NOW() - ${`${curHours} hour`}::INTERVAL
