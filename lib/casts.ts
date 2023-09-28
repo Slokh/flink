@@ -424,7 +424,7 @@ const getEmbedsForCasts = async (casts: any) => {
       OR: casts.map((cast: any) => ({
         fid: cast.fid,
         hash: cast.hash,
-        parsed: true,
+        parsed: false,
       })),
     },
   });
