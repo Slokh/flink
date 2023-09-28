@@ -28,50 +28,102 @@ export const UserNavigation = ({}: {}) => {
   const time =
     sort === CastsSort.Top ? searchParams.get("time") || "day" : undefined;
 
+  const mainNav = pathname.includes("stats") ? "stats" : "casts";
+
   return (
     <Navigation>
-      <NavigationGroup />
       <NavigationGroup>
-        {sort === CastsSort.Top && (
-          <NavigationSelect
-            defaultValue={time || "day"}
-            onValueChange={(value) => router.push(`${pathname}?time=${value}`)}
-            placeholder="Timeframe"
-            options={[
-              { value: "hour", label: "Last hour" },
-              { value: "day", label: "Last day" },
-              { value: "week", label: "Last week" },
-              { value: "month", label: "Last month" },
-              { value: "year", label: "Last year" },
-              { value: "all", label: "All time" },
-            ]}
-          />
-        )}
         <NavigationButton
           href={`/${params.id}`}
-          isSelected={sort === CastsSort.New}
+          isSelected={mainNav === "casts"}
         >
-          New
+          Casts
         </NavigationButton>
         <NavigationButton
-          href={`/${params.id}/top`}
-          isSelected={sort === CastsSort.Top}
+          href={`/${params.id}/stats`}
+          isSelected={mainNav === "stats"}
         >
-          Top
-        </NavigationButton>
-        <NavigationButton
-          href={`/${params.id}/new-replies`}
-          isSelected={sort === CastsSort.NewReplies}
-        >
-          New Replies
-        </NavigationButton>
-        <NavigationButton
-          href={`/${params.id}/top-replies`}
-          isSelected={sort === CastsSort.TopReplies}
-        >
-          Top Replies
+          Stats
         </NavigationButton>
       </NavigationGroup>
+      {mainNav === "casts" && (
+        <NavigationGroup>
+          {sort === CastsSort.Top && (
+            <NavigationSelect
+              defaultValue={time || "day"}
+              onValueChange={(value) =>
+                router.push(`${pathname}?time=${value}`)
+              }
+              placeholder="Timeframe"
+              options={[
+                { value: "hour", label: "Last hour" },
+                { value: "day", label: "Last day" },
+                { value: "week", label: "Last week" },
+                { value: "month", label: "Last month" },
+                { value: "year", label: "Last year" },
+                { value: "all", label: "All time" },
+              ]}
+            />
+          )}
+          <NavigationButton
+            href={`/${params.id}`}
+            isSelected={sort === CastsSort.New}
+          >
+            New
+          </NavigationButton>
+          <NavigationButton
+            href={`/${params.id}/top`}
+            isSelected={sort === CastsSort.Top}
+          >
+            Top
+          </NavigationButton>
+          <NavigationButton
+            href={`/${params.id}/new-replies`}
+            isSelected={sort === CastsSort.NewReplies}
+          >
+            New Replies
+          </NavigationButton>
+          <NavigationButton
+            href={`/${params.id}/top-replies`}
+            isSelected={sort === CastsSort.TopReplies}
+          >
+            Top Replies
+          </NavigationButton>
+        </NavigationGroup>
+      )}
+      {mainNav === "stats" && (
+        <NavigationGroup>
+          {pathname.endsWith("channels") && (
+            <NavigationSelect
+              defaultValue={time || "all"}
+              onValueChange={(value) =>
+                router.push(`${pathname}?time=${value}`)
+              }
+              placeholder="Timeframe"
+              options={[
+                { value: "hour", label: "Last hour" },
+                { value: "day", label: "Last day" },
+                { value: "week", label: "Last week" },
+                { value: "month", label: "Last month" },
+                { value: "year", label: "Last year" },
+                { value: "all", label: "All time" },
+              ]}
+            />
+          )}
+          <NavigationButton
+            href={`/${params.id}/stats`}
+            isSelected={!pathname.endsWith("channels")}
+          >
+            Overview
+          </NavigationButton>
+          <NavigationButton
+            href={`/${params.id}/stats/channels`}
+            isSelected={pathname.endsWith("channels")}
+          >
+            Channels
+          </NavigationButton>
+        </NavigationGroup>
+      )}
     </Navigation>
   );
 };

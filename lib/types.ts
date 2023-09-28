@@ -126,6 +126,12 @@ export type ChannelStatsEntries = {
   engagement: number;
 };
 
+export type UserStatsEntries = ChannelStatsEntries & {
+  liked: number;
+  recasted: number;
+  mentions: number;
+};
+
 export type ChannelStats = ChannelStatsEntries & {
   url: string;
   channel: Channel;
@@ -135,4 +141,22 @@ export type ChannelStats = ChannelStatsEntries & {
 
 export type DailyChannelStats = ChannelStatsEntries & {
   timestamp: string;
+};
+
+export type ChannelUserStats = UserStatsEntries & {
+  user: FarcasterUser;
+};
+
+export type DailyUserStats = UserStatsEntries & {
+  timestamp: string;
+};
+
+export type UserChannelStats = UserStatsEntries & {
+  channel: Channel;
+};
+
+export type UserStats = UserStatsEntries & {
+  user: FarcasterUser;
+  previous?: UserStatsEntries;
+  rankDeltas: UserStatsEntries;
 };

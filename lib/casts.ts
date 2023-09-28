@@ -119,7 +119,7 @@ export const getCastsResponseByHotness = async (
   return await getCastsResponse(orderedCasts.filter(Boolean));
 };
 
-const getTimeInterval = (
+export const getTimeInterval = (
   time: "hour" | "day" | "week" | "month" | "year" | "all"
 ) => {
   switch (time) {
@@ -134,7 +134,7 @@ const getTimeInterval = (
     case "year":
       return "1 year";
     case "all":
-      return "100 years"; // Adjust the interval as per your requirement
+      return "100 years";
     default:
       return "24 hours";
   }

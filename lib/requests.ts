@@ -5,6 +5,7 @@ import {
   Entity,
   FarcasterCast,
   FarcasterCastTree,
+  UserStats,
 } from "./types";
 
 export const getEntity = async (
@@ -42,11 +43,13 @@ export const getChannelEngagementStats = async (
   return await data.json();
 };
 
-export const getChannelStats = async (channel: string) => {
+export const getChannelStats = async (channel: string, time?: string) => {
   const host = headers().get("host");
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(
-    `${protocol}://${host}/api/stats/channels/${channel}`
+    `${protocol}://${host}/api/stats/channels/${channel}${
+      time ? `?time=${time}` : ""
+    }`
   );
   return await data.json();
 };
@@ -66,6 +69,28 @@ export const getCasts = async (
     }${time ? `&time=${time}` : ""}${fid ? `&fid=${fid}` : ""}${
       page ? `&page=${page}` : ""
     }`
+  );
+  return await data.json();
+};
+
+export const getUserEngagementStats = async (
+  time: string
+): Promise<UserStats[]> => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(
+    `${protocol}://${host}/api/stats/users/engagement${
+      time ? `?time=${time}` : ""
+    }`
+  );
+  return await data.json();
+};
+
+export const getUserStats = async (fid: number, time?: string) => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(
+    `${protocol}://${host}/api/stats/users/${fid}${time ? `?time=${time}` : ""}`
   );
   return await data.json();
 };

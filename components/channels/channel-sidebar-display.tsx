@@ -31,7 +31,13 @@ export const ChannelSidebarDisplay = ({
           Trending Channels{" "}
           <span className="text-xs text-zinc-500">(last 6h)</span>
         </div>
-        <ChannelSelect suffix={pathname.includes("stats") ? "/stats" : ""} />
+        <ChannelSelect
+          suffix={
+            /channels\/.*\/stats/.test(pathname)
+              ? `/stats${pathname.endsWith("users") ? "/users" : ""}`
+              : ""
+          }
+        />
       </div>
       <ScrollArea className="h-full">
         {channels
@@ -101,7 +107,11 @@ export const ChannelSidebarDisplay = ({
                   ) : (
                     <Link
                       href={`/channels/${channel.channel.channelId}${
-                        pathname.includes("stats") ? "/stats" : ""
+                        /channels\/.*\/stats/.test(pathname)
+                          ? `/stats${
+                              pathname.endsWith("users") ? "/users" : ""
+                            }`
+                          : ""
                       }`}
                       className="flex flex-row space-x-2 items-center hover:text-purple-600 hover:dark:text-purple-400 transition p-1"
                     >

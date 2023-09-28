@@ -9,7 +9,7 @@ export default function ChannelSidebarLayout({
   return (
     <div className="flex flex-row justify-center w-full">
       {children}
-      <div className="hidden lg:flex">
+      <div className="hidden xl:flex">
         <Separator orientation="vertical" />
         <ChannelSidebar />
       </div>

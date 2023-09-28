@@ -1,6 +1,6 @@
 "use client";
 
-import { Channel, ChannelStats } from "@/lib/types";
+import { UserStats } from "@/lib/types";
 import { ColumnDef, Row, SortingColumn } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -10,17 +10,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "../ui/button";
 import {
   CaretDownIcon,
   CaretSortIcon,
   CaretUpIcon,
-  ChatBubbleIcon,
-  FileIcon,
-  HeartFilledIcon,
   TriangleDownIcon,
   TriangleUpIcon,
-  UpdateIcon,
 } from "@radix-ui/react-icons";
 import { useState } from "react";
 import {
@@ -32,8 +27,9 @@ import {
 } from "../ui/select";
 import { usePathname, useRouter } from "next/navigation";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import Link from "next/link";
 
-export const ChannelsNavigation = ({ time }: { time: string }) => {
+export const UsersNavigation = ({ time }: { time: string }) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -66,46 +62,42 @@ const StatHeader = ({
   icon,
   children,
   align = "center",
+  tooltip,
 }: {
-  column: ColumnDef<ChannelStats> & SortingColumn<ChannelStats>;
+  column: ColumnDef<UserStats> & SortingColumn<UserStats>;
   icon?: React.ReactNode;
   children: React.ReactNode;
   align?: "start" | "center" | "end";
+  tooltip: string;
 }) => (
   <div className={`flex flex-row items-center justify-${align} text-center`}>
-    <Button
-      variant="ghost"
-      onClick={() => {
-        if (column.getIsSorted() === "asc") {
-          column.toggleSorting(true);
-        } else if (column.getIsSorted() === "desc") {
-          column.toggleSorting(false);
-        } else {
-          column.toggleSorting(true);
-        }
-      }}
-      className="px-1 text-xs"
-    >
-      <div className="mr-1">{icon}</div>
-      {children}
-      {column.getIsSorted() === "asc" ? (
-        <CaretUpIcon className="ml-1 h-4 w-4" />
-      ) : column.getIsSorted() === "desc" ? (
-        <CaretDownIcon className="ml-1 h-4 w-4" />
-      ) : (
-        <CaretSortIcon className="ml-1 h-4 w-4" />
-      )}
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <div
+            onClick={() => {
+              column.toggleSorting(true);
+            }}
+            className="px-1 text-xs hover:bg-accent hover:text-accent-foreground flex flex-row py-2 rounded-md"
+          >
+            <div className="mr-1">{icon}</div>
+            {children}
+            {column.getIsSorted() === "asc" ? (
+              <CaretUpIcon className="ml-1 h-4 w-4" />
+            ) : column.getIsSorted() === "desc" ? (
+              <CaretDownIcon className="ml-1 h-4 w-4" />
+            ) : (
+              <CaretSortIcon className="ml-1 h-4 w-4" />
+            )}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   </div>
 );
 
-const StatField = ({
-  row,
-  field,
-}: {
-  row: Row<ChannelStats>;
-  field: string;
-}) => {
+const StatField = ({ row, field }: { row: Row<UserStats>; field: string }) => {
   const current = row.getValue(field) as number;
 
   return (
@@ -115,15 +107,15 @@ const StatField = ({
   );
 };
 
-export const ChannelsTable = ({
+export const UsersTable = ({
   time,
-  channels,
+  users,
 }: {
   time: string;
-  channels: ChannelStats[];
+  users: UserStats[];
 }) => {
   const [sorted, setSorted] = useState<string>();
-  const columns: ColumnDef<ChannelStats>[] = [
+  const columns: ColumnDef<UserStats>[] = [
     {
       header: "\u00A0",
       cell: ({ row }) => {
@@ -153,78 +145,28 @@ export const ChannelsTable = ({
       },
     },
     {
-      header: ({ column }) => (
-        <StatHeader column={column} align="start">
-          Channel
-        </StatHeader>
-      ),
-      accessorKey: "channel.name",
-      sortingFn: (a, b) => {
-        const isUnknownA =
-          a.original.channel.name === a.original.channel.parentUrl &&
-          a.original.channel.channelId === a.original.channel.parentUrl;
-        const isUnknownB =
-          b.original.channel.name === b.original.channel.parentUrl &&
-          b.original.channel.channelId === b.original.channel.parentUrl;
-        if (isUnknownA && isUnknownB) {
-          return 0;
-        } else if (isUnknownA) {
-          return 1;
-        } else if (isUnknownB) {
-          return -1;
-        }
-        return a.original.channel.name.localeCompare(b.original.channel.name);
-      },
+      accessorKey: "user",
+      header: "User",
       cell: ({ row }) => {
-        const channel = row.original.channel as Channel;
-        const isUnknown =
-          channel.name === channel.parentUrl &&
-          channel.channelId === channel.parentUrl;
-        return isUnknown ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <a
-                  href={`/channels/${encodeURIComponent(channel.channelId)}`}
-                  className="flex flex-row space-x-2 items-center transition cursor-pointer p-1"
-                >
-                  <Avatar className="h-6 w-6">
-                    <AvatarImage src={channel.image} className="object-cover" />
-                    <AvatarFallback>?</AvatarFallback>
-                  </Avatar>
-                  <div className="text-zinc-500">Unknown</div>
-                </a>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div>
-                  This is a new channel and has not been registered on flink
-                  yet.
-                </div>
-                <div>
-                  <b>Channel URL: </b>
-                  {channel.parentUrl}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
-          <a
-            href={`/channels/${channel.channelId}`}
-            className="flex flex-row space-x-2 items-center hover:text-purple-600 hover:dark:text-purple-400 transition p-1"
-          >
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={channel.image} className="object-cover" />
+        const user = row.original.user;
+        return (
+          <Link href={`/${user.fname}`} className="flex flex-row space-x-2">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={user.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
-            <div className="font-semibold">{channel.name}</div>
-          </a>
+            <div className="flex flex-col text-sm">
+              <div className="font-semibold">{user.display || user.fname}</div>
+              <div className="text-zinc-500">{`@${user.fname}`}</div>
+            </div>
+          </Link>
         );
       },
     },
     {
       accessorKey: "engagement",
       header: ({ column }) => (
-        <StatHeader column={column} icon="🔥">
+        <StatHeader column={column} icon="🔥" tooltip="activity score">
           Activity
         </StatHeader>
       ),
@@ -232,36 +174,79 @@ export const ChannelsTable = ({
     },
     {
       accessorKey: "posts",
-      header: ({ column }) => <StatHeader column={column}>Posts</StatHeader>,
+      header: ({ column }) => (
+        <StatHeader column={column} tooltip="# of casts">
+          Posts
+        </StatHeader>
+      ),
       cell: ({ row }) => <StatField row={row} field="posts" />,
     },
     {
       accessorKey: "replies",
-      header: ({ column }) => <StatHeader column={column}>Replies</StatHeader>,
+      header: ({ column }) => (
+        <StatHeader column={column} tooltip="# of replies">
+          Replies
+        </StatHeader>
+      ),
       cell: ({ row }) => <StatField row={row} field="replies" />,
     },
     {
       accessorKey: "likes",
-      header: ({ column }) => <StatHeader column={column}>Likes</StatHeader>,
+      header: ({ column }) => (
+        <StatHeader column={column} tooltip="# of likes received">
+          Likes
+        </StatHeader>
+      ),
       cell: ({ row }) => <StatField row={row} field="likes" />,
     },
     {
       accessorKey: "recasts",
-      header: ({ column }) => <StatHeader column={column}>Recasts</StatHeader>,
+      header: ({ column }) => (
+        <StatHeader column={column} tooltip="# of recasts received">
+          Recasts
+        </StatHeader>
+      ),
       cell: ({ row }) => <StatField row={row} field="recasts" />,
+    },
+    {
+      accessorKey: "liked",
+      header: ({ column }) => (
+        <StatHeader column={column} tooltip="# of likes given">
+          Liked
+        </StatHeader>
+      ),
+      cell: ({ row }) => <StatField row={row} field="liked" />,
+    },
+    {
+      accessorKey: "recasted",
+      header: ({ column }) => (
+        <StatHeader column={column} tooltip="# of recasts given">
+          Recasted
+        </StatHeader>
+      ),
+      cell: ({ row }) => <StatField row={row} field="recasted" />,
+    },
+    {
+      accessorKey: "mentions",
+      header: ({ column }) => (
+        <StatHeader column={column} tooltip="# of mentions">
+          Mentions
+        </StatHeader>
+      ),
+      cell: ({ row }) => <StatField row={row} field="mentions" />,
     },
   ];
 
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex flex-row items-center justify-end p-2 border-b">
-        <ChannelsNavigation time={time} />
+        <UsersNavigation time={time} />
       </div>
       <ScrollArea>
         <ScrollBar orientation="horizontal" />
         <DataTable
           columns={columns}
-          data={channels}
+          data={users}
           onSortingChange={(state) => setSorted(state?.[0]?.id)}
           defaultSorting={[{ id: "engagement", desc: true }]}
         />

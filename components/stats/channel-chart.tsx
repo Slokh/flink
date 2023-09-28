@@ -50,25 +50,25 @@ const YAxisTick = ({ x, y, payload }: any) => {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="p-2 border rounded-md bg-white">
-        <div className="flex flex-row space-x-1">
-          <div className="font-semibold text-xs">Date:</div>
-          <div>{format(new Date(label), "MMM d, yyyy")}</div>
+      <div className="p-2 border rounded-md bg-foreground text-background">
+        <div className="flex flex-row space-x-1 items-center">
+          <div className="font-semibold text-xs text-zinc-500">Date:</div>
+          <div className="text-sm">
+            {format(new Date(label), "MMM d, yyyy")}
+          </div>
         </div>
-        <div className="flex flex-row space-x-1">
-          <div className="font-semibold text-xs">Posts:</div>
-          <div>{format(new Date(label), "MMM d, yyyy")}</div>
+        <div className="flex flex-row space-x-1 items-center">
+          <div className="font-semibold text-xs text-zinc-500">Posts:</div>
+          <div className="text-sm">{payload[0].value}</div>
         </div>
-        <div className="flex flex-row space-x-1">
-          <div className="font-semibold text-xs">Replies:</div>
-          <div>{format(new Date(label), "MMM d, yyyy")}</div>
+        <div className="flex flex-row space-x-1 items-center">
+          <div className="font-semibold text-xs text-zinc-500">Replies:</div>
+          <div className="text-sm">{payload[1].value}</div>
         </div>
-        <p
-          style={{ color: "#333333", fontSize: "16px" }}
-        >{`Posts : ${payload[0].value}`}</p>
-        <p
-          style={{ color: "#333333", fontSize: "16px" }}
-        >{`Replies : ${payload[1].value}`}</p>
+        <div className="flex flex-row space-x-1 items-center">
+          <div className="font-semibold text-xs text-zinc-500">Activity:</div>
+          <div className="text-sm">{payload[2].value.toFixed(0)}</div>
+        </div>
       </div>
     );
   }

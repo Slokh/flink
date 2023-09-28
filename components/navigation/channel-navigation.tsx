@@ -85,6 +85,23 @@ export const ChannelNavigation = ({}: {}) => {
       )}
       {mainNav === "stats" && (
         <NavigationGroup>
+          {pathname.endsWith("users") && (
+            <NavigationSelect
+              defaultValue={time || "all"}
+              onValueChange={(value) =>
+                router.push(`${pathname}?time=${value}`)
+              }
+              placeholder="Timeframe"
+              options={[
+                { value: "hour", label: "Last hour" },
+                { value: "day", label: "Last day" },
+                { value: "week", label: "Last week" },
+                { value: "month", label: "Last month" },
+                { value: "year", label: "Last year" },
+                { value: "all", label: "All time" },
+              ]}
+            />
+          )}
           <NavigationButton
             href={`/channels/${params.channel}/stats`}
             isSelected={!pathname.endsWith("users")}

@@ -3,7 +3,6 @@ import {
   getCastsResponseByNewness,
   getCastsResponseByTopLikes,
 } from "@/lib/casts";
-import { CHANNELS_BY_ID } from "@/lib/channels";
 import { CastsSort, FarcasterCast } from "@/lib/types";
 import { NextResponse } from "next/server";
 

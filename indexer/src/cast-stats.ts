@@ -50,23 +50,7 @@ type UserCounts = {
 type UserStats = UserReactions & UserCounts & UserMentions & UserReacted;
 
 const run = async () => {
-  const parentUrls = await prisma.farcasterCast.findMany({
-    where: {
-      parentUrl: {
-        not: null,
-      },
-    },
-    select: {
-      parentUrl: true,
-    },
-    distinct: ["parentUrl"],
-  });
-
-  const channels = parentUrls
-    .map((p) => p.parentUrl)
-    .filter(Boolean) as string[];
-
-  console.log(`[cast-stats] [channels] processing ${channels.length} channels`);
+  console.log(`[cast-stats] [channels] processing channels`);
 
   const stats = await getStats();
 
@@ -93,31 +77,32 @@ const run = async () => {
     });
   }
 
-  // const userStats = await getUserStats();
+  console.log(`[cast-stats] [users] processing fid`);
+  const userStats = await getUserStats();
 
-  // console.log(
-  //   `[cast-stats] [users] processing ${userStats.length} stats in ${
-  //     userStats.length / 1000
-  //   } batches`
-  // );
+  console.log(
+    `[cast-stats] [users] processing ${userStats.length} stats in ${
+      userStats.length / 1000
+    } batches`
+  );
 
-  // for (let i = 0; i < userStats.length; i += 1000) {
-  //   const batch = userStats.slice(i, i + 1000);
-  //   console.log(`[user-stats] [channels] processing batch ${i}`);
-  //   await prisma.farcasterUserStats.deleteMany({
-  //     where: {
-  //       OR: batch.map((s) => ({
-  //         fid: s.fid,
-  //         url: s.url,
-  //         timestamp: s.timestamp,
-  //       })),
-  //     },
-  //   });
-  //   await prisma.farcasterUserStats.createMany({
-  //     data: batch,
-  //     skipDuplicates: true,
-  //   });
-  // }
+  for (let i = 0; i < userStats.length; i += 1000) {
+    const batch = userStats.slice(i, i + 1000);
+    console.log(`[user-stats] [users] processing batch ${i}`);
+    await prisma.farcasterUserStats.deleteMany({
+      where: {
+        OR: batch.map((s) => ({
+          fid: s.fid,
+          url: s.url,
+          timestamp: s.timestamp,
+        })),
+      },
+    });
+    await prisma.farcasterUserStats.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+  }
 };
 
 const getStats = async () => {
@@ -148,8 +133,9 @@ const getReactions = async () => {
       SUM(CASE WHEN "FarcasterCastReaction"."reactionType" = 'like' THEN 1 ELSE 0 END) as likes,
       SUM(CASE WHEN "FarcasterCastReaction"."reactionType" = 'recast' THEN 1 ELSE 0 END) as recasts
     FROM "public"."FarcasterCast"
-        JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
-    WHERE "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '3 hour'
+      JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE NOT "FarcasterCastReaction"."deleted"
+      AND "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '6 hour'
     GROUP BY
       "topParentUrl", date
   `;
@@ -175,7 +161,8 @@ const getCounts = async () => {
       SUM(CASE WHEN "FarcasterCast"."parentCast" IS NULL THEN 1 ELSE 0 END) as posts,
       SUM(CASE WHEN "FarcasterCast"."parentCast" IS NOT NULL THEN 1 ELSE 0 END) as replies
     FROM "public"."FarcasterCast"
-    WHERE "FarcasterCast"."timestamp" > NOW() - INTERVAL '3 hour'
+    WHERE NOT "FarcasterCast"."deleted"
+      AND "FarcasterCast"."timestamp" > NOW() - INTERVAL '6 hour'
     GROUP BY
       "topParentUrl", date
   `;
@@ -231,8 +218,9 @@ const getUserReactions = async () => {
       SUM(CASE WHEN "FarcasterCastReaction"."reactionType" = 'like' THEN 1 ELSE 0 END) as likes,
       SUM(CASE WHEN "FarcasterCastReaction"."reactionType" = 'recast' THEN 1 ELSE 0 END) as recasts
     FROM "public"."FarcasterCast"
-        JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
-    -- WHERE "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '3 hour'
+      JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE NOT "FarcasterCastReaction"."deleted"
+      AND "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '6 hour'
     GROUP BY
       "FarcasterCastReaction"."targetFid", "topParentUrl", date
   `;
@@ -260,8 +248,9 @@ const getUserReacted = async () => {
       SUM(CASE WHEN "FarcasterCastReaction"."reactionType" = 'like' THEN 1 ELSE 0 END) as liked,
       SUM(CASE WHEN "FarcasterCastReaction"."reactionType" = 'recast' THEN 1 ELSE 0 END) as recasted
     FROM "public"."FarcasterCast"
-        JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
-    -- WHERE "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '3 hour'
+      JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE NOT "FarcasterCastReaction"."deleted"
+      AND "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '6 hour'
     GROUP BY
       "FarcasterCastReaction"."fid", "topParentUrl", date
   `;
@@ -289,7 +278,8 @@ const getUserCounts = async () => {
       SUM(CASE WHEN "FarcasterCast"."parentCast" IS NULL THEN 1 ELSE 0 END) as posts,
       SUM(CASE WHEN "FarcasterCast"."parentCast" IS NOT NULL THEN 1 ELSE 0 END) as replies
     FROM "public"."FarcasterCast"
-    -- WHERE "FarcasterCast"."timestamp" > NOW() - INTERVAL '3 hour'
+    WHERE NOT "FarcasterCast"."deleted"
+      AND "FarcasterCast"."timestamp" > NOW() - INTERVAL '6 hour'
     GROUP BY
       "FarcasterCast"."fid", "topParentUrl", date
   `;
@@ -316,8 +306,9 @@ const getUserMentions = async () => {
       date_trunc('hour', "FarcasterCastMention"."timestamp") + INTERVAL '1 hour' as date,
       SUM(1) as mentions
     FROM "public"."FarcasterCast"
-        JOIN "public"."FarcasterCastMention" ON "FarcasterCast"."fid" = "FarcasterCastMention"."fid" AND "FarcasterCast"."hash" = "FarcasterCastMention"."hash"
-    -- WHERE "FarcasterCastMention"."timestamp" > NOW() - INTERVAL '3 hour'
+      JOIN "public"."FarcasterCastMention" ON "FarcasterCast"."fid" = "FarcasterCastMention"."fid" AND "FarcasterCast"."hash" = "FarcasterCastMention"."hash"
+    WHERE NOT "FarcasterCastMention"."deleted"
+      AND "FarcasterCastMention"."timestamp" > NOW() - INTERVAL '6 hour'
     GROUP BY
       "FarcasterCastMention"."mention", "topParentUrl", date
   `;

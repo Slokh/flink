@@ -1,21 +1,19 @@
 import { getTimeInterval } from "@/lib/casts";
-import { CHANNELS_BY_ID } from "@/lib/channels";
+import { CHANNELS_BY_URL } from "@/lib/channels";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { channel: string } }
+  { params }: { params: { fid: number } }
 ): Promise<NextResponse> {
-  const channel =
-    CHANNELS_BY_ID[params.channel]?.parentUrl ||
-    decodeURIComponent(params.channel);
-
   const url = new URL(request.url);
   const time = url.searchParams.get("time") || "all";
 
-  const stats = await getChannelStats(channel);
-  const users = await getChannelUsers(channel, time);
+  const fid = parseInt(params.fid as any);
+
+  const stats = await getUserStats(fid);
+  const users = await getUserChannels(fid, time);
 
   return NextResponse.json({
     stats,
@@ -23,7 +21,7 @@ export async function GET(
   });
 }
 
-const getChannelStats = async (channel: string) => {
+const getUserStats = async (fid: number) => {
   const data: any[] = await prisma.$queryRaw`
     SELECT 
       date_trunc('day', timestamp) as day,
@@ -31,9 +29,12 @@ const getChannelStats = async (channel: string) => {
       sum(replies) as replies,
       sum(likes) as likes,
       sum(recasts) as recasts,
+      sum(liked) as liked,
+      sum(recasted) as recasted,
+      sum(mentions) as mentions,
       sum(1 * posts + 0.5 * replies + 0.1 * likes + 0.25 * recasts) as engagement
-    FROM "public"."FarcasterChannelStats"
-    WHERE url = ${channel}
+    FROM "public"."FarcasterUserStats"
+    WHERE fid = ${fid}
     GROUP BY day
   `;
 
@@ -44,16 +45,19 @@ const getChannelStats = async (channel: string) => {
       replies: Number(d.replies),
       likes: Number(d.likes),
       recasts: Number(d.recasts),
+      liked: Number(d.liked),
+      recasted: Number(d.recasted),
+      mentions: Number(d.mentions),
       engagement: Number(d.engagement),
     }))
     .sort((a, b) => a.timestamp - b.timestamp);
 };
 
-const getChannelUsers = async (channel: string, time: string) => {
+const getUserChannels = async (fid: number, time: string) => {
   const timeInterval = getTimeInterval(time as any);
   const data: any[] = await prisma.$queryRaw`
     SELECT 
-      fid,
+      url,
       sum(posts) as posts,
       sum(replies) as replies,
       sum(likes) as likes,
@@ -63,24 +67,18 @@ const getChannelUsers = async (channel: string, time: string) => {
       sum(mentions) as mentions,
       sum(1 * posts + 0.5 * replies + 0.1 * likes + 0.25 * recasts) as engagement
     FROM "public"."FarcasterUserStats"
-    WHERE url = ${channel}
+    WHERE fid = ${fid}
       AND "timestamp" >= NOW() -  ${timeInterval}::interval
-    GROUP BY fid
+    GROUP BY url
     ORDER BY engagement DESC
-    LIMIT 100
   `;
 
-  const fids = data.map((d) => d.fid);
-  const users = await prisma.farcaster.findMany({
-    where: { fid: { in: fids } },
-  });
-  const userMap = users.reduce((acc, user) => {
-    acc[user.fid] = user;
-    return acc;
-  }, {} as Record<string, any>);
-
   return data.map((d) => ({
-    user: userMap[d.fid],
+    channel: CHANNELS_BY_URL[d.url] || {
+      name: d.url,
+      parentUrl: d.url,
+      channelId: d.url,
+    },
     posts: Number(d.posts),
     replies: Number(d.replies),
     likes: Number(d.likes),

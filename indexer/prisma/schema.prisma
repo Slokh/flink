@@ -83,6 +83,8 @@ model FarcasterCast {
     @@index([hash, deleted])
     @@index([parentCast, deleted])
     @@index([topParentCast, deleted])
+    @@index([fid, topParentUrl, timestamp])
+    @@index([parentCast, timestamp])
 }
 
 model FarcasterCastEmbedUrl {
@@ -136,6 +138,7 @@ model FarcasterCastMention {
 
     @@id([fid, hash, mention])
     @@index([mention, fid])
+    @@index([mention, hash, timestamp])
 }
 
 model FarcasterCastReaction {
@@ -150,7 +153,8 @@ model FarcasterCastReaction {
 
     @@id([fid, targetHash, targetFid, reactionType])
     @@index([timestamp])
-    @@index([targetFid, targetHash])
+    @@index([targetFid, targetHash, timestamp])
+    @@index([fid, targetHash, timestamp])
 }
 
 model FarcasterUrlReaction {

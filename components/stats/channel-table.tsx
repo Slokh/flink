@@ -8,10 +8,6 @@ import {
   CaretDownIcon,
   CaretSortIcon,
   CaretUpIcon,
-  ChatBubbleIcon,
-  FileIcon,
-  HeartFilledIcon,
-  UpdateIcon,
 } from "@radix-ui/react-icons";
 
 const StatHeader = ({
@@ -37,6 +33,7 @@ const StatHeader = ({
           column.toggleSorting(true);
         }
       }}
+      className="px-1 text-xs"
     >
       <div className="mr-1">{icon}</div>
       {children}
@@ -88,45 +85,29 @@ export const ChannelTable = ({ data }: { data: DailyChannelStats[] }) => {
       accessorKey: "engagement",
       header: ({ column }) => (
         <StatHeader column={column} icon="🔥">
-          Engagement
+          Activity
         </StatHeader>
       ),
       cell: ({ row }) => <StatField row={row} field="engagement" />,
     },
     {
       accessorKey: "posts",
-      header: ({ column }) => (
-        <StatHeader column={column} icon={<FileIcon />}>
-          Posts
-        </StatHeader>
-      ),
+      header: ({ column }) => <StatHeader column={column}>Posts</StatHeader>,
       cell: ({ row }) => <StatField row={row} field="posts" />,
     },
     {
       accessorKey: "replies",
-      header: ({ column }) => (
-        <StatHeader column={column} icon={<ChatBubbleIcon />}>
-          Replies
-        </StatHeader>
-      ),
+      header: ({ column }) => <StatHeader column={column}>Replies</StatHeader>,
       cell: ({ row }) => <StatField row={row} field="replies" />,
     },
     {
       accessorKey: "likes",
-      header: ({ column }) => (
-        <StatHeader column={column} icon={<HeartFilledIcon />}>
-          Likes
-        </StatHeader>
-      ),
+      header: ({ column }) => <StatHeader column={column}>Likes</StatHeader>,
       cell: ({ row }) => <StatField row={row} field="likes" />,
     },
     {
       accessorKey: "recasts",
-      header: ({ column }) => (
-        <StatHeader column={column} icon={<UpdateIcon />}>
-          Recasts
-        </StatHeader>
-      ),
+      header: ({ column }) => <StatHeader column={column}>Recasts</StatHeader>,
       cell: ({ row }) => <StatField row={row} field="recasts" />,
     },
   ];

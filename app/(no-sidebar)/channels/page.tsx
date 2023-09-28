@@ -1,4 +1,5 @@
-import { Channels } from "@/components/channels/channels";
+import { ChannelsTable } from "@/components/stats/channels-table";
+import { getChannelEngagementStats } from "@/lib/requests";
 
 export default async function Home({
   searchParams,
@@ -6,5 +7,11 @@ export default async function Home({
   searchParams: { time?: string };
 }) {
   const time = searchParams.time || "day";
-  return <Channels time={time === "all" ? "year" : time} />;
+  const channels = await getChannelEngagementStats(time);
+
+  return (
+    <div className="w-full">
+      <ChannelsTable channels={channels} time={time} />
+    </div>
+  );
 }
