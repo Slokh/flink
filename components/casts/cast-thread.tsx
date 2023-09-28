@@ -138,15 +138,15 @@ const CastChild = ({
           </div>
         )}
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col w-full">
         <div
-          className={`flex flex-row space-x-2 ${
+          className={`flex flex-row space-x-2 w-full ${
             isHighlighted
-              ? "border-black dark:border-white pt-2 pb-2 border rounded-lg"
+              ? "border-black dark:border-white p-2 border rounded-lg"
               : ""
           }`}
         >
-          <div className="flex flex-col pt-1">
+          <div className="flex flex-col pt-1 w-full">
             <div className="flex flex-row space-x-2 text-sm">
               <Link href={`/${cast.user.fname}`}>
                 <Avatar className="h-5 w-5">
@@ -172,7 +172,7 @@ const CastChild = ({
             <div className="max-w-2xl flex flex-col whitespace-pre-wrap break-words text-md leading-6 tracking-normal w-full space-y-2 pt-2">
               <div dangerouslySetInnerHTML={{ __html: formattedText }} />
               {cast.embeds.length > 0 && (
-                <div className="flex flex-row flex-wrap">
+                <div className="flex flex-col space-y-2">
                   {cast.embeds.map((embed, i) => (
                     <EmbedPreview key={i} embed={embed} />
                   ))}

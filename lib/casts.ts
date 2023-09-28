@@ -424,6 +424,7 @@ const getEmbedsForCasts = async (casts: any) => {
       OR: casts.map((cast: any) => ({
         fid: cast.fid,
         hash: cast.hash,
+        parsed: true,
       })),
     },
   });
@@ -474,17 +475,10 @@ const getEmbedsForCasts = async (casts: any) => {
   return urlEmbeds.reduce((acc: any, embed: any) => {
     const key = `${embed.fid}-${embed.hash}`;
     if (!acc[key]) acc[key] = [];
-    if (
-      acc[key].some(
-        (e: any) =>
-          e.url.replace("https://", "") === embed.url.replace("https://", "")
-      )
-    ) {
-      return acc;
-    }
     acc[key].push({
       ...embed,
       ...fetchedEmbedsMap[embed.url],
+      url: embed.url.startsWith("http") ? embed.url : `https://${embed.url}`,
     });
     return acc;
   }, {} as Record<string, Embed>);

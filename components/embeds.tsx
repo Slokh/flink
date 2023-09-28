@@ -17,8 +17,8 @@ const TwitterEmbed = ({
   const urlHost =
     (url.startsWith("http") ? url.split("/")[2] : url.split("/")[0]) || "";
   const image =
-    metadata.twitter_card.images?.[0]?.url ||
-    metadata.open_graph?.images?.[0]?.url;
+    metadata.open_graph?.images?.[0]?.url ||
+    metadata.twitter_card.images?.[0]?.url;
 
   return (
     <a href={url || "#"} target="_blank" className="max-w-lg w-full">
@@ -74,6 +74,7 @@ const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
       username = url.split("/")[1];
     }
   }
+  const image = metadata.open_graph?.images?.[0]?.url;
 
   return (
     <a href={url || "#"} target="_blank" className="max-w-lg w-full">
@@ -107,16 +108,15 @@ const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
           </div>
         </div>
         <div>
-          {metadata.open_graph?.images
-            ?.filter(({ url }) => url !== "https://warpcast.com/og-logo.png")
-            .map(({ url }) => (
+          {image && image !== "https://warpcast.com/og-logo.png" && (
+            <div>
               <img
                 alt="embed_image"
-                key={url}
-                src={url}
-                className="w-full rounded-b-lg object-cover"
+                src={image}
+                className="w-full rounded-t-lg h-56 object-cover"
               />
-            ))}
+            </div>
+          )}
         </div>
       </Card>
     </a>
