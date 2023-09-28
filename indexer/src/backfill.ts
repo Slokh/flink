@@ -19,7 +19,7 @@ const backfill = async () => {
   const client = await getHubClient();
   // let currentFid = await getCurrentFid();
   let currentFid = 1;
-  for (let fid = currentFid; fid < 20150; fid++) {
+  for (let fid = currentFid; fid < 25000; fid++) {
     // await handleUserUpdate(client, fid);
     await handleFidCasts(client, fid);
     await handleReactions(client, fid);
