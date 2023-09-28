@@ -16,6 +16,20 @@ export interface UrlReaction {
 }
 
 export const upsertCastReactions = async (reactions: CastReaction[]) => {
+  await prisma.farcasterCastReaction.updateMany({
+    where: {
+      OR: reactions.map((reaction) => ({
+        fid: reaction.fid,
+        targetHash: reaction.targetHash,
+        targetFid: reaction.targetFid,
+        reactionType: reaction.reactionType,
+        deleted: true,
+      })),
+    },
+    data: {
+      deleted: false,
+    },
+  });
   await prisma.farcasterCastReaction.createMany({
     data: reactions,
     skipDuplicates: true,
