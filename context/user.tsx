@@ -132,7 +132,9 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const fetchUserForFid = async (
     fid: number
   ): Promise<AuthenticatedUser | undefined> => {
-    const res = await fetch(`/api/fid/${fid}`);
+    const res = await fetch(
+      `/api/fid/${localStorage.getItem("flink-fid") || fid}`
+    );
     if (!res.ok) return;
     return await res.json();
   };
