@@ -132,3 +132,7 @@ export type ChannelStats = ChannelStatsEntries & {
   previous?: ChannelStatsEntries;
   rankDeltas: ChannelStatsEntries;
 };
+
+export type DailyChannelStats = ChannelStatsEntries & {
+  timestamp: string;
+};

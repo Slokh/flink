@@ -15,10 +15,12 @@ export const ChannelSelect = ({
   channel,
   onChange,
   disableAll,
+  suffix,
 }: {
   channel?: string;
   onChange?: any;
   disableAll?: boolean;
+  suffix?: string;
 }) => {
   const router = useRouter();
   return (
@@ -28,7 +30,7 @@ export const ChannelSelect = ({
         onValueChange={(value) =>
           onChange
             ? onChange(value)
-            : router.push(value ? `/channels/${value}` : "/")
+            : router.push(value ? `/channels/${value}${suffix}` : "/")
         }
       >
         <SelectTrigger className="border-0 text-sm md:text-md font-semibold shadow-none p-0 h-6">

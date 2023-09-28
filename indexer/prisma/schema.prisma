@@ -206,6 +206,21 @@ model FarcasterChannelStats {
     @@id([url, timestamp])
 }
 
+model FarcasterUserStats {
+    fid       Int
+    url       String
+    timestamp DateTime
+    posts     Int      @default(0)
+    replies   Int      @default(0)
+    likes     Int      @default(0)
+    recasts   Int      @default(0)
+    mentions  Int      @default(0)
+    liked     Int      @default(0)
+    recasted  Int      @default(0)
+
+    @@id([fid, url, timestamp])
+}
+
 model Backfill {
     fid Int @id
 }

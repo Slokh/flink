@@ -1,4 +1,4 @@
-import { ChannelsTable } from "./channels-table";
+import { ChannelsTable } from "../stats/channels-table";
 import { getChannelEngagementStats } from "@/lib/requests";
 
 export const Channels = async ({ time }: { time: string }) => {

@@ -26,44 +26,79 @@ export const ChannelNavigation = ({}: {}) => {
   const time =
     sort === CastsSort.Top ? searchParams.get("time") || "day" : undefined;
 
+  const mainNav = pathname.includes("stats") ? "stats" : "casts";
+
   return (
     <Navigation>
-      <NavigationGroup />
       <NavigationGroup>
-        {sort === CastsSort.Top && (
-          <NavigationSelect
-            defaultValue={time || "day"}
-            onValueChange={(value) => router.push(`${pathname}?time=${value}`)}
-            placeholder="Timeframe"
-            options={[
-              { value: "hour", label: "Last hour" },
-              { value: "day", label: "Last day" },
-              { value: "week", label: "Last week" },
-              { value: "month", label: "Last month" },
-              { value: "year", label: "Last year" },
-              { value: "all", label: "All time" },
-            ]}
-          />
-        )}
         <NavigationButton
           href={`/channels/${params.channel}`}
-          isSelected={sort === CastsSort.Hot}
+          isSelected={mainNav === "casts"}
         >
-          Hot
+          Casts
         </NavigationButton>
         <NavigationButton
-          href={`/channels/${params.channel}/new`}
-          isSelected={sort === CastsSort.New}
+          href={`/channels/${params.channel}/stats`}
+          isSelected={mainNav === "stats"}
         >
-          New
-        </NavigationButton>
-        <NavigationButton
-          href={`/channels/${params.channel}/top`}
-          isSelected={sort === CastsSort.Top}
-        >
-          Top
+          Stats
         </NavigationButton>
       </NavigationGroup>
+      {mainNav === "casts" && (
+        <NavigationGroup>
+          {sort === CastsSort.Top && (
+            <NavigationSelect
+              defaultValue={time || "day"}
+              onValueChange={(value) =>
+                router.push(`${pathname}?time=${value}`)
+              }
+              placeholder="Timeframe"
+              options={[
+                { value: "hour", label: "Last hour" },
+                { value: "day", label: "Last day" },
+                { value: "week", label: "Last week" },
+                { value: "month", label: "Last month" },
+                { value: "year", label: "Last year" },
+                { value: "all", label: "All time" },
+              ]}
+            />
+          )}
+          <NavigationButton
+            href={`/channels/${params.channel}`}
+            isSelected={sort === CastsSort.Hot}
+          >
+            Hot
+          </NavigationButton>
+          <NavigationButton
+            href={`/channels/${params.channel}/new`}
+            isSelected={sort === CastsSort.New}
+          >
+            New
+          </NavigationButton>
+          <NavigationButton
+            href={`/channels/${params.channel}/top`}
+            isSelected={sort === CastsSort.Top}
+          >
+            Top
+          </NavigationButton>
+        </NavigationGroup>
+      )}
+      {mainNav === "stats" && (
+        <NavigationGroup>
+          <NavigationButton
+            href={`/channels/${params.channel}/stats`}
+            isSelected={!pathname.endsWith("users")}
+          >
+            Overview
+          </NavigationButton>
+          <NavigationButton
+            href={`/channels/${params.channel}/stats/users`}
+            isSelected={pathname.endsWith("users")}
+          >
+            Users
+          </NavigationButton>
+        </NavigationGroup>
+      )}
     </Navigation>
   );
 };

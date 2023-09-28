@@ -24,6 +24,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   onSortingChange?: (sorting: SortingState) => void;
   defaultSorting?: SortingState;
+  hasRanking?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -31,6 +32,7 @@ export function DataTable<TData, TValue>({
   data,
   onSortingChange,
   defaultSorting,
+  hasRanking = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting || []);
   const table = useReactTable({
@@ -56,7 +58,7 @@ export function DataTable<TData, TValue>({
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              <TableHead>#</TableHead>
+              {hasRanking && <TableHead>#</TableHead>}
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead key={header.id}>
@@ -79,7 +81,7 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
               >
-                <TableCell>{i + 1}</TableCell>
+                {hasRanking && <TableCell>{i + 1}</TableCell>}
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

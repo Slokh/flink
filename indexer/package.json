@@ -5,6 +5,7 @@
   "scripts": {
     "generate": "npx prisma generate",
     "cast-stats": "ts-node -P tsconfig.json -r dotenv/config src/cast-stats.ts",
+    "user-stats": "ts-node -P tsconfig.json -r dotenv/config src/user-stats.ts",
     "backfill": "ts-node -P tsconfig.json -r dotenv/config src/backfill.ts",
     "casts": "ts-node -P tsconfig.json -r dotenv/config src/casts.ts",
     "users": "ts-node -P tsconfig.json -r dotenv/config src/users.ts",

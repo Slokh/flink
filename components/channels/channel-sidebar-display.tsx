@@ -14,14 +14,16 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import Link from "next/link";
 import { ChannelSelect } from "./channel-select";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export const ChannelSidebarDisplay = ({
   channels,
 }: {
   channels: ChannelStats[];
 }) => {
+  const pathname = usePathname();
   return (
     <div className="flex flex-col w-80 max-w-full h-full">
       <div className="flex flex-row items-center justify-between text-sm p-2">
@@ -29,7 +31,7 @@ export const ChannelSidebarDisplay = ({
           Trending Channels{" "}
           <span className="text-xs text-zinc-500">(last 6h)</span>
         </div>
-        <ChannelSelect />
+        <ChannelSelect suffix={pathname.includes("stats") ? "/stats" : ""} />
       </div>
       <ScrollArea className="h-full">
         {channels
@@ -97,8 +99,10 @@ export const ChannelSidebarDisplay = ({
                       </Tooltip>
                     </TooltipProvider>
                   ) : (
-                    <a
-                      href={`/channels/${channel.channel.channelId}`}
+                    <Link
+                      href={`/channels/${channel.channel.channelId}${
+                        pathname.includes("stats") ? "/stats" : ""
+                      }`}
                       className="flex flex-row space-x-2 items-center hover:text-purple-600 hover:dark:text-purple-400 transition p-1"
                     >
                       <Avatar className="h-6 w-6">
@@ -111,7 +115,7 @@ export const ChannelSidebarDisplay = ({
                       <div className="font-semibold text-sm">
                         {channel.channel.name}
                       </div>
-                    </a>
+                    </Link>
                   )}
                 </div>
                 <div className="flex flex-col items-end space-x-1 text-xs">
