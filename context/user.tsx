@@ -52,6 +52,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const { signMessageAsync } = useSignMessage();
   const [signerState, setSignerState] = useState<SignerState | undefined>();
   const [user, setUser] = useState<AuthenticatedUser | undefined>();
+  const [verifiedAddress, setVerifiedAddress] = useState<string | undefined>();
 
   const verifyMessage = async () => {
     try {
@@ -83,49 +84,21 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         body: JSON.stringify({ message, signature }),
       });
       if (!verifyRes.ok) throw new Error("Error verifying message");
-
-      setSignerState(await initializeNewSigner(address));
-      setAuthState(UserAuthState.NEEDS_APPROVAL);
+      setVerifiedAddress(address);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const fetchSignerForAddress = async (
-    address: string
-  ): Promise<SignerState | undefined> => {
+  const getVerifiedAddress = async () => {
+    const res = await fetch("/api/auth/user");
+    if (!res.ok) return;
+    const { address } = await res.json();
+    return address;
+  };
+
+  const fetchSigner = async (address: string): Promise<SignerState> => {
     const res = await fetch(`/api/signer/${address}`);
-    if (!res.ok) return;
-    return await res.json();
-  };
-
-  const initializeNewSigner = async (
-    address: string
-  ): Promise<SignerState | undefined> => {
-    const res = await fetch("/api/signer", {
-      method: "POST",
-    });
-    const json = await res.json();
-    const res2 = await fetch(`/api/signer/key`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        address,
-        signerUuid: json.signerUuid,
-        signerPublicKey: json.signerPublicKey,
-      }),
-    });
-    return await res2.json();
-  };
-
-  const fetchLatestSigner = async (
-    address: string,
-    signerUuid: string
-  ): Promise<SignerState | undefined> => {
-    const res = await fetch(`/api/signer/${address}/${signerUuid}`);
-    if (!res.ok) return;
     return await res.json();
   };
 
@@ -141,53 +114,48 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const watchForLatestSigner = async () => {
     if (!address || !signerState?.signerUuid) return;
-    const signer = await fetchLatestSigner(address, signerState?.signerUuid);
+    const signer = await fetchSigner(address);
     if (!signer?.fid) return;
     setSignerState(signer);
     const user = await fetchUserForFid(signer.fid);
     if (!user) return;
-    setAuthState(UserAuthState.LOGGED_IN);
     setUser(user);
+    setAuthState(UserAuthState.LOGGED_IN);
   };
 
   useEffect(() => {
     const handler = async () => {
+      setUser(undefined);
       if (!address) {
         setAuthState(UserAuthState.DISCONNECTED);
         return;
       }
 
-      let authState = UserAuthState.CONNECTED;
-
-      let signer = await fetchSignerForAddress(address);
-      if (!signer) {
-        setAuthState(authState);
+      const verifiedAddress = await getVerifiedAddress();
+      if (!verifiedAddress || verifiedAddress !== address) {
+        setSignerState(undefined);
+        setAuthState(UserAuthState.CONNECTED);
         return;
       }
-      authState = UserAuthState.VERIFIED;
+
+      let signer = await fetchSigner(address);
+      setSignerState(signer);
+      if (!signer.signerApprovalUrl && !signer.fid) {
+        setAuthState(UserAuthState.VERIFIED);
+        return;
+      }
 
       if (!signer.fid) {
-        const latestSigner = await fetchLatestSigner(
-          address,
-          signer.signerUuid
-        );
-        if (latestSigner) signer = latestSigner;
+        setAuthState(UserAuthState.NEEDS_APPROVAL);
+        return;
       }
 
-      if (signer.fid) {
-        const user = await fetchUserForFid(signer.fid);
-        setUser(user);
-        authState = UserAuthState.LOGGED_IN;
-      } else {
-        authState = UserAuthState.NEEDS_APPROVAL;
-      }
-
-      setAuthState(authState);
-      setSignerState(signer);
+      setUser(await fetchUserForFid(signer.fid));
+      setAuthState(UserAuthState.LOGGED_IN);
     };
     handler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, isConnected]);
+  }, [address, verifiedAddress, isConnected]);
 
   const value = {
     user,

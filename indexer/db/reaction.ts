@@ -16,7 +16,6 @@ export interface UrlReaction {
 }
 
 export const upsertCastReactions = async (reactions: CastReaction[]) => {
-  // batch into groups of 10000
   for (let i = 0; i < reactions.length; i += 5000) {
     const batch = reactions.slice(i, i + 5000);
     await prisma.farcasterCastReaction.updateMany({
@@ -41,10 +40,26 @@ export const upsertCastReactions = async (reactions: CastReaction[]) => {
 };
 
 export const upsertUrlReactions = async (reactions: UrlReaction[]) => {
-  await prisma.farcasterUrlReaction.createMany({
-    data: reactions,
-    skipDuplicates: true,
-  });
+  for (let i = 0; i < reactions.length; i += 5000) {
+    const batch = reactions.slice(i, i + 5000);
+    await prisma.farcasterUrlReaction.updateMany({
+      where: {
+        OR: batch.map((reaction) => ({
+          fid: reaction.fid,
+          targetUrl: reaction.targetUrl,
+          reactionType: reaction.reactionType,
+          deleted: true,
+        })),
+      },
+      data: {
+        deleted: false,
+      },
+    });
+    await prisma.farcasterUrlReaction.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+  }
 };
 
 export const deleteCastReaction = async (reaction: CastReaction) => {

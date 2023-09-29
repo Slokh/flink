@@ -22,13 +22,13 @@ export const RecastCast = ({
   }, [hash, user?.recasts]);
 
   const recastCast = async () => {
+    if (!user) return;
     setIsRecastd(!isRecastd);
     setTotalRecasts(isRecastd ? totalRecasts - 1 : totalRecasts + 1);
     const method = isRecastd ? "DELETE" : "POST";
     await fetch("/api/reactions", {
       method,
       body: JSON.stringify({
-        signer_uuid: signerUuid,
         target: hash,
         reaction_type: "recast",
       }),
@@ -39,14 +39,24 @@ export const RecastCast = ({
     <div className="flex flex-row items-center group" onClick={recastCast}>
       {mode === "icons" ? (
         <>
-          <div className="p-1 group-hover:bg-green-500/30 rounded-full text-zinc-500 group-hover:text-green-500">
+          <div
+            className={`p-1 rounded-full text-zinc-500 ${
+              user
+                ? "cursor-pointer group-hover:bg-green-500/30 group-hover:text-green-500"
+                : ""
+            }`}
+          >
             {isRecastd ? (
               <UpdateIcon className="text-green-500" />
             ) : (
               <UpdateIcon />
             )}
           </div>
-          <div className="group-hover:text-green-500">{totalRecasts}</div>
+          <div
+            className={user ? "cursor-pointer group-hover:text-green-500" : ""}
+          >
+            {totalRecasts}
+          </div>
         </>
       ) : isRecastd ? (
         <div className="text-green-500">{`${totalRecasts} recasts`}</div>

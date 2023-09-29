@@ -22,8 +22,8 @@ const backfill = async () => {
   for (let fid = currentFid; fid < 25000; fid++) {
     // await handleUserUpdate(client, fid);
     // await handleFidCasts(client, fid);
-    await handleReactions(client, fid);
-    // await handleLinks(client, fid);
+    // await handleReactions(client, fid);
+    await handleLinks(client, fid);
     // await prisma.backfill.create({ data: { fid } });
   }
 };

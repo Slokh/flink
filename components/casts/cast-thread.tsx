@@ -85,7 +85,7 @@ export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
   const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
   return (
     <div className="flex flex-row space-x-2 p-4 w-full">
-      <div className="flex flex-col items-end justify-start text-sm cursor-pointer pr-1 pl-1">
+      <div className="flex flex-col items-end justify-start text-sm pr-1 pl-1">
         <LikeCast hash={cast.hash} likes={cast.likes} mode="icons" />
         <RecastCast hash={cast.hash} recasts={cast.recasts} mode="icons" />
       </div>

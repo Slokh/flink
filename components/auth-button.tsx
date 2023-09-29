@@ -29,6 +29,12 @@ export const AuthButton = () => {
   } = useUser();
 
   useEffect(() => {
+    if (authState === UserAuthState.CONNECTED) {
+      setOpen(true);
+    }
+  }, [address, authState]);
+
+  useEffect(() => {
     if (authState === UserAuthState.NEEDS_APPROVAL && open) {
       setPollInterval(setInterval(watchForLatestSigner, 2000));
     } else if (
@@ -112,7 +118,7 @@ export const AuthButton = () => {
           description="Scan the QR code to sign in with Farcaster using Warpcast."
           isComplete={false}
           content={
-            signerApprovalUrl ? (
+            authState === UserAuthState.NEEDS_APPROVAL && signerApprovalUrl ? (
               <div className="flex flex-col items-center space-y-1">
                 <QRCode value={signerApprovalUrl} />
                 <a

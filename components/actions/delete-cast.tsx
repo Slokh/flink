@@ -37,7 +37,6 @@ export const DeleteCast = ({
     await fetch("/api/casts", {
       method: "DELETE",
       body: JSON.stringify({
-        signer_uuid: signerUuid,
         target_hash: hash,
       }),
     });

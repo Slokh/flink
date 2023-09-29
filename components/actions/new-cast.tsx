@@ -120,7 +120,7 @@ const NewCastFileUpload = ({
 const NewCastContent = ({ parent }: { parent?: string }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const { signerUuid, user } = useUser();
+  const { user } = useUser();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -200,7 +200,6 @@ const NewCastContent = ({ parent }: { parent?: string }) => {
     const res = await fetch("/api/casts", {
       method: "POST",
       body: JSON.stringify({
-        signer_uuid: signerUuid,
         text: values.text,
         embeds: urls,
         parent: parent || channel?.parentUrl,

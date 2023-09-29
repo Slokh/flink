@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 
 export const FollowUser = ({ fid }: { fid: number }) => {
   const [isFollowing, setIsFollowing] = useState(false);
-  const { signerUuid, user } = useUser();
+  const { user } = useUser();
 
   useEffect(() => {
     setIsFollowing(user?.follows[fid] ?? false);
@@ -18,7 +18,6 @@ export const FollowUser = ({ fid }: { fid: number }) => {
     await fetch("/api/follows", {
       method,
       body: JSON.stringify({
-        signer_uuid: signerUuid,
         target_fids: [fid],
       }),
     });

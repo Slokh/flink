@@ -65,10 +65,26 @@ export const upsertFarcaster = async (
 };
 
 export const upsertFarcasterLinks = async (links: FarcasterLink[]) => {
-  await prisma.farcasterLink.createMany({
-    data: links,
-    skipDuplicates: true,
-  });
+  for (let i = 0; i < links.length; i += 5000) {
+    const batch = links.slice(i, i + 5000);
+    await prisma.farcasterLink.updateMany({
+      where: {
+        OR: batch.map((link) => ({
+          fid: link.fid,
+          linkType: link.linkType,
+          targetFid: link.targetFid,
+          deleted: true,
+        })),
+      },
+      data: {
+        deleted: false,
+      },
+    });
+    await prisma.farcasterLink.createMany({
+      data: batch,
+      skipDuplicates: true,
+    });
+  }
 };
 
 export const deleteFarcasterLink = async (link: FarcasterLink) => {
