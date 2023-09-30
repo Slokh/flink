@@ -23,7 +23,7 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const ChannelSidebarDisplay = ({
   channels,
@@ -31,13 +31,21 @@ export const ChannelSidebarDisplay = ({
   channels: ChannelStats[];
 }) => {
   const pathname = usePathname();
-  const [open, setOpen] = useState(
-    JSON.parse(localStorage?.getItem("sidebarOpen") || "true")
-  );
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    const sidebarOpen = JSON.parse(
+      localStorage.getItem("sidebarOpen") || "true"
+    );
+    if (sidebarOpen !== null) {
+      setOpen(sidebarOpen);
+    }
+  }, []);
 
   const handleOpenChange = () => {
-    localStorage.setItem("sidebarOpen", JSON.stringify(!open));
-    setOpen(!open);
+    const newOpenState = !open;
+    localStorage.setItem("sidebarOpen", JSON.stringify(newOpenState));
+    setOpen(newOpenState);
   };
 
   return (
@@ -62,7 +70,7 @@ export const ChannelSidebarDisplay = ({
           <Tooltip>
             <TooltipTrigger>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="p-2 rounded-none w-12 h-12">
+                <div className="p-2 rounded-none w-12 h-12 flex justify-center items-center hover:bg-border transition-all">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -77,7 +85,7 @@ export const ChannelSidebarDisplay = ({
                       d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"
                     />
                   </svg>
-                </Button>
+                </div>
               </CollapsibleTrigger>
             </TooltipTrigger>
             <TooltipContent side="left">

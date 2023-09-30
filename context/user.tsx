@@ -34,6 +34,7 @@ type State = {
   verifyMessage: () => void;
   signerApprovalUrl?: string;
   signerUuid?: string;
+  isVerifying?: boolean;
 
   watchForLatestSigner: () => Promise<void>;
 };
@@ -53,8 +54,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [signerState, setSignerState] = useState<SignerState | undefined>();
   const [user, setUser] = useState<AuthenticatedUser | undefined>();
   const [verifiedAddress, setVerifiedAddress] = useState<string | undefined>();
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const verifyMessage = async () => {
+    setIsVerifying(true);
     try {
       const chainId = chain?.id;
       if (!address || !chainId) return;
@@ -88,6 +91,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     } catch (error) {
       console.error(error);
     }
+    setIsVerifying(false);
   };
 
   const getVerifiedAddress = async () => {
@@ -165,6 +169,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     signerApprovalUrl: signerState?.signerApprovalUrl,
     signerUuid: signerState?.signerUuid,
     watchForLatestSigner,
+    isVerifying,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

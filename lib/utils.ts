@@ -124,17 +124,16 @@ export const formatText = (
         originalUrl = `${originalUrl}/`;
       }
 
-      // Only replace the URL if it's not already inside an anchor tag
-      if (!text.includes(`href="${originalUrl}"`)) {
-        text = text.replace(
-          originalUrl,
-          `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${
-            originalUrl.startsWith("http")
-              ? originalUrl
-              : `https://${originalUrl}`
-          }" target="_blank">${url}</a>`
-        );
-      }
+      const urlRegex = new RegExp(`(?<!href=")${originalUrl}`, "g");
+
+      text = text.replace(
+        urlRegex,
+        `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${
+          originalUrl.startsWith("http")
+            ? originalUrl
+            : `https://${originalUrl}`
+        }" target="_blank">${url}</a>`
+      );
     });
   } else {
     embeds.forEach(({ url }) => {

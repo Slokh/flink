@@ -26,6 +26,7 @@ export const AuthButton = () => {
     verifyMessage,
     signerApprovalUrl,
     watchForLatestSigner,
+    isVerifying,
   } = useUser();
 
   useEffect(() => {
@@ -98,8 +99,9 @@ export const AuthButton = () => {
               <Button
                 onClick={verifyMessage}
                 className="font-bold rounded-md h-[40px] whitespace-nowrap"
+                disabled={isVerifying}
               >
-                Verify
+                {isVerifying ? <Loading /> : "Verify"}
               </Button>
             ) : (
               <></>
