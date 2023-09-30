@@ -29,12 +29,6 @@ export const AuthButton = () => {
   } = useUser();
 
   useEffect(() => {
-    if (authState === UserAuthState.CONNECTED) {
-      setOpen(true);
-    }
-  }, [address, authState]);
-
-  useEffect(() => {
     if (authState === UserAuthState.NEEDS_APPROVAL && open) {
       setPollInterval(setInterval(watchForLatestSigner, 2000));
     } else if (
@@ -62,7 +56,7 @@ export const AuthButton = () => {
   } else if (authState === UserAuthState.DISCONNECTED) {
     return (
       <ConnectButton
-        label="Log in"
+        label="Connect"
         chainStatus="none"
         showBalance={false}
         accountStatus="address"

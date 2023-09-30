@@ -32,7 +32,7 @@ export const ChannelSidebarDisplay = ({
 }) => {
   const pathname = usePathname();
   const [open, setOpen] = useState(
-    JSON.parse(localStorage.getItem("sidebarOpen") || "true")
+    JSON.parse(localStorage?.getItem("sidebarOpen") || "true")
   );
 
   const handleOpenChange = () => {

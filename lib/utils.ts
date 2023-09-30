@@ -98,6 +98,12 @@ export const formatText = (
 
   // Replace urls with anchor tags
   if (withLinks) {
+    text = text.replace(
+      /(https?:\/\/[^\s]+)/g,
+      `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="$1" target="_blank">$1</a>`
+    );
+
+    // Then, handle the specific URLs
     const urls = embeds
       .map(({ url }) => normalizeLink(url))
       .filter((url, index, self) => self.indexOf(url) === index);
@@ -118,14 +124,17 @@ export const formatText = (
         originalUrl = `${originalUrl}/`;
       }
 
-      text = text.replace(
-        originalUrl,
-        `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${
-          originalUrl.startsWith("http")
-            ? originalUrl
-            : `https://${originalUrl}`
-        }">${url}</a>`
-      );
+      // Only replace the URL if it's not already inside an anchor tag
+      if (!text.includes(`href="${originalUrl}"`)) {
+        text = text.replace(
+          originalUrl,
+          `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${
+            originalUrl.startsWith("http")
+              ? originalUrl
+              : `https://${originalUrl}`
+          }" target="_blank">${url}</a>`
+        );
+      }
     });
   } else {
     embeds.forEach(({ url }) => {

@@ -57,7 +57,9 @@ export const CastsTable = async ({
             <Cast
               key={cast.hash}
               cast={cast}
-              rank={sort !== CastsSort.New ? i + 1 : undefined}
+              rank={
+                sort !== CastsSort.New ? (page - 1) * 25 + i + 1 : undefined
+              }
               isReply={
                 sort === CastsSort.NewReplies || sort === CastsSort.TopReplies
               }
