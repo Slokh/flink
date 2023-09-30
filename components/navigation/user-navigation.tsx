@@ -32,7 +32,7 @@ export const UserNavigation = ({}: {}) => {
 
   return (
     <Navigation>
-      <NavigationGroup className="hidden md:flex">
+      <NavigationGroup>
         <NavigationButton
           href={`/${params.id}`}
           isSelected={mainNav === "casts"}

@@ -26,7 +26,7 @@ export const FollowUser = ({ fid }: { fid: number }) => {
   if (!user) return <></>;
 
   return (
-    <div className="m-2">
+    <div>
       {isFollowing ? (
         <Button
           size="sm"

@@ -1,5 +1,6 @@
 "use client";
 import { format } from "date-fns";
+import { useEffect, useRef, useState } from "react";
 import {
   Bar,
   XAxis,
@@ -113,10 +114,20 @@ const renderLegend = (props: any) => {
 };
 
 export const ChannelChart = ({ data }: { data: any[] }) => {
+  const ref = useRef(null);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    if (ref.current) {
+      // @ts-ignore
+      setWidth(ref.current.offsetWidth);
+    }
+  }, []);
+
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <div ref={ref} className="hidden lg:flex mb-4 items-center justify-center">
       <ComposedChart
-        width={500}
+        width={width}
         height={300}
         data={data}
         margin={{
@@ -140,6 +151,6 @@ export const ChannelChart = ({ data }: { data: any[] }) => {
           dot={false}
         />
       </ComposedChart>
-    </ResponsiveContainer>
+    </div>
   );
 };
