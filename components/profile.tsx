@@ -201,11 +201,9 @@ export const ProfileIdentity = ({
 
 export const Profile = ({ entity, id }: { entity: Entity; id: string }) => (
   <>
-    <div className="flex flex-col p-2 w-80 max-w-full h-full lg:hidden">
-      <ScrollArea className="h-full">
-        <ProfileOverview id={id} entity={entity} />
-        <ProfileIdentity entity={entity} />
-      </ScrollArea>
+    <div className="flex flex-col p-2 max-w-full lg:hidden">
+      <ProfileOverview id={id} entity={entity} />
+      <ProfileIdentity entity={entity} />
     </div>
     <div className="hidden lg:flex flex-col">
       <WebProfile entity={entity} id={id} />

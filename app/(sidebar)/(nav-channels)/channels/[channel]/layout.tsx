@@ -9,7 +9,7 @@ export default function NavCastsLayout({
   params: { channel: string };
 }) {
   return (
-    <div className="flex flex-col w-full h-full flex-grow">
+    <div className="flex flex-col w-full flex-grow">
       <ChannelHeader channelId={params.channel} />
       <ChannelNavigation />
       {children}

@@ -164,7 +164,7 @@ const WebCast = ({
   ];
 
   return (
-    <div className="hidden md:flex flex-row items-center border-t hover:bg-zinc-100 pl-4 hover:dark:bg-zinc-900 transition-all">
+    <div className="hidden md:flex flex-row items-center border-b hover:bg-zinc-100 pl-4 hover:dark:bg-zinc-900 transition-all">
       {rank && (
         <div className="flex w-6 items-center justify-center text-zinc-500 font-semibold">
           {rank}

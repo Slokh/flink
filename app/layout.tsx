@@ -72,7 +72,7 @@ export default function RootLayout({
               <Nav />
               <div
                 className="w-full flex"
-                style={{ height: "calc(100vh - 40px)" }}
+                style={{ height: "calc(100vh - 46px)" }}
               >
                 {children}
               </div>

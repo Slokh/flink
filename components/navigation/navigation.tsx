@@ -26,7 +26,7 @@ export const NavigationSelect = ({
       </SelectTrigger>
       <SelectContent>
         {options.map(({ value, label }) => (
-          <SelectItem key={value} value={value}>
+          <SelectItem key={value} value={value} className="whitespace-nowrap">
             {label}
           </SelectItem>
         ))}
@@ -57,9 +57,19 @@ export const NavigationButton = ({
 
 export const NavigationGroup = ({
   children,
+  className,
 }: {
   children?: React.ReactNode;
-}) => <div className="flex flex-row space-x-2">{children}</div>;
+  className?: string;
+}) => (
+  <div
+    className={`flex flex-row space-x-2 overflow-auto overflow-x-scroll whitespace-nowrap${
+      className ? ` ${className}` : ""
+    }`}
+  >
+    {children}
+  </div>
+);
 
 export const Navigation = ({ children }: { children: React.ReactNode }) => (
   <div className="flex flex-row items-center justify-between p-2 border-b">

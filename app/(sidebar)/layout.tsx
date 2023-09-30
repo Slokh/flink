@@ -7,7 +7,7 @@ export default function ChannelSidebarLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-row justify-center w-full">
+    <div className="flex flex-row w-full">
       {children}
       <div className="hidden xl:flex">
         <Separator orientation="vertical" />
