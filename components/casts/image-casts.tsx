@@ -129,16 +129,18 @@ export const ImageCasts = ({
     }
   }, [visible, casts, images]);
 
-  const columns: Image[][] = [[], [], [], []];
-
-  images.forEach((image, i) => {
-    columns[i % 4].push(image);
-  });
+  const breakpointColumnsObj = {
+    default: 5,
+    1280: 4,
+    1024: 3,
+    768: 2,
+    640: 1,
+  };
 
   return (
     <ScrollArea className="flex h-full p-1">
       <Masonry
-        breakpointCols={4}
+        breakpointCols={breakpointColumnsObj}
         className="my-masonry-grid"
         columnClassName="my-masonry-grid_column"
       >
