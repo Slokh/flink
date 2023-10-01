@@ -1,15 +1,8 @@
 "use client";
 
-import { Channel, ChannelStats } from "@/lib/types";
+import { LinkStats } from "@/lib/types";
 import { ColumnDef, Row, SortingColumn } from "@tanstack/react-table";
 import { DataTable } from "../ui/data-table";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Button } from "../ui/button";
 import {
   CaretDownIcon,
@@ -29,7 +22,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
-export const ChannelsNavigation = ({ time }: { time: string }) => {
+export const LinksNavigation = ({ time }: { time: string }) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -48,9 +41,9 @@ export const ChannelsNavigation = ({ time }: { time: string }) => {
           <SelectItem value="twelveHour">Last 12 hours</SelectItem>
           <SelectItem value="day">Last day</SelectItem>
           <SelectItem value="week">Last week</SelectItem>
-          <SelectItem value="month">Last month</SelectItem>
+          {/* <SelectItem value="month">Last month</SelectItem>
           <SelectItem value="year">Last year</SelectItem>
-          <SelectItem value="all">All time</SelectItem>
+          <SelectItem value="all">All time</SelectItem> */}
         </SelectContent>
       </Select>
     </div>
@@ -63,7 +56,7 @@ const StatHeader = ({
   children,
   align = "center",
 }: {
-  column: ColumnDef<ChannelStats> & SortingColumn<ChannelStats>;
+  column: ColumnDef<LinkStats> & SortingColumn<LinkStats>;
   icon?: React.ReactNode;
   children: React.ReactNode;
   align?: "start" | "center" | "end";
@@ -95,13 +88,7 @@ const StatHeader = ({
   </div>
 );
 
-const StatField = ({
-  row,
-  field,
-}: {
-  row: Row<ChannelStats>;
-  field: string;
-}) => {
+const StatField = ({ row, field }: { row: Row<LinkStats>; field: string }) => {
   const current = row.getValue(field) as number;
 
   return (
@@ -111,15 +98,15 @@ const StatField = ({
   );
 };
 
-export const ChannelsTable = ({
+export const LinksTable = ({
   time,
-  channels,
+  links,
 }: {
   time: string;
-  channels: ChannelStats[];
+  links: LinkStats[];
 }) => {
   const [sorted, setSorted] = useState<string>();
-  const columns: ColumnDef<ChannelStats>[] = [
+  const columns: ColumnDef<LinkStats>[] = [
     {
       header: "\u00A0",
       cell: ({ row }) => {
@@ -128,7 +115,7 @@ export const ChannelsTable = ({
         const delta = row.original.rankDeltas[field];
         return (
           <div className="flex flex-row items-center space-x-1">
-            {delta !== 0 && time !== "year" && time !== "all" && (
+            {delta !== 0 && (time === "day" || time.endsWith("our")) && (
               <div className="flex flex-row items-center text-xs text-zinc-500">
                 {delta > 0 ? (
                   <TriangleUpIcon className="text-green-500" />
@@ -149,70 +136,31 @@ export const ChannelsTable = ({
       },
     },
     {
-      header: ({ column }) => (
-        <StatHeader column={column} align="start">
-          Channel
-        </StatHeader>
-      ),
-      accessorKey: "channel.name",
-      sortingFn: (a, b) => {
-        const isUnknownA =
-          a.original.channel.name === a.original.channel.parentUrl &&
-          a.original.channel.channelId === a.original.channel.parentUrl;
-        const isUnknownB =
-          b.original.channel.name === b.original.channel.parentUrl &&
-          b.original.channel.channelId === b.original.channel.parentUrl;
-        if (isUnknownA && isUnknownB) {
-          return 0;
-        } else if (isUnknownA) {
-          return 1;
-        } else if (isUnknownB) {
-          return -1;
-        }
-        return a.original.channel.name.localeCompare(b.original.channel.name);
-      },
+      header: "Link",
+      accessorKey: "url",
       cell: ({ row }) => {
-        const channel = row.original.channel as Channel;
-        const isUnknown =
-          channel.name === channel.parentUrl &&
-          channel.channelId === channel.parentUrl;
-        return isUnknown ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <a
-                  href={`/channels/${encodeURIComponent(channel.channelId)}`}
-                  className="flex flex-row space-x-2 items-center transition cursor-pointer p-1"
-                >
-                  <Avatar className="h-6 w-6">
-                    <AvatarImage src={channel.image} className="object-cover" />
-                    <AvatarFallback>?</AvatarFallback>
-                  </Avatar>
-                  <div className="text-zinc-500">Unknown</div>
-                </a>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div>
-                  This is a new channel and has not been registered on flink
-                  yet.
-                </div>
-                <div>
-                  <b>Channel URL: </b>
-                  {channel.parentUrl}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
+        const url = row.getValue("url") as string;
+        const metadata = row.original.contentMetadata;
+        const title = metadata?.title || url;
+        const image = metadata?.open_graph?.images?.[0]?.url;
+        if (!title) {
+          console.log(row.original.contentMetadata);
+        }
+        return (
           <a
-            href={`/channels/${channel.channelId}`}
-            className="flex flex-row space-x-2 items-center hover:text-purple-600 hover:dark:text-purple-400 transition p-1"
+            href={`https://${url}`}
+            target="_blank"
+            className="flex flex-row items-center space-x-2"
           >
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={channel.image} className="object-cover" />
-              <AvatarFallback>?</AvatarFallback>
-            </Avatar>
-            <div className="font-semibold">{channel.name}</div>
+            <div className="w-8 h-8">
+              {image && (
+                <img src={image} alt={image} className="object-cover w-8 h-8" />
+              )}
+            </div>
+            <div className="flex flex-col w-48 md:w-96">
+              <div className="text-semibold line-clamp-2">{title}</div>
+              <div className="truncate text-zinc-500 text-xs">{url}</div>
+            </div>
           </a>
         );
       },
@@ -251,13 +199,13 @@ export const ChannelsTable = ({
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex flex-row items-center justify-end p-2 border-b">
-        <ChannelsNavigation time={time} />
+        <LinksNavigation time={time} />
       </div>
       <ScrollArea>
         <ScrollBar orientation="horizontal" />
         <DataTable
           columns={columns}
-          data={channels}
+          data={links}
           onSortingChange={(state) => setSorted(state?.[0]?.id)}
           defaultSorting={[{ id: "engagement", desc: true }]}
         />

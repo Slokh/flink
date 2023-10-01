@@ -144,6 +144,13 @@ export type ChannelStats = ChannelStatsEntries & {
   rankDeltas: ChannelStatsEntries;
 };
 
+export type LinkStats = ChannelStatsEntries & {
+  url: string;
+  contentMetadata?: Metadata;
+  previous?: ChannelStatsEntries;
+  rankDeltas: ChannelStatsEntries;
+};
+
 export type DailyChannelStats = ChannelStatsEntries & {
   timestamp: string;
 };

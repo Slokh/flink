@@ -11,6 +11,7 @@ export const Nav = () => {
   const isHome = pathname === "/";
   const isChannels = pathname.startsWith("/channels");
   const isUsers = pathname.startsWith("/users");
+  const isLinks = pathname.startsWith("/links");
   const [open, setOpen] = useState(false);
 
   return (
@@ -44,6 +45,14 @@ export const Nav = () => {
               }`}
             >
               Users
+            </Link>
+            <Link
+              href="/links"
+              className={`hover:text-foreground transition ${
+                isLinks ? "font-semibold text-foreground" : ""
+              }`}
+            >
+              Links
             </Link>
           </div>
         </div>

@@ -5,6 +5,7 @@ import {
   Entity,
   FarcasterCast,
   FarcasterCastTree,
+  LinkStats,
   UserStats,
 } from "./types";
 
@@ -81,6 +82,19 @@ export const getUserEngagementStats = async (
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(
     `${protocol}://${host}/api/stats/users/engagement${
+      time ? `?time=${time}` : ""
+    }`
+  );
+  return await data.json();
+};
+
+export const getLinkEngagementStats = async (
+  time: string
+): Promise<LinkStats[]> => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(
+    `${protocol}://${host}/api/stats/links/engagement${
       time ? `?time=${time}` : ""
     }`
   );
