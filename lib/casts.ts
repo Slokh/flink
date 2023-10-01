@@ -1,6 +1,7 @@
 import { getEmbedMetadata } from "@/indexer/embeds";
 import prisma from "@/lib/prisma";
 import { Embed, FarcasterUser } from "@/lib/types";
+import { HotCasts, HotCastsForChannel } from "./sql";
 
 const PAGE_SIZE = 25;
 
@@ -39,66 +40,12 @@ export const getCast = async (hash: string) => {
 
 export const getCastsResponseByHotness = async (
   page: number,
+  onlyParents: boolean,
   parentUrl?: string
 ) => {
   const results: FidHash[] = parentUrl
-    ? await prisma.$queryRaw`
-    WITH ReactionCounts AS (
-        SELECT
-            "targetFid",
-            "targetHash",
-            SUM(
-                CASE 
-                    WHEN "reactionType" = 'like' THEN 1
-                    WHEN "reactionType" = 'recast' THEN 0.5
-                    ELSE 0
-                END
-            ) AS weighted_votes,
-            EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCastReaction"."timestamp"))) AS age_in_seconds
-        FROM "public"."FarcasterCastReaction"
-          JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
-        WHERE "FarcasterCast"."parentUrl" = ${parentUrl}
-        GROUP BY "targetFid", "targetHash"
-    )
-
-    SELECT
-        "targetFid" AS fid,
-        "targetHash" AS hash,
-        LOG(GREATEST(ABS(weighted_votes), 1)) - 
-        (age_in_seconds / 86400) AS hotness
-    FROM ReactionCounts
-    ORDER BY hotness DESC
-    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE};
-  `
-    : await prisma.$queryRaw`
-    WITH ReactionCounts AS (
-        SELECT
-            "targetFid",
-            "targetHash",
-            SUM(
-                CASE 
-                    WHEN "reactionType" = 'like' THEN 1
-                    WHEN "reactionType" = 'recast' THEN 0.5
-                    ELSE 0
-                END
-            ) AS weighted_votes,
-            EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCastReaction"."timestamp"))) AS age_in_seconds
-        FROM "public"."FarcasterCastReaction"
-          JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
-        WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '7 days'::interval
-          AND "FarcasterCast"."parentCast" IS NULL
-        GROUP BY "targetFid", "targetHash"
-    )
-
-    SELECT
-        "targetFid" AS fid,
-        "targetHash" AS hash,
-        LOG(GREATEST(ABS(weighted_votes), 1)) - 
-        (age_in_seconds / 86400) AS hotness
-    FROM ReactionCounts
-    ORDER BY hotness DESC
-    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE};
-  `;
+    ? await HotCastsForChannel(parentUrl, page, onlyParents)
+    : await HotCasts(page, onlyParents);
 
   const casts = await getCastsByFidHashes(
     results.map((cast) => ({

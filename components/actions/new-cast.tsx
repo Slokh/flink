@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { UserAuthState, useUser } from "@/context/user";
 import { CameraIcon, Cross1Icon, PlusIcon } from "@radix-ui/react-icons";
 import {
   Dialog,
@@ -32,6 +31,7 @@ import { ChannelSelect } from "../channels/channel-select";
 import { CastContent } from "../casts/cast-thread";
 import { ScrollArea } from "../ui/scroll-area";
 import { EmbedPreview } from "../embeds";
+import { useUser } from "@/context/user";
 
 const formSchema = z.object({
   text: z.string().refine(
@@ -309,8 +309,8 @@ const NewCastDialog = ({
   header?: React.ReactNode;
   children: React.ReactNode;
 }) => {
-  const { authState } = useUser();
-  if (authState !== UserAuthState.LOGGED_IN) return <></>;
+  const { user } = useUser();
+  if (!user) return <></>;
 
   return (
     <Dialog>

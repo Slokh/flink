@@ -18,6 +18,7 @@ import { mainnet, polygon, optimism, arbitrum, base, zora } from "viem/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { useTheme } from "next-themes";
+import { AuthProvider } from "@/context/auth";
 import { UserProvider } from "@/context/user";
 
 const { chains, publicClient } = configureChains(
@@ -75,7 +76,9 @@ export default function WalletProvider({
               })
         }
       >
-        <UserProvider>{children}</UserProvider>
+        <AuthProvider>
+          <UserProvider>{children}</UserProvider>
+        </AuthProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   );

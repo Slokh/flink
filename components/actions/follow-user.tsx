@@ -1,8 +1,8 @@
 "use client";
 
-import { useUser } from "@/context/user";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { useUser } from "@/context/user";
 
 export const FollowUser = ({ fid }: { fid: number }) => {
   const [isFollowing, setIsFollowing] = useState(false);

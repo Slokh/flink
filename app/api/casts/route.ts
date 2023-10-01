@@ -20,10 +20,11 @@ export async function GET(
   const parentUrl = url.searchParams.get("parentUrl") || undefined;
   const page = parseInt(url.searchParams.get("page") || "1");
   const sort = url.searchParams.get("sort") as CastsSort;
+  const onlyParents = url.searchParams.get("all") !== "true";
 
   let response = [];
   if (sort === CastsSort.Hot) {
-    response = await getCastsResponseByHotness(page, parentUrl);
+    response = await getCastsResponseByHotness(page, onlyParents, parentUrl);
   } else if (sort === CastsSort.Top || sort === CastsSort.TopReplies) {
     const time = url.searchParams.get("time") as
       | "hour"

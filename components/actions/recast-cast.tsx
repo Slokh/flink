@@ -15,7 +15,7 @@ export const RecastCast = ({
 }) => {
   const [isRecastd, setIsRecastd] = useState(false);
   const [totalRecasts, setTotalRecasts] = useState(recasts);
-  const { signerUuid, user } = useUser();
+  const { user } = useUser();
 
   useEffect(() => {
     setIsRecastd(user?.recasts[hash] ?? false);

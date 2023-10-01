@@ -59,7 +59,8 @@ export const getCasts = async (
   page: number,
   parentUrl?: string,
   time?: string,
-  fid?: number
+  fid?: number,
+  all?: boolean
 ): Promise<FarcasterCast[]> => {
   const host = headers().get("host");
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
@@ -68,7 +69,7 @@ export const getCasts = async (
       parentUrl ? `&parentUrl=${parentUrl}` : ""
     }${time ? `&time=${time}` : ""}${fid ? `&fid=${fid}` : ""}${
       page ? `&page=${page}` : ""
-    }`
+    }${all ? `&all=true` : ""}`
   );
   return await data.json();
 };

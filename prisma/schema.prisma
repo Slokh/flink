@@ -237,4 +237,5 @@ model User {
     signerApprovalUrl String?
     fid               Int?
     timestamp         DateTime @default(now())
+    preferences       Json?
 }

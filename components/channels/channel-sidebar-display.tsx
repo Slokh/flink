@@ -1,12 +1,15 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { ScrollArea } from "../ui/scroll-area";
 import {
   DashIcon,
+  ImageIcon,
+  RowsIcon,
   TriangleDownIcon,
   TriangleUpIcon,
 } from "@radix-ui/react-icons";
-import { ChannelStats } from "@/lib/types";
+import { ChannelStats, DisplayMode } from "@/lib/types";
 import {
   Tooltip,
   TooltipContent,
@@ -15,27 +18,33 @@ import {
 } from "../ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ChannelSelect } from "./channel-select";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../ui/collapsible";
-import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
+import { CHANNELS_BY_URL } from "@/lib/channels";
+import { useUser } from "@/context/user";
 
 export const ChannelSidebarDisplay = ({
   channels,
 }: {
   channels: ChannelStats[];
 }) => {
+  const {
+    displayMode,
+    channels: followedChannels,
+    changeDisplayMode,
+  } = useUser();
   const pathname = usePathname();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const sidebarOpen = JSON.parse(
-      localStorage.getItem("sidebarOpen") || "true"
+      localStorage.getItem("sidebarOpen") || "false"
     );
     if (sidebarOpen !== null) {
       setOpen(sidebarOpen);
@@ -49,53 +58,28 @@ export const ChannelSidebarDisplay = ({
   };
 
   return (
-    <Collapsible open={open} onOpenChange={handleOpenChange}>
-      <div className="flex flex-row items-center border-b">
-        {open && (
-          <div className="flex flex-row items-center w-full justify-between text-sm p-2 whitespace-nowrap">
-            <div className="font-semibold">
-              Trending Channels{" "}
-              <span className="text-xs text-zinc-500">(last 6h)</span>
-            </div>
-            <ChannelSelect
-              suffix={
-                /channels\/.*\/stats/.test(pathname)
-                  ? `/stats${pathname.endsWith("users") ? "/users" : ""}`
-                  : ""
-              }
-            />
-          </div>
-        )}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <CollapsibleTrigger asChild>
-                <div className="p-2 rounded-none w-12 h-12 flex justify-center items-center hover:bg-border transition-all">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"
-                    />
-                  </svg>
-                </div>
-              </CollapsibleTrigger>
-            </TooltipTrigger>
-            <TooltipContent side="left">
-              <p>Trending channels</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-      <CollapsibleContent style={{ height: "calc(100vh - 87px)" }}>
+    <Collapsible
+      open={open}
+      onOpenChange={handleOpenChange}
+      className="flex flex-row items-start"
+    >
+      <CollapsibleContent className="h-full border-r">
         <div className="flex flex-col w-80 max-w-full h-full">
+          <div className="flex flex-row items-center border-b h-12 flex-shrink-0">
+            <div className="flex flex-row items-center w-full justify-between text-sm p-2 whitespace-nowrap">
+              <div className="font-semibold">
+                Trending Channels{" "}
+                <span className="text-xs text-zinc-500">(last 6h)</span>
+              </div>
+              <ChannelSelect
+                suffix={
+                  /channels\/.*\/stats/.test(pathname)
+                    ? `/stats${pathname.endsWith("users") ? "/users" : ""}`
+                    : ""
+                }
+              />
+            </div>
+          </div>
           <ScrollArea className="h-full">
             {channels
               .filter(({ posts, replies }) => posts + replies > 0)
@@ -107,7 +91,7 @@ export const ChannelSidebarDisplay = ({
                 return (
                   <div
                     key={channel.channel.channelId}
-                    className="flex flex-row items-center justify-between border-b p-2 pr-4"
+                    className="flex flex-row items-center justify-between border-b h-12 pr-4"
                   >
                     <div className="flex flex-row items-center">
                       <div className="flex flex-col items-center w-10 text-xs">
@@ -203,6 +187,115 @@ export const ChannelSidebarDisplay = ({
           </ScrollArea>
         </div>
       </CollapsibleContent>
+      <div className="h-full w-12 flex flex-col justify-between">
+        <div>
+          <SidebarButton label="Trending channels">
+            <CollapsibleTrigger asChild>
+              <div className="p-2 rounded-none w-12 h-12 flex justify-center items-center hover:bg-border transition-all border-b">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"
+                  />
+                </svg>
+              </div>
+            </CollapsibleTrigger>
+          </SidebarButton>
+          {followedChannels.map((url) => {
+            const channel = CHANNELS_BY_URL[url] || {
+              name: "Unknown",
+              channelId: url,
+              image: "",
+              parentUrl: url,
+            };
+            return (
+              <SidebarButton
+                key={url}
+                label={channel.name}
+                href={`/channels/${channel.channelId}`}
+              >
+                {channel.image ? (
+                  <img
+                    src={channel.image}
+                    className="w-8 h-8 rounded-full"
+                    alt={channel.name}
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                    ?
+                  </div>
+                )}
+              </SidebarButton>
+            );
+          })}
+        </div>
+        {!pathname.includes("/stats") && (
+          <SidebarButton
+            label="Change display mode"
+            borderTop
+            onClick={() =>
+              changeDisplayMode(
+                displayMode === DisplayMode.Default
+                  ? DisplayMode.Images
+                  : DisplayMode.Default
+              )
+            }
+          >
+            {displayMode === DisplayMode.Default ? <RowsIcon /> : <ImageIcon />}
+          </SidebarButton>
+        )}
+      </div>
     </Collapsible>
   );
 };
+
+export const SidebarButton = ({
+  label,
+  children,
+  href,
+  onClick,
+  borderTop,
+}: {
+  label: string;
+  children: React.ReactNode;
+  href?: string;
+  onClick?: () => void;
+  borderTop?: boolean;
+}) => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger>
+        {href ? (
+          <Link
+            href={href}
+            className={`p-2 w-12 h-12 flex items-center justify-center hover:bg-border transition-all border-${
+              borderTop ? "t" : "b"
+            }`}
+          >
+            {children}
+          </Link>
+        ) : (
+          <div
+            className={`p-2 w-12 h-12 flex items-center justify-center hover:bg-border transition-all border-${
+              borderTop ? "t" : "b"
+            }`}
+            onClick={onClick}
+          >
+            {children}
+          </div>
+        )}
+      </TooltipTrigger>
+      <TooltipContent side="left">
+        <p>{label}</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);

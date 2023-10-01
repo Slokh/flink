@@ -6,6 +6,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Cast } from "./cast";
 import { getCasts } from "@/lib/requests";
 import { MoreCasts } from "./more-casts";
+import { ImageCasts } from "./image-casts";
 
 export const CastsTable = async ({
   sort,
@@ -30,15 +31,16 @@ export const CastsTable = async ({
     entity = await getEntity(params.id, false);
   }
 
-  let baseHref = "/";
-  if (channel?.channelId) {
-    baseHref += `channel/${channel.channelId}/`;
-  }
-  if (sort !== CastsSort.Hot) {
-    baseHref += sort.toLowerCase();
-    if (sort === CastsSort.Top) {
-      baseHref += `?time=${time}`;
-    }
+  if (searchParams.display === "images") {
+    return (
+      <ImageCasts
+        sort={sort}
+        page={page}
+        parentUrl={channel?.parentUrl}
+        time={time}
+        fid={entity?.fid}
+      />
+    );
   }
 
   const casts = await getCasts(
@@ -46,7 +48,8 @@ export const CastsTable = async ({
     page,
     channel?.parentUrl,
     time,
-    entity?.fid
+    entity?.fid,
+    true
   );
 
   return (

@@ -103,7 +103,11 @@ export type Channel = {
 
 export type CastsQuery = {
   params: { id: string; channel: string };
-  searchParams: { time?: string; page?: string };
+  searchParams: { time?: string; page?: string; display?: string };
+};
+
+type AuthenticatedUserPreferences = {
+  channels: string[];
 };
 
 export type AuthenticatedUser = {
@@ -116,6 +120,7 @@ export type AuthenticatedUser = {
   recasts: { [key: string]: boolean };
   casts: { [key: string]: boolean };
   follows: { [key: string]: boolean };
+  preferences: AuthenticatedUserPreferences;
 };
 
 export type ChannelStatsEntries = {
@@ -160,3 +165,9 @@ export type UserStats = UserStatsEntries & {
   previous?: UserStatsEntries;
   rankDeltas: UserStatsEntries;
 };
+
+export enum DisplayMode {
+  Default = "default",
+  Links = "links",
+  Images = "images",
+}

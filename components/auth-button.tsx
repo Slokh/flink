@@ -11,23 +11,24 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CheckIcon } from "@radix-ui/react-icons";
-import { UserAuthState, useUser } from "@/context/user";
+import { UserAuthState, useAuth } from "@/context/auth";
 import QRCode from "qrcode.react";
 import { Loading } from "./loading";
 import Link from "next/link";
+import { useUser } from "@/context/user";
 
 export const AuthButton = () => {
   const [open, setOpen] = useState(false);
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>();
   const {
-    user,
     address,
     authState,
     verifyMessage,
     signerApprovalUrl,
     watchForLatestSigner,
     isVerifying,
-  } = useUser();
+  } = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
     if (authState === UserAuthState.NEEDS_APPROVAL && open) {
@@ -49,10 +50,14 @@ export const AuthButton = () => {
       </div>
     );
   } else if (authState === UserAuthState.LOGGED_IN) {
-    return (
+    return user ? (
       <Link href={`/${user?.fname}`}>
         <div className="font-semibold text-sm">{`@${user?.fname}`}</div>
       </Link>
+    ) : (
+      <div className="font-semibold rounded-md bg-foreground text-background p-2 pr-3 pl-3 text-center">
+        <Loading />
+      </div>
     );
   } else if (authState === UserAuthState.DISCONNECTED) {
     return (

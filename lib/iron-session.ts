@@ -1,7 +1,7 @@
 import { IronSession, getIronSession } from "iron-session";
 
 export type DynamicSegments = {
-  params: { slug: string } | undefined;
+  params: any | undefined;
 };
 
 export type RouteHandler = (

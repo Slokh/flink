@@ -28,6 +28,13 @@ export const ChannelNavigation = ({}: {}) => {
 
   const mainNav = pathname.includes("stats") ? "stats" : "casts";
 
+  const handleSelect = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("time", value);
+    const newQuery = params.toString();
+    router.push(`${pathname}?${newQuery}`);
+  };
+
   return (
     <Navigation>
       <NavigationGroup>
@@ -49,9 +56,7 @@ export const ChannelNavigation = ({}: {}) => {
           {sort === CastsSort.Top && (
             <NavigationSelect
               defaultValue={time || "day"}
-              onValueChange={(value) =>
-                router.push(`${pathname}?time=${value}`)
-              }
+              onValueChange={handleSelect}
               placeholder="Timeframe"
               options={[
                 { value: "hour", label: "Last hour" },

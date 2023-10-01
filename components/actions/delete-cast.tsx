@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@/context/user";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +13,7 @@ import { useState } from "react";
 import { Loading } from "../loading";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../ui/button";
+import { useUser } from "@/context/user";
 
 export const DeleteCast = ({
   hash,
@@ -28,7 +28,7 @@ export const DeleteCast = ({
   const router = useRouter();
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
-  const { user, signerUuid } = useUser();
+  const { user } = useUser();
 
   if (!user?.casts[hash]) return <></>;
 

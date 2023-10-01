@@ -5,7 +5,6 @@ import { useIsVisible } from "@/hooks/useIsVisible";
 import { CastsSort, FarcasterCast } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { Cast } from "./cast";
-import { usePathname, useRouter } from "next/navigation";
 
 export const MoreCasts = ({
   sort,
