@@ -9,6 +9,7 @@ import {
   CaretSortIcon,
   CaretUpIcon,
 } from "@radix-ui/react-icons";
+import { format } from "date-fns";
 
 const StatHeader = ({
   column,
@@ -70,13 +71,13 @@ export const ChannelTable = ({ data }: { data: DailyChannelStats[] }) => {
       accessorKey: "timestamp",
       header: ({ column }) => <StatHeader column={column}>Date</StatHeader>,
       cell: ({ row }) => {
+        const date = new Date(row.original.timestamp);
+        const utcDate = new Date(
+          date.getTime() + date.getTimezoneOffset() * 60000
+        );
         return (
           <div className="flex flex-row items-center space-x-1 whitespace-nowrap">
-            {new Date(row.original.timestamp).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
+            {format(new Date(utcDate), "MMM d, yyyy")}
           </div>
         );
       },

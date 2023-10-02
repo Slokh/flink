@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { format } from "date-fns";
 
 const StatHeader = ({
   column,
@@ -77,13 +78,13 @@ export const UserTable = ({ data }: { data: DailyUserStats[] }) => {
       accessorKey: "timestamp",
       header: ({ column }) => <StatHeader column={column}>Date</StatHeader>,
       cell: ({ row }) => {
+        const date = new Date(row.original.timestamp);
+        const utcDate = new Date(
+          date.getTime() + date.getTimezoneOffset() * 60000
+        );
         return (
           <div className="flex flex-row items-center space-x-1 whitespace-nowrap">
-            {new Date(row.original.timestamp).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
+            {format(utcDate, "MMM d, yyyy")}
           </div>
         );
       },

@@ -143,9 +143,6 @@ export const LinksTable = ({
         const metadata = row.original.contentMetadata;
         const title = metadata?.title || url;
         const image = metadata?.open_graph?.images?.[0]?.url;
-        if (!title) {
-          console.log(row.original.contentMetadata);
-        }
         return (
           <a
             href={`https://${url}`}
