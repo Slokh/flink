@@ -23,7 +23,7 @@ export const FollowUser = ({ fid }: { fid: number }) => {
     });
   };
 
-  if (!user) return <></>;
+  if (!user || user.fid === fid) return <></>;
 
   return (
     <div>

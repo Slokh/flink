@@ -130,10 +130,7 @@ export const CastThread = async ({
         <ScrollArea className="h-full pl-2">
           <ScrollBar orientation="horizontal" />
           <CastParent cast={cast} />
-          <div
-            className="flex flex-col space-y-4 m-2"
-            style={{ width: "calc(100vw - 345px)" }}
-          >
+          <div className="flex flex-col space-y-4 m-2">
             {cast.children.map((child) => (
               <CollapsibleCast
                 key={child.hash}

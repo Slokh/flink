@@ -72,7 +72,7 @@ export const NavigationGroup = ({
 );
 
 export const Navigation = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 justify-between p-2 border-b">
+  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 justify-between p-2 border-b h-12">
     {children}
   </div>
 );

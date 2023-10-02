@@ -76,7 +76,7 @@ export const CollapsibleCast = ({
           </CollapsibleTrigger>
         </div>
       </div>
-      <CollapsibleContent className="flex flex-col w-full px-2 mb-1">
+      <CollapsibleContent className="flex flex-col w-full px-2 mb-1 min-w-full">
         <div
           className={`flex flex-row space-x-2 w-full ${
             isHighlighted
