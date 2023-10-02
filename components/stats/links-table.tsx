@@ -112,10 +112,12 @@ export const LinksTable = ({
       cell: ({ row }) => {
         const field = sorted || "engagement";
         // @ts-ignore
-        const delta = row.original.rankDeltas[field];
+        const delta = row.original.rankDeltas?.[field];
+        const showDelta =
+          delta !== 0 && (time === "day" || time.endsWith("our"));
         return (
           <div className="flex flex-row items-center space-x-1">
-            {delta !== 0 && (time === "day" || time.endsWith("our")) && (
+            {delta && showDelta && (
               <div className="flex flex-row items-center text-xs text-zinc-500">
                 {delta > 0 ? (
                   <TriangleUpIcon className="text-green-500" />
@@ -129,6 +131,11 @@ export const LinksTable = ({
                     ? delta.toString().substring(1)
                     : ""}
                 </div>
+              </div>
+            )}
+            {!delta && showDelta && (
+              <div className="flex flex-row items-center text-xs text-zinc-500">
+                new
               </div>
             )}
           </div>

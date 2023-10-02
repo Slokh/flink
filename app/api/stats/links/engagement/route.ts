@@ -129,14 +129,7 @@ export async function GET(request: Request) {
             posts: prevPosts[cur.url] - curPosts[cur.url],
             engagement: prevEngagement[cur.url] - curEngagement[cur.url],
           }
-        : {
-            likes: Object.keys(curLikes).length - curLikes[cur.url],
-            recasts: Object.keys(curRecasts).length - curRecasts[cur.url],
-            replies: Object.keys(curReplies).length - curReplies[cur.url],
-            posts: Object.keys(curPosts).length - curPosts[cur.url],
-            engagement:
-              Object.keys(curEngagement).length - curEngagement[cur.url],
-          },
+        : undefined,
     } as LinkStats;
   });
 
