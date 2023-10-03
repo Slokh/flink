@@ -233,7 +233,11 @@ export const getCastsResponseByNewness = async (
       }))
     );
 
-    return await getCastsResponse(casts.filter(Boolean));
+    return await getCastsResponse(
+      casts
+        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+        .filter(Boolean)
+    );
   } else {
     const casts = await prisma.farcasterCast.findMany({
       where: {
