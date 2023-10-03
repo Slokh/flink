@@ -7,7 +7,7 @@ export default function Home({ params, searchParams }: CastsQuery) {
   const isTop = params.url[params.url.length - 1] === "top";
   const url = (isTop ? params.url.slice(0, -1) : params.url).join("/");
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full">
       <div className="flex flex-row items-center justify-between border-b pl-2">
         <a
           href={`https://${url}`}

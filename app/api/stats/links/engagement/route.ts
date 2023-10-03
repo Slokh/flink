@@ -45,7 +45,7 @@ export async function GET(request: Request) {
           (1 * posts + 0.5 * replies + 0.5 * likes + 0.25 * recasts) as engagement
       FROM (
           SELECT
-              LOWER(url) AS url,
+              url,
               (jsonb_agg("contentMetadata"))[1] as "contentMetadata",
               COUNT(DISTINCT CASE WHEN "FarcasterCast"."parentCast" IS NULL THEN "FarcasterCast"."hash" ELSE NULL END) as posts,
               COUNT(DISTINCT CASE WHEN "FarcasterCast"."parentCast" IS NOT NULL THEN "FarcasterCast"."hash" ELSE NULL END) as replies,
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
           WHERE "FarcasterCastReaction"."timestamp" > NOW() - ${`${curHours} hour`}::INTERVAL
               AND "contentType" NOT LIKE 'image%'
               AND parsed AND "url" NOT LIKE 'chain://%' AND "url" NOT LIKE 'warpcast.com/%'
-          GROUP BY LOWER(url)
+          GROUP BY url
       ) as subquery
       ORDER BY engagement DESC;
     `,
@@ -72,7 +72,7 @@ export async function GET(request: Request) {
           (1 * posts + 0.5 * replies + 0.5 * likes + 0.25 * recasts) as engagement
       FROM (
           SELECT
-              LOWER(url) AS url,
+              url,
               (jsonb_agg("contentMetadata"))[1] as "contentMetadata",
               COUNT(DISTINCT CASE WHEN "FarcasterCast"."parentCast" IS NULL THEN "FarcasterCast"."hash" ELSE NULL END) as posts,
               COUNT(DISTINCT CASE WHEN "FarcasterCast"."parentCast" IS NOT NULL THEN "FarcasterCast"."hash" ELSE NULL END) as replies,
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
               AND "FarcasterCastReaction"."timestamp" < NOW() - ${`${curHours} hour`}::INTERVAL
               AND "contentType" NOT LIKE 'image%'
               AND parsed AND "url" NOT LIKE 'chain://%' AND "url" NOT LIKE 'warpcast.com/%'
-          GROUP BY LOWER(url)
+          GROUP BY url
       ) as subquery
       ORDER BY engagement DESC;
     `,
