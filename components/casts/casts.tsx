@@ -14,7 +14,6 @@ export const CastsTable = async ({
   searchParams,
 }: { sort: CastsSort; nav?: React.ReactNode } & CastsQuery) => {
   const page = parseInt(searchParams.page || "1");
-  const time = sort === CastsSort.Top ? searchParams.time || "day" : undefined;
   const channel = params.channel
     ? CHANNELS_BY_ID[params.channel] || {
         name: decodeURIComponent(params.channel),
@@ -25,7 +24,16 @@ export const CastsTable = async ({
         parentUrl: decodeURIComponent(params.channel),
       }
     : undefined;
-  const url = params.url ? params.url.join("/") : undefined;
+  const url = params.url
+    ? (params.url[params.url.length - 1] === "top"
+        ? params.url.slice(0, params.url.length - 1)
+        : params.url
+      ).join("/")
+    : undefined;
+  const time =
+    sort === CastsSort.Top
+      ? searchParams.time || (url ? "all" : "day")
+      : undefined;
 
   let entity;
   if (params.id) {

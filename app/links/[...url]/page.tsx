@@ -1,11 +1,14 @@
 import { CastsTable } from "@/components/casts/casts";
+import { LinksNavigation } from "@/components/navigation/links-navigation";
 import { CastsQuery, CastsSort } from "@/lib/types";
 
 export default function Home({ params, searchParams }: CastsQuery) {
-  const url = params.url?.join("/");
+  if (!params.url) return <></>;
+  const isTop = params.url[params.url.length - 1] === "top";
+  const url = (isTop ? params.url.slice(0, -1) : params.url).join("/");
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col p-4">
+      <div className="flex flex-row items-center justify-between border-b pl-2">
         <a
           href={`https://${url}`}
           target="_blank"
@@ -13,9 +16,10 @@ export default function Home({ params, searchParams }: CastsQuery) {
         >
           {url}
         </a>
+        <LinksNavigation />
       </div>
       <CastsTable
-        sort={CastsSort.New}
+        sort={isTop ? CastsSort.Top : CastsSort.New}
         params={params}
         searchParams={searchParams}
       />

@@ -92,7 +92,8 @@ export const getCastsResponseByTopLikes = async (
   replies: boolean,
   time: "hour" | "day" | "week" | "month" | "year" | "all",
   parentUrl?: string,
-  fid?: number
+  fid?: number,
+  url?: string
 ) => {
   const timeInterval = getTimeInterval(time);
 
@@ -149,6 +150,24 @@ export const getCastsResponseByTopLikes = async (
     ORDER BY COUNT(*) DESC, "targetFid" DESC
     LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
   `
+    : url
+    ? prisma.$queryRaw`
+    SELECT
+        "targetFid" AS fid,
+        "targetHash" AS hash,
+        COUNT(*) as count
+    FROM "public"."FarcasterCastReaction"
+      JOIN "public"."FarcasterCastEmbedUrl" ON "FarcasterCastEmbedUrl"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCastEmbedUrl"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE
+        "reactionType" = 'like'
+        AND "FarcasterCastEmbedUrl"."timestamp" >= NOW() - ${timeInterval}::interval
+      AND "FarcasterCastEmbedUrl"."url" LIKE ${`${url}%`}
+      AND "FarcasterCastEmbedUrl"."parsed" = true
+      AND NOT "FarcasterCastEmbedUrl"."deleted"
+    GROUP BY "targetFid", "targetHash"
+    ORDER BY COUNT(*) DESC, "targetFid" DESC
+    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
+    `
     : prisma.$queryRaw`
     SELECT
         "targetFid" AS fid,
@@ -207,21 +226,12 @@ export const getCastsResponseByNewness = async (
       LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
     `;
 
-    const casts = await prisma.farcasterCast.findMany({
-      where: {
-        OR: fidHashes.map((cast) => ({
-          fid: cast.fid,
-          hash: cast.hash,
-          deleted: false,
-        })),
-      },
-      orderBy: {
-        timestamp: "desc",
-      },
-      include: {
-        mentions: true,
-      },
-    });
+    const casts = await getCastsByFidHashes(
+      fidHashes.map((cast) => ({
+        fid: cast.fid,
+        hash: cast.hash,
+      }))
+    );
 
     return await getCastsResponse(casts.filter(Boolean));
   } else {

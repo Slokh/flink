@@ -36,7 +36,8 @@ export async function GET(
       sort === CastsSort.TopReplies,
       time || "all",
       parentUrl,
-      fidParsed
+      fidParsed,
+      urlParsed
     );
   } else if (sort === CastsSort.New || sort === CastsSort.NewReplies) {
     response = await getCastsResponseByNewness(
