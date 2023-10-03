@@ -102,7 +102,7 @@ export type Channel = {
 };
 
 export type CastsQuery = {
-  params: { id: string; channel: string };
+  params: { id: string; channel: string; url?: string[] };
   searchParams: { time?: string; page?: string; display?: string };
 };
 

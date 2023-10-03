@@ -16,6 +16,9 @@ export async function GET(
   const page = parseInt(url.searchParams.get("page") || "1");
   const sort = url.searchParams.get("sort") as CastsSort;
   const onlyParents = url.searchParams.get("all") !== "true";
+  const urlParsed = url.searchParams.get("url")
+    ? decodeURI(url.searchParams.get("url") as string)
+    : undefined;
 
   let response = [];
   if (sort === CastsSort.Hot) {
@@ -40,7 +43,8 @@ export async function GET(
       page,
       sort === CastsSort.NewReplies,
       parentUrl,
-      fidParsed
+      fidParsed,
+      urlParsed
     );
   }
 

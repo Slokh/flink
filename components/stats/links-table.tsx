@@ -21,6 +21,7 @@ import {
 } from "../ui/select";
 import { usePathname, useRouter } from "next/navigation";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import Link from "next/link";
 
 export const LinksNavigation = ({ time }: { time: string }) => {
   const router = useRouter();
@@ -151,21 +152,28 @@ export const LinksTable = ({
         const title = metadata?.title || url;
         const image = metadata?.open_graph?.images?.[0]?.url;
         return (
-          <a
-            href={`https://${url}`}
-            target="_blank"
-            className="flex flex-row items-center space-x-2"
-          >
+          <div className="flex flex-row items-center space-x-2">
             <div className="w-8 h-8">
               {image && (
                 <img src={image} alt={image} className="object-cover w-8 h-8" />
               )}
             </div>
             <div className="flex flex-col w-48 md:w-96">
-              <div className="text-semibold line-clamp-2">{title}</div>
-              <div className="truncate text-zinc-500 text-xs">{url}</div>
+              <Link
+                href={`/links/${url}`}
+                className="text-semibold line-clamp-2 hover:dark:text-purple-400 hover:text-purple-600 transition"
+              >
+                {title}
+              </Link>
+              <a
+                href={`https://${url}`}
+                target="_blank"
+                className="truncate text-zinc-500 text-xs hover:underline transition"
+              >
+                {url}
+              </a>
             </div>
-          </a>
+          </div>
         );
       },
     },

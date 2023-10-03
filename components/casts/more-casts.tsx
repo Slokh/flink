@@ -12,12 +12,14 @@ export const MoreCasts = ({
   time,
   page,
   fid,
+  url,
 }: {
   page: number;
   time?: string;
   parentUrl?: string;
   fid?: number;
   sort: CastsSort;
+  url?: string;
 }) => {
   const [casts, setCasts] = useState<FarcasterCast[]>([]);
   const [done, setDone] = useState(false);
@@ -32,7 +34,7 @@ export const MoreCasts = ({
           time ? `&time=${time}` : ""
         }${fid ? `&fid=${fid}` : ""}${
           currentPage ? `&page=${currentPage}` : ""
-        }`
+        }${url ? `&url=${encodeURI(url)}` : ""}`
       );
       const newCasts = await data.json();
       if (newCasts.length !== 25) {

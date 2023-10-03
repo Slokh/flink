@@ -189,32 +189,67 @@ export const getCastsResponseByNewness = async (
   page: number,
   replies: boolean,
   parentUrl?: string,
-  fid?: number
+  fid?: number,
+  url?: string
 ) => {
-  const casts = await prisma.farcasterCast.findMany({
-    where: {
-      parentCast: replies
-        ? {
-            not: null,
-          }
-        : {
-            equals: null,
-          },
-      ...(parentUrl ? { parentUrl } : {}),
-      ...(fid ? { fid } : {}),
-      deleted: false,
-    },
-    orderBy: {
-      timestamp: "desc",
-    },
-    include: {
-      mentions: true,
-    },
-    take: PAGE_SIZE,
-    skip: (page - 1) * PAGE_SIZE,
-  });
+  if (url) {
+    const fidHashes: FidHash[] = await prisma.$queryRaw`
+      SELECT
+        "FarcasterCastEmbedUrl"."fid",
+        "FarcasterCastEmbedUrl"."hash",
+        MAX("FarcasterCastEmbedUrl"."timestamp") AS timestamp
+      FROM "public"."FarcasterCastEmbedUrl"
+      WHERE
+        "FarcasterCastEmbedUrl"."url" LIKE ${`${url}%`}
+        AND "FarcasterCastEmbedUrl"."parsed" = true
+      GROUP BY 1, 2
+      ORDER BY "timestamp" DESC
+      LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
+    `;
 
-  return await getCastsResponse(casts.filter(Boolean));
+    const casts = await prisma.farcasterCast.findMany({
+      where: {
+        OR: fidHashes.map((cast) => ({
+          fid: cast.fid,
+          hash: cast.hash,
+          deleted: false,
+        })),
+      },
+      orderBy: {
+        timestamp: "desc",
+      },
+      include: {
+        mentions: true,
+      },
+    });
+
+    return await getCastsResponse(casts.filter(Boolean));
+  } else {
+    const casts = await prisma.farcasterCast.findMany({
+      where: {
+        parentCast: replies
+          ? {
+              not: null,
+            }
+          : {
+              equals: null,
+            },
+        ...(parentUrl ? { parentUrl } : {}),
+        ...(fid ? { fid } : {}),
+        deleted: false,
+      },
+      orderBy: {
+        timestamp: "desc",
+      },
+      include: {
+        mentions: true,
+      },
+      take: PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
+    });
+
+    return await getCastsResponse(casts.filter(Boolean));
+  }
 };
 
 export const getCastsResponseByFid = async (page: number, fid?: number) => {

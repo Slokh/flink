@@ -25,6 +25,7 @@ export const CastsTable = async ({
         parentUrl: decodeURIComponent(params.channel),
       }
     : undefined;
+  const url = params.url ? params.url.join("/") : undefined;
 
   let entity;
   if (params.id) {
@@ -49,7 +50,8 @@ export const CastsTable = async ({
     channel?.parentUrl,
     time,
     entity?.fid,
-    true
+    true,
+    url
   );
 
   return (
@@ -75,6 +77,7 @@ export const CastsTable = async ({
             parentUrl={channel?.parentUrl}
             time={time}
             fid={entity?.fid}
+            url={url}
           />
         </div>
       </ScrollArea>

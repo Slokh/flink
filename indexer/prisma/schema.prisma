@@ -109,6 +109,7 @@ model FarcasterCastEmbedUrl {
 
     @@id([fid, hash, url])
     @@index([contentType, parsed])
+    @@index([url, parsed])
 }
 
 model FarcasterCastEmbedCast {

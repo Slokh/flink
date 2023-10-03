@@ -56,7 +56,7 @@ export async function GET(request: Request) {
               JOIN "public"."FarcasterCastReaction" ON "FarcasterCastReaction"."targetFid" = "FarcasterCastEmbedUrl"."fid" AND "FarcasterCastReaction"."targetHash" = "FarcasterCastEmbedUrl"."hash"
           WHERE "FarcasterCastReaction"."timestamp" > NOW() - ${`${curHours} hour`}::INTERVAL
               AND "contentType" NOT LIKE 'image%'
-              AND parsed AND "url" NOT LIKE 'chain://%'
+              AND parsed AND "url" NOT LIKE 'chain://%' AND "url" NOT LIKE 'warpcast.com/%'
           GROUP BY LOWER(url)
       ) as subquery
       ORDER BY engagement DESC;
@@ -84,7 +84,7 @@ export async function GET(request: Request) {
           WHERE "FarcasterCastReaction"."timestamp" > NOW() - ${`${prevHours} hour`}::INTERVAL
               AND "FarcasterCastReaction"."timestamp" < NOW() - ${`${curHours} hour`}::INTERVAL
               AND "contentType" NOT LIKE 'image%'
-              AND parsed AND "url" NOT LIKE 'chain://%'
+              AND parsed AND "url" NOT LIKE 'chain://%' AND "url" NOT LIKE 'warpcast.com/%'
           GROUP BY LOWER(url)
       ) as subquery
       ORDER BY engagement DESC;
