@@ -57,7 +57,7 @@ export const Nav = () => {
           </div>
         </div>
         <div className="flex flex-row text-sm font-medium items-center space-x-2">
-          {/* <NewCastButton /> */}
+          <NewCastButton />
           <AuthButton />
         </div>
       </div>

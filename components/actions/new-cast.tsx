@@ -332,9 +332,9 @@ export const NewCastButton = () => (
       </DialogHeader>
     }
   >
-    <div className="flex flex-row space-x-2 items-center font-semibold rounded-md bg-foreground text-background p-2 text-center">
+    <div className="flex flex-row space-x-2 items-center font-medium rounded-md bg-foreground text-background p-2 text-sm text-center h-8">
       <PlusIcon />
-      New cast
+      New
     </div>
   </NewCastDialog>
 );
