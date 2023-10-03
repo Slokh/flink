@@ -50,7 +50,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     const data: { users: AuthenticatedUser[] } = await res.json();
     setUsers(data.users);
     if (fid) {
+      localStorage.setItem("fid", fid.toString());
       setUser(data.users.find((u) => u.fid === fid));
+    } else if (localStorage.getItem("fid")) {
+      setUser(
+        data.users.find(
+          (u) => u.fid === parseInt(localStorage.getItem("fid") ?? "")
+        )
+      );
     } else {
       setUser(data.users[0]);
     }
@@ -86,6 +93,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   const changeUser = (fid: string) => {
+    localStorage.setItem("fid", fid);
     setUser(users.find((u) => u.fid === parseInt(fid)));
   };
 

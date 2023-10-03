@@ -197,7 +197,7 @@ const NewCastContent = ({ parent }: { parent?: string }) => {
         url: embed.url,
       })),
     ];
-    const res = await fetch("/api/casts", {
+    const res = await fetch(`/api/auth/${user?.fid}/casts`, {
       method: "POST",
       body: JSON.stringify({
         text: values.text,

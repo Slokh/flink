@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export const POST: RouteHandlerWithSession = ironSessionWrapper(
-  async (request) => {
+  async (request, { params }) => {
     const address = request.session.siwe?.data.address;
     if (!address) {
       return NextResponse.json(
@@ -19,8 +19,9 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    const signer = await prisma.user.findUnique({
-      where: { address: address.toLowerCase() },
+    const fid = parseInt(params.fid as string);
+    const signer = await prisma.user.findFirst({
+      where: { address: address.toLowerCase(), fid },
     });
     if (!signer?.signerUuid) {
       return NextResponse.json(
@@ -58,7 +59,7 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
 );
 
 export const DELETE: RouteHandlerWithSession = ironSessionWrapper(
-  async (request) => {
+  async (request, { params }) => {
     const address = request.session.siwe?.data.address;
     if (!address) {
       return NextResponse.json({
@@ -68,8 +69,9 @@ export const DELETE: RouteHandlerWithSession = ironSessionWrapper(
       });
     }
 
-    const signer = await prisma.user.findUnique({
-      where: { address },
+    const fid = parseInt(params.fid as string);
+    const signer = await prisma.user.findFirst({
+      where: { address: address.toLowerCase(), fid },
     });
     if (!signer?.signerUuid) {
       return NextResponse.json({

@@ -26,7 +26,7 @@ export const RecastCast = ({
     setIsRecastd(!isRecastd);
     setTotalRecasts(isRecastd ? totalRecasts - 1 : totalRecasts + 1);
     const method = isRecastd ? "DELETE" : "POST";
-    await fetch("/api/reactions", {
+    await fetch(`/api/auth/${user?.fid}/reactions`, {
       method,
       body: JSON.stringify({
         target: hash,

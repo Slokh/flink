@@ -34,7 +34,7 @@ export const DeleteCast = ({
 
   const handleDelete = async () => {
     setLoading(true);
-    await fetch("/api/casts", {
+    await fetch(`/api/auth/${user?.fid}/casts`, {
       method: "DELETE",
       body: JSON.stringify({
         target_hash: hash,

@@ -26,7 +26,7 @@ export const LikeCast = ({
     setIsLiked(!isLiked);
     setTotalLikes(isLiked ? totalLikes - 1 : totalLikes + 1);
     const method = isLiked ? "DELETE" : "POST";
-    await fetch("/api/reactions", {
+    await fetch(`/api/auth/${user?.fid}/reactions`, {
       method,
       body: JSON.stringify({
         target: hash,

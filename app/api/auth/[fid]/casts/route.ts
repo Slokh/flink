@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export const POST: RouteHandlerWithSession = ironSessionWrapper(
-  async (request) => {
+  async (request, { params }) => {
     const address = request.session.siwe?.data.address;
     if (!address) {
       return NextResponse.json(
@@ -19,8 +19,9 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    const signer = await prisma.user.findUnique({
-      where: { address: address.toLowerCase() },
+    const fid = parseInt(params.fid as string);
+    const signer = await prisma.user.findFirst({
+      where: { address: address.toLowerCase(), fid },
     });
     if (!signer?.signerUuid) {
       return NextResponse.json(
@@ -33,35 +34,36 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    const data = await fetch(
-      "https://api.neynar.com/v2/farcaster/user/follow",
-      {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          api_key: process.env.NEYNAR_API_KEY as string,
-        },
-        body: JSON.stringify({
-          signer_uuid: signer.signerUuid,
-          ...(await request.json()),
-        }),
-      }
-    );
+    const data = await fetch("https://api.neynar.com/v2/farcaster/cast", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        api_key: process.env.NEYNAR_API_KEY as string,
+      },
+      body: JSON.stringify({
+        signer_uuid: signer.signerUuid,
+        ...(await request.json()),
+      }),
+    });
+
+    const res = await data.json();
 
     if (!data.ok) {
       return NextResponse.json({
         status: data.status,
         statusText: data.statusText,
-        error: await data.json(),
+        error: res,
       });
     }
 
-    return NextResponse.json({});
+    const { cast } = await res;
+
+    return NextResponse.json(cast);
   }
 );
 
 export const DELETE: RouteHandlerWithSession = ironSessionWrapper(
-  async (request) => {
+  async (request, { params }) => {
     const address = request.session.siwe?.data.address;
     if (!address) {
       return NextResponse.json(
@@ -74,8 +76,9 @@ export const DELETE: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    const signer = await prisma.user.findUnique({
-      where: { address: address.toLowerCase() },
+    const fid = parseInt(params.fid as string);
+    const signer = await prisma.user.findFirst({
+      where: { address: address.toLowerCase(), fid },
     });
     if (!signer?.signerUuid) {
       return NextResponse.json(
@@ -88,20 +91,17 @@ export const DELETE: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    const data = await fetch(
-      "https://api.neynar.com/v2/farcaster/user/follow",
-      {
-        method: "DELETE",
-        headers: {
-          "content-type": "application/json",
-          api_key: process.env.NEYNAR_API_KEY as string,
-        },
-        body: JSON.stringify({
-          signer_uuid: signer.signerUuid,
-          ...(await request.json()),
-        }),
-      }
-    );
+    const data = await fetch("https://api.neynar.com/v2/farcaster/cast", {
+      method: "DELETE",
+      headers: {
+        "content-type": "application/json",
+        api_key: process.env.NEYNAR_API_KEY as string,
+      },
+      body: JSON.stringify({
+        signer_uuid: signer.signerUuid,
+        ...(await request.json()),
+      }),
+    });
 
     if (!data.ok) {
       return NextResponse.json({

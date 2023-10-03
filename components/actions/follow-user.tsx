@@ -15,7 +15,7 @@ export const FollowUser = ({ fid }: { fid: number }) => {
   const handleFollow = async () => {
     setIsFollowing(!isFollowing);
     const method = isFollowing ? "DELETE" : "POST";
-    await fetch("/api/follows", {
+    await fetch(`/api/auth/${user?.fid}/follows`, {
       method,
       body: JSON.stringify({
         target_fids: [fid],
