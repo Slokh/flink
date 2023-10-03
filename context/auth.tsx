@@ -27,13 +27,8 @@ export type SignerState = {
 };
 
 type State = {
-  address?: `0x${string}`;
   authState: UserAuthState;
   verifyMessage: () => void;
-  signerApprovalUrl?: string;
-  isVerifying?: boolean;
-
-  watchForLatestSigner: () => Promise<void>;
 };
 
 type AuthContextType = State | undefined;
@@ -48,12 +43,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { address, isConnected } = useAccount();
   const { chain } = useNetwork();
   const { signMessageAsync } = useSignMessage();
-  const [signerState, setSignerState] = useState<SignerState | undefined>();
   const [verifiedAddress, setVerifiedAddress] = useState<string | undefined>();
-  const [isVerifying, setIsVerifying] = useState(false);
 
   const verifyMessage = async () => {
-    setIsVerifying(true);
     try {
       const chainId = chain?.id;
       if (!address || !chainId) return;
@@ -87,7 +79,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error) {
       console.error(error);
     }
-    setIsVerifying(false);
   };
 
   const getVerifiedAddress = async () => {
@@ -97,18 +88,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return address;
   };
 
-  const fetchSigner = async (): Promise<SignerState> => {
-    const res = await fetch(`/api/signer`);
-    return await res.json();
-  };
-
-  const watchForLatestSigner = async () => {
-    const signer = await fetchSigner();
-    if (!signer?.fid) return;
-    setSignerState(signer);
-    setAuthState(UserAuthState.LOGGED_IN);
-  };
-
   useEffect(() => {
     const handler = async () => {
       if (!address) {
@@ -116,27 +95,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return;
       }
 
-      const verifiedAddress = await getVerifiedAddress();
-      if (!verifiedAddress || verifiedAddress !== address) {
-        setSignerState(undefined);
+      const currentAddress = await getVerifiedAddress();
+      if (!currentAddress || currentAddress !== address) {
         setAuthState(UserAuthState.CONNECTED);
-        return;
-      }
-
-      let signer = await fetchSigner();
-      setSignerState(signer);
-      if (!signer.signerApprovalUrl && !signer.fid) {
-        setAuthState(UserAuthState.VERIFIED);
-        return;
-      }
-
-      if (!signer.fid) {
-        setAuthState(UserAuthState.NEEDS_APPROVAL);
         return;
       }
 
       setAuthState(UserAuthState.LOGGED_IN);
     };
+
     handler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, verifiedAddress, isConnected]);
@@ -145,9 +112,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     address,
     authState,
     verifyMessage,
-    signerApprovalUrl: signerState?.signerApprovalUrl,
-    watchForLatestSigner,
-    isVerifying,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

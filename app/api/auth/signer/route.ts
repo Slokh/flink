@@ -20,86 +20,57 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    const user = await prisma.user.findFirst({
+    const existingSigner = await prisma.user.findFirst({
       where: {
         address: address.toLowerCase(),
+        signerStatus: "pending_approval",
       },
     });
-
-    if (user?.fid) {
+    if (existingSigner) {
       return NextResponse.json({
-        signerUuid: user.signerUuid,
-        signerStatus: user.signerStatus,
-        signerPublicKey: user.signerPublicKey,
-        signerApprovalUrl: user.signerApprovalUrl,
-        fid: user.fid,
+        signerUuid: existingSigner.signerUuid,
+        signerStatus: existingSigner.signerStatus,
+        signerPublicKey: existingSigner.signerPublicKey,
+        signerApprovalUrl: existingSigner.signerApprovalUrl,
       });
     }
 
-    let signer;
-    if (!user?.signerUuid) {
-      const newData = await fetch(
-        "https://api.neynar.com/v2/farcaster/signer",
-        {
-          method: "POST",
-          headers: {
-            api_key: process.env.NEYNAR_API_KEY as string,
-          },
-        }
-      );
-      const newSigner = await newData.json();
-      const { signature, appFid, deadline } = await signMessage(
-        newSigner.public_key
-      );
-      const data = await fetch(
-        "https://api.neynar.com/v2/farcaster/signer/signed_key",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            api_key: process.env.NEYNAR_API_KEY as string,
-          },
-          body: JSON.stringify({
-            signer_uuid: newSigner.signer_uuid,
-            app_fid: appFid,
-            deadline: deadline,
-            signature: signature,
-          }),
-        }
-      );
-      signer = await data.json();
-    } else if (!user?.fid) {
-      const data = await fetch(
-        `https://api.neynar.com/v2/farcaster/signer?signer_uuid=${user.signerUuid}`,
-        {
-          method: "GET",
-          headers: {
-            api_key: process.env.NEYNAR_API_KEY as string,
-          },
-          cache: "no-store",
-        }
-      );
-      signer = await data.json();
-    }
+    const newData = await fetch("https://api.neynar.com/v2/farcaster/signer", {
+      method: "POST",
+      headers: {
+        api_key: process.env.NEYNAR_API_KEY as string,
+      },
+    });
+    const newSigner = await newData.json();
+    const { signature, appFid, deadline } = await signMessage(
+      newSigner.public_key
+    );
+    const data = await fetch(
+      "https://api.neynar.com/v2/farcaster/signer/signed_key",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          api_key: process.env.NEYNAR_API_KEY as string,
+        },
+        body: JSON.stringify({
+          signer_uuid: newSigner.signer_uuid,
+          app_fid: appFid,
+          deadline: deadline,
+          signature: signature,
+        }),
+      }
+    );
 
-    await prisma.user.upsert({
-      where: {
-        address: address.toLowerCase(),
-      },
-      create: {
+    const signer = await data.json();
+
+    await prisma.user.create({
+      data: {
         address: address.toLowerCase(),
         signerUuid: signer.signer_uuid,
         signerStatus: signer.status,
         signerPublicKey: signer.public_key,
         signerApprovalUrl: signer.signer_approval_url,
-        fid: signer.fid,
-      },
-      update: {
-        signerUuid: signer.signer_uuid,
-        signerStatus: signer.status,
-        signerPublicKey: signer.public_key,
-        signerApprovalUrl: signer.signer_approval_url,
-        fid: signer.fid,
       },
     });
 

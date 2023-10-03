@@ -10,7 +10,10 @@ import { UserAuthState, useAuth } from "./auth";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type State = {
+  users: AuthenticatedUser[];
   user?: AuthenticatedUser;
+  changeUser: (fid: string) => void;
+  addNewUser: (fid: number) => void;
 
   channels: string[];
   addChannel: (url: string) => void;
@@ -18,6 +21,8 @@ type State = {
 
   displayMode: DisplayMode;
   changeDisplayMode: (mode: DisplayMode) => void;
+
+  isLoading: boolean;
 };
 
 type UserContextType = State | undefined;
@@ -27,6 +32,7 @@ const UserContext = createContext<UserContextType>(undefined);
 
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [channels, setChannels] = useState<string[]>([]);
+  const [users, setUsers] = useState<AuthenticatedUser[]>([]);
   const [user, setUser] = useState<AuthenticatedUser | undefined>();
   const router = useRouter();
   const pathname = usePathname();
@@ -36,16 +42,24 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       ? DisplayMode.Images
       : DisplayMode.Default;
   const { authState } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+
+  const initialize = async (fid?: number) => {
+    const res = await fetch(`/api/auth/users`);
+    if (!res.ok) return;
+    const data: { users: AuthenticatedUser[] } = await res.json();
+    setUsers(data.users);
+    if (fid) {
+      setUser(data.users.find((u) => u.fid === fid));
+    } else {
+      setUser(data.users[0]);
+    }
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    const handle = async () => {
-      const res = await fetch(`/api/preferences`);
-      if (!res.ok) return;
-      setUser(await res.json());
-    };
-
     if (authState === UserAuthState.LOGGED_IN) {
-      handle();
+      initialize();
     }
   }, [authState]);
 
@@ -71,15 +85,27 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     router.push(`${pathname}${newQuery ? `?${newQuery}` : ""}`);
   };
 
+  const changeUser = (fid: string) => {
+    setUser(users.find((u) => u.fid === parseInt(fid)));
+  };
+
+  const addNewUser = async (fid: number) => {
+    await initialize(fid);
+  };
+
   return (
     <UserContext.Provider
       value={{
+        users,
         user,
         channels,
         displayMode,
         addChannel,
         removeChannel,
         changeDisplayMode,
+        changeUser,
+        addNewUser,
+        isLoading,
       }}
     >
       {children}

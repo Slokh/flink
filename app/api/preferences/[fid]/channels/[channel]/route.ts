@@ -41,9 +41,11 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
+    const fid = parseInt(params.fid as string);
     const user = await prisma.user.findFirst({
       where: {
         address: address.toLowerCase(),
+        fid,
       },
     });
 
@@ -61,9 +63,12 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
       .filter((c) => c !== parentUrl)
       .concat([parentUrl]);
 
-    await prisma.user.update({
-      where: { address: address.toLowerCase() },
-      data: { preferences: preferences },
+    await prisma.userPreferences.upsert({
+      where: {
+        address_fid: { address: address.toLowerCase(), fid },
+      },
+      create: { address: address.toLowerCase(), fid, preferences },
+      update: { preferences },
     });
 
     return NextResponse.json({});
@@ -104,9 +109,11 @@ export const DELETE: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
+    const fid = parseInt(params.fid as string);
     const user = await prisma.user.findFirst({
       where: {
         address: address.toLowerCase(),
+        fid,
       },
     });
 
@@ -122,9 +129,12 @@ export const DELETE: RouteHandlerWithSession = ironSessionWrapper(
 
     preferences.channels = channels.filter((c) => c !== parentUrl);
 
-    await prisma.user.update({
-      where: { address: address.toLowerCase() },
-      data: { preferences: preferences },
+    await prisma.userPreferences.upsert({
+      where: {
+        address_fid: { address: address.toLowerCase(), fid },
+      },
+      create: { address: address.toLowerCase(), fid, preferences },
+      update: { preferences },
     });
 
     return NextResponse.json({});

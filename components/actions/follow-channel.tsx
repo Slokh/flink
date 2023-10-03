@@ -23,18 +23,19 @@ export const FollowChannel = () => {
   const handleFollow = async () => {
     if (isFollowing) {
       setIsFollowing(false);
-      await fetch(`/api/preferences/channels/${channelId}`, {
+      await fetch(`/api/preferences/${user?.fid}/channels/${channelId}`, {
         method: "DELETE",
       });
       removeChannel(channel);
     } else {
       setIsFollowing(true);
-      await fetch(`/api/preferences/channels/${channelId}`, {
+      await fetch(`/api/preferences/${user?.fid}/channels/${channelId}`, {
         method: "POST",
       });
       addChannel(channel);
     }
   };
+
   if (!user) return <></>;
 
   return (

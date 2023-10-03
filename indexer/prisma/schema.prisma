@@ -232,7 +232,7 @@ model Backfill {
 }
 
 model User {
-    address           String   @id
+    address           String
     signerUuid        String
     signerStatus      String
     signerPublicKey   String
@@ -240,4 +240,14 @@ model User {
     fid               Int?
     timestamp         DateTime @default(now())
     preferences       Json?
+
+    @@id([address, signerUuid])
+}
+
+model UserPreferences {
+    address     String
+    fid         Int
+    preferences Json?
+
+    @@id([address, fid])
 }

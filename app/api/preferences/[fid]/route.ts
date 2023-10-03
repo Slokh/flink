@@ -7,7 +7,7 @@ import { AuthenticatedUser } from "@/lib/types";
 import { NextResponse } from "next/server";
 
 export const GET: RouteHandlerWithSession = ironSessionWrapper(
-  async (request) => {
+  async (request, { params }) => {
     const address = request.session.siwe?.data.address;
     if (!address) {
       return NextResponse.json(
@@ -20,9 +20,11 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
+    const fid = parseInt(params.fid as string);
     const user = await prisma.user.findFirst({
       where: {
         address: address.toLowerCase(),
+        fid,
       },
     });
     if (!user?.fid) {
@@ -36,40 +38,46 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    const [account, likes, recasts, casts, follows] = await Promise.all([
-      prisma.farcaster.findFirst({
-        where: {
-          fid: user.fid,
-        },
-      }),
-      prisma.farcasterCastReaction.findMany({
-        where: {
-          fid: user.fid,
-          reactionType: "like",
-          deleted: false,
-        },
-      }),
-      prisma.farcasterCastReaction.findMany({
-        where: {
-          fid: user.fid,
-          reactionType: "recast",
-          deleted: false,
-        },
-      }),
-      prisma.farcasterCast.findMany({
-        where: {
-          fid: user.fid,
-          deleted: false,
-        },
-      }),
-      prisma.farcasterLink.findMany({
-        where: {
-          fid: user.fid,
-          deleted: false,
-          linkType: "follow",
-        },
-      }),
-    ]);
+    const [account, likes, recasts, casts, follows, preferences] =
+      await Promise.all([
+        prisma.farcaster.findFirst({
+          where: {
+            fid: user.fid,
+          },
+        }),
+        prisma.farcasterCastReaction.findMany({
+          where: {
+            fid: user.fid,
+            reactionType: "like",
+            deleted: false,
+          },
+        }),
+        prisma.farcasterCastReaction.findMany({
+          where: {
+            fid: user.fid,
+            reactionType: "recast",
+            deleted: false,
+          },
+        }),
+        prisma.farcasterCast.findMany({
+          where: {
+            fid: user.fid,
+            deleted: false,
+          },
+        }),
+        prisma.farcasterLink.findMany({
+          where: {
+            fid: user.fid,
+            deleted: false,
+            linkType: "follow",
+          },
+        }),
+        prisma.userPreferences.findFirst({
+          where: {
+            fid: user.fid,
+          },
+        }),
+      ]);
 
     return NextResponse.json({
       fid: account?.fid,
@@ -93,7 +101,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
         acc[cur.targetFid] = true;
         return acc;
       }, {} as Record<string, boolean>),
-      preferences: user?.preferences,
+      preferences: preferences?.preferences || { channels: [] },
     } as AuthenticatedUser);
   }
 );
