@@ -63,7 +63,7 @@ export const NavigationGroup = ({
   className?: string;
 }) => (
   <div
-    className={`flex flex-row space-x-2 overflow-auto overflow-x-scroll whitespace-nowrap${
+    className={`flex flex-row space-x-2 overflow-auto overflow-x-scroll whitespace-nowrap h-12 items-center px-2 ${
       className ? ` ${className}` : ""
     }`}
   >
@@ -72,7 +72,7 @@ export const NavigationGroup = ({
 );
 
 export const Navigation = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 justify-between p-2 border-b h-12">
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b">
     {children}
   </div>
 );

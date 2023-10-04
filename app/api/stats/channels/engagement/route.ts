@@ -46,7 +46,7 @@ export async function GET(
             sum(recasts) as recasts,
             sum(replies) as replies,
             sum(posts) as posts,
-            sum(1 * posts + 0.5 * replies + 0.1 * likes + 0.25 * recasts) as engagement
+            sum(1 * posts + 0.5 * replies + 0.25 * likes + 0.25 * recasts) as engagement
         FROM "public"."FarcasterChannelStats"
         WHERE timestamp > NOW() - ${`${curHours} hour`}::INTERVAL
             AND url <> 'uncategorized'
@@ -60,7 +60,7 @@ export async function GET(
             sum(recasts) as recasts,
             sum(replies) as replies,
             sum(posts) as posts,
-            sum(1 * posts + 0.5 * replies + 0.1 * likes + 0.25 * recasts) as engagement
+            sum(1 * posts + 0.5 * replies + 0.25 * likes + 0.25 * recasts) as engagement
         FROM "public"."FarcasterChannelStats"
         WHERE timestamp > NOW() - ${`${prevHours} hour`}::INTERVAL
             AND timestamp < NOW() - ${`${curHours} hour`}::INTERVAL

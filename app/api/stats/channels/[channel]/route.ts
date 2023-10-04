@@ -31,7 +31,7 @@ const getChannelStats = async (channel: string) => {
       sum(replies) as replies,
       sum(likes) as likes,
       sum(recasts) as recasts,
-      sum(1 * posts + 0.5 * replies + 0.1 * likes + 0.25 * recasts) as engagement
+      sum(1 * posts + 0.5 * replies + 0.25 * likes + 0.25 * recasts) as engagement
     FROM "public"."FarcasterChannelStats"
     WHERE url = ${channel}
     GROUP BY day
@@ -61,7 +61,7 @@ const getChannelUsers = async (channel: string, time: string) => {
       sum(liked) as liked,
       sum(recasted) as recasted,
       sum(mentions) as mentions,
-      sum(1 * posts + 0.5 * replies + 0.1 * liked + 0.25 * recasted) as engagement
+      sum(1 * posts + 0.5 * replies + 0.25 * liked + 0.25 * recasted) as engagement
     FROM "public"."FarcasterUserStats"
     WHERE url = ${channel}
       AND "timestamp" >= NOW() -  ${timeInterval}::interval

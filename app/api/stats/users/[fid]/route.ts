@@ -32,7 +32,7 @@ const getUserStats = async (fid: number) => {
       sum(liked) as liked,
       sum(recasted) as recasted,
       sum(mentions) as mentions,
-      sum(1 * posts + 0.5 * replies + 0.1 * liked + 0.25 * recasted) as engagement
+      sum(1 * posts + 0.5 * replies + 0.25 * liked + 0.25 * recasted) as engagement
     FROM "public"."FarcasterUserStats"
     WHERE fid = ${fid}
     GROUP BY day
@@ -65,7 +65,7 @@ const getUserChannels = async (fid: number, time: string) => {
       sum(liked) as liked,
       sum(recasted) as recasted,
       sum(mentions) as mentions,
-      sum(1 * posts + 0.5 * replies + 0.1 * liked + 0.25 * recasted) as engagement
+      sum(1 * posts + 0.5 * replies + 0.25 * liked + 0.25 * recasted) as engagement
     FROM "public"."FarcasterUserStats"
     WHERE fid = ${fid}
       AND "timestamp" >= NOW() -  ${timeInterval}::interval

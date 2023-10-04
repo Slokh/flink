@@ -42,7 +42,7 @@ export async function GET(request: Request) {
           replies,
           likes,
           recasts,
-          (1 * posts + 0.5 * replies + 0.5 * likes + 0.25 * recasts) as engagement
+          (1 * posts + 0.5 * replies + 0.25 * likes + 0.25 * recasts) as engagement
       FROM (
           SELECT
               url,
@@ -69,7 +69,7 @@ export async function GET(request: Request) {
           replies,
           likes,
           recasts,
-          (1 * posts + 0.5 * replies + 0.5 * likes + 0.25 * recasts) as engagement
+          (1 * posts + 0.5 * replies + 0.25 * likes + 0.25 * recasts) as engagement
       FROM (
           SELECT
               url,

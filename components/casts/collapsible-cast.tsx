@@ -33,7 +33,7 @@ export const CollapsibleCast = ({
     <Collapsible
       open={open}
       onOpenChange={() => setOpen(!open)}
-      className="flex flex-row"
+      className="flex flex-row pr-16"
     >
       <div className="flex flex-col items-center">
         {open && (
