@@ -161,7 +161,7 @@ export const getCastsResponseByTopLikes = async (
     WHERE
         "reactionType" = 'like'
         AND "FarcasterCastEmbedUrl"."timestamp" >= NOW() - ${timeInterval}::interval
-      AND "FarcasterCastEmbedUrl"."url" LIKE ${`${url}%`}
+      AND "FarcasterCastEmbedUrl"."url" LIKE ${`%${url}%`}
       AND "FarcasterCastEmbedUrl"."parsed" = true
       AND NOT "FarcasterCastEmbedUrl"."deleted"
     GROUP BY "targetFid", "targetHash"
