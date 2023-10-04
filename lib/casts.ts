@@ -219,7 +219,7 @@ export const getCastsResponseByNewness = async (
         MAX("FarcasterCastEmbedUrl"."timestamp") AS timestamp
       FROM "public"."FarcasterCastEmbedUrl"
       WHERE
-        "FarcasterCastEmbedUrl"."url" LIKE ${`${url}%`}
+        "FarcasterCastEmbedUrl"."url" LIKE ${`%${url}%`}
         AND "FarcasterCastEmbedUrl"."parsed" = true
       GROUP BY 1, 2
       ORDER BY "timestamp" DESC
