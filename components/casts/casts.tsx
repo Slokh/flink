@@ -58,7 +58,7 @@ export const CastsTable = async ({
     channel?.parentUrl,
     time,
     entity?.fid,
-    true,
+    false,
     url
   );
 
