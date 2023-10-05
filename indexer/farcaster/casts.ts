@@ -24,7 +24,7 @@ import { FarcasterCast } from "@prisma/client";
 export const handleCastMessages = async (
   client: Client,
   messages: Message[],
-  withReactions = false
+  disableEmbeds: boolean
 ) => {
   if (messages.length === 0) return [];
 
@@ -73,12 +73,9 @@ export const handleCastMessages = async (
     allCastDatas,
     allNewCastDatas
   );
-  await upsertCastDatas(finalCastDatas);
+  await upsertCastDatas(finalCastDatas, disableEmbeds);
 
   const promises = [extractKeywordsFromCasts(finalCastDatas)];
-  if (withReactions) {
-    promises.push(extractReactionsFromCasts(client, finalCastDatas));
-  }
   await Promise.all(promises);
 
   return finalCastDatas;

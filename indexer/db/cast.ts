@@ -64,7 +64,10 @@ export const getCast = async (fid: number, hash: string) => {
   });
 };
 
-export const upsertCastDatas = async (castDatas: CastData[]) => {
+export const upsertCastDatas = async (
+  castDatas: CastData[],
+  disableEmbeds: boolean
+) => {
   const casts = castDatas.map(({ cast }) => cast);
   const castMentions = castDatas.map(({ castMentions }) => castMentions).flat();
   const castEmbedCasts = castDatas
@@ -80,7 +83,7 @@ export const upsertCastDatas = async (castDatas: CastData[]) => {
   await Promise.all([
     upsertCastMentions(castMentions),
     upsertCastEmbedCasts(castEmbedCasts),
-    upsertCastEmbedUrls(castEmbedUrls),
+    upsertCastEmbedUrls(castEmbedUrls, disableEmbeds),
   ]);
 
   return casts;
@@ -139,13 +142,18 @@ export const upsertCastEmbedCasts = async (castEmbedCasts: CastEmbedCast[]) => {
   }
 };
 
-export const upsertCastEmbedUrls = async (castEmbedUrls: CastEmbedUrl[]) => {
-  const castEmbedUrlsWithMimeTypes = await Promise.all(
-    castEmbedUrls.map(async (castEmbedUrl) => ({
-      ...castEmbedUrl,
-      ...(await getEmbedMetadata(castEmbedUrl.url)),
-    }))
-  );
+export const upsertCastEmbedUrls = async (
+  castEmbedUrls: CastEmbedUrl[],
+  disableEmbeds: boolean
+) => {
+  const castEmbedUrlsWithMimeTypes = disableEmbeds
+    ? castEmbedUrls
+    : await Promise.all(
+        castEmbedUrls.map(async (castEmbedUrl) => ({
+          ...castEmbedUrl,
+          ...(await getEmbedMetadata(castEmbedUrl.url)),
+        }))
+      );
 
   for (let i = 0; i < castEmbedUrlsWithMimeTypes.length; i += BATCH_SIZE) {
     const batch = castEmbedUrlsWithMimeTypes.slice(i, i + BATCH_SIZE);

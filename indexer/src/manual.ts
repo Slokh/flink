@@ -17,7 +17,7 @@ const run = async () => {
     const hash = args[2];
     const message = await client.getCast(fid, hash);
     if (message) {
-      await handleCastMessages(client, [message]);
+      await handleCastMessages(client, [message], false);
     }
   }
 };

@@ -1,5 +1,5 @@
 import { FARCASTER_EPOCH, Message } from "@farcaster/hub-nodejs";
-import { FarcasterLink } from "../db/farcaster";
+import { FarcasterLink, upsertFarcaster } from "../db/farcaster";
 import { handleCastMessages } from "../farcaster/casts";
 import { Client, getHubClient } from "../farcaster/hub";
 import { generateLinkData } from "../farcaster/link";
@@ -11,20 +11,28 @@ import {
   upsertCastReactions,
   upsertUrlReactions,
 } from "../db/reaction";
+import { handleUserUpdate } from "../farcaster/users";
 
 const START_TIMESTAMP = 0;
 const END_TIMESTAMP = 1695580536000000;
 
 const backfill = async () => {
   const client = await getHubClient();
-  // let currentFid = await getCurrentFid();
   let currentFid = 1;
-  for (let fid = currentFid; fid < 25000; fid++) {
+  for (let fid = currentFid; fid < 30000; fid++) {
     // await handleUserUpdate(client, fid);
-    // await handleFidCasts(client, fid);
-    // await handleReactions(client, fid);
-    await handleLinks(client, fid);
-    // await prisma.backfill.create({ data: { fid } });
+
+    const farcasterUser = await client.getFarcasterUser(fid);
+    if (!farcasterUser) {
+      return;
+    }
+    await upsertFarcaster(farcasterUser);
+
+    await Promise.all([
+      await handleFidCasts(client, fid),
+      await handleReactions(client, fid),
+      await handleLinks(client, fid),
+    ]);
   }
 };
 
@@ -38,7 +46,7 @@ const handleFidCasts = async (client: Client, fid: number) => {
     if (response.isOk()) {
       const messages = response.value.messages.filter(isValidTimestamp);
       console.log(`[backfill-links] [${fid}] found ${messages.length} casts`);
-      await handleCastMessages(client, messages);
+      await handleCastMessages(client, messages, true);
       pageToken = response.value.nextPageToken;
     } else {
       throw new Error(
