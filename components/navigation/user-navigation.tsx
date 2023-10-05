@@ -13,7 +13,7 @@ import {
   NavigationSelect,
 } from "./navigation";
 
-export const UserNavigation = ({}: {}) => {
+export const UserNavigation = () => {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();

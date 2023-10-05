@@ -4,6 +4,16 @@ import {
 } from "@/lib/iron-session";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { createPublicClient, http, parseAbiItem } from "viem";
+import { optimism } from "viem/chains";
+
+const FROM_BLOCK = BigInt(108869029);
+const ID_REGISTRY_ADDRESS = "0x00000000FcAf86937e41bA038B4fA40BAA4B780A";
+
+const client = createPublicClient({
+  chain: optimism,
+  transport: http(process.env.OPTIMISM_RPC_URL as string),
+});
 
 export const GET: RouteHandlerWithSession = ironSessionWrapper(
   async (request, { params }) => {
@@ -26,11 +36,42 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       },
     });
 
+    const mappedUsers = await Promise.all(
+      users.map(({ fid }) => getUserData(fid!))
+    );
+    const primaryUser = await getPrimaryUser(address as `0x${string}`);
+
     return NextResponse.json({
-      users: await Promise.all(users.map(({ fid }) => getUserData(fid!))),
+      users: mappedUsers,
+      primary: {
+        ...primaryUser,
+        requiresSigner:
+          primaryUser && !users.some(({ fid }) => fid === primaryUser?.fid),
+      },
     });
   }
 );
+
+const getPrimaryUser = async (address: `0x${string}`) => {
+  const fid = await client.readContract({
+    address: ID_REGISTRY_ADDRESS,
+    abi: [parseAbiItem("function idOf(address owner) view returns (uint256)")],
+    functionName: "idOf",
+    args: [address],
+  });
+  if (!fid) return;
+
+  const account = await prisma.farcaster.findFirst({
+    where: { fid: Number(fid) },
+  });
+  return {
+    fid: account?.fid,
+    fname: account?.fname,
+    pfp: account?.pfp,
+    bio: account?.bio,
+    display: account?.display,
+  };
+};
 
 const getUserData = async (fid: number) => {
   const [account, likes, recasts, casts, follows, preferences] =
