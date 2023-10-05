@@ -1,6 +1,10 @@
 import { FARCASTER_EPOCH, Message } from "@farcaster/hub-nodejs";
 import { FarcasterLink, upsertFarcaster } from "../db/farcaster";
-import { handleCastMessages } from "../farcaster/casts";
+import {
+  extractKeywordsFromCasts,
+  handleCastMessages,
+  messagesToCastDatas,
+} from "../farcaster/casts";
 import { Client, getHubClient } from "../farcaster/hub";
 import { generateLinkData } from "../farcaster/link";
 import prisma from "../lib/prisma";
@@ -17,21 +21,23 @@ const END_TIMESTAMP = 1695580536000000;
 
 const backfill = async () => {
   const client = await getHubClient();
-  let currentFid = 30000;
-  for (let fid = currentFid; fid >= 1; fid--) {
+  let currentFid = 1;
+  for (let fid = currentFid; fid <= 21000; fid++) {
     // await handleUserUpdate(client, fid);
 
-    const farcasterUser = await client.getFarcasterUser(fid);
-    if (!farcasterUser) {
-      return;
-    }
-    await upsertFarcaster(farcasterUser);
+    // const farcasterUser = await client.getFarcasterUser(fid);
+    // if (!farcasterUser) {
+    //   return;
+    // }
+    // await upsertFarcaster(farcasterUser);
 
-    await Promise.all([
-      await handleFidCasts(client, fid),
-      await handleReactions(client, fid),
-      await handleLinks(client, fid),
-    ]);
+    // await Promise.all([
+    //   await handleFidCasts(client, fid),
+    // await handleReactions(client, fid),
+    // await handleLinks(client, fid),
+    // ]);
+
+    await handleFidCasts(client, fid);
   }
 };
 
@@ -44,8 +50,10 @@ const handleFidCasts = async (client: Client, fid: number) => {
     });
     if (response.isOk()) {
       const messages = response.value.messages.filter(isValidTimestamp);
-      console.log(`[backfill-links] [${fid}] found ${messages.length} casts`);
-      await handleCastMessages(client, messages, true);
+      console.log(`[backfill-casts] [${fid}] found ${messages.length} casts`);
+      // await handleCastMessages(client, messages, true, true);
+      const casts = messagesToCastDatas(messages);
+      await extractKeywordsFromCasts(casts);
       pageToken = response.value.nextPageToken;
     } else {
       throw new Error(

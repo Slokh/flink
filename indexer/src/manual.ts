@@ -17,7 +17,7 @@ const run = async () => {
     const hash = args[2];
     const message = await client.getCast(fid, hash);
     if (message) {
-      await handleCastMessages(client, [message], false);
+      await handleCastMessages(client, [message], false, false);
     }
   }
 };
@@ -34,7 +34,7 @@ const handleFidCasts = async (client: Client, fid: number) => {
     });
     if (response.isOk()) {
       const messages = response.value.messages;
-      await handleCastMessages(client, messages, true);
+      await handleCastMessages(client, messages, false, false);
       hashes.push(...messages.map((m) => convertToHex(m.hash)));
 
       pageToken = response.value.nextPageToken;

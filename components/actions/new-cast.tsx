@@ -32,6 +32,7 @@ import { CastContent } from "../casts/cast-thread";
 import { ScrollArea } from "../ui/scroll-area";
 import { EmbedPreview } from "../embeds";
 import { useUser } from "@/context/user";
+import { FileUpload } from "../file-upload";
 
 const formSchema = z.object({
   text: z.string().refine(
@@ -46,76 +47,6 @@ const formSchema = z.object({
   ),
   embeds: z.array(z.string().url()).max(2),
 });
-
-const NewCastFileUpload = ({
-  onFileUpload,
-  isDisabled,
-}: {
-  onFileUpload: (embed: Embed) => void;
-  isDisabled: boolean;
-}) => {
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && !isDisabled) {
-      const file = e.target.files[0];
-      // Read the file as a data URL (base64)
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = async () => {
-        const base64data: string = reader.result as string;
-
-        // Remove the prefix that says what kind of data it is
-        const base64string = base64data.split(",")[1];
-
-        const res = await fetch("https://imgur-apiv3.p.rapidapi.com/3/image", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Client-ID 2c72c9f7fc84329",
-            "X-RapidApi-Key":
-              "0bb3ce13d0msh95902c15e7eb132p153594jsn33b6ad91d004",
-          },
-          body: JSON.stringify({ image: base64string }),
-        });
-
-        if (res.status !== 200) {
-          return;
-        }
-
-        const { data } = await res.json();
-        onFileUpload({
-          url: data.link,
-          urlHost: "imgur.com",
-          contentType: "image/png",
-          parsed: false,
-        });
-      };
-    }
-  };
-
-  return (
-    <>
-      <label htmlFor="embed">
-        {isDisabled ? (
-          <div className="p-2 cursor-pointer border rounded-lg text-zinc-500">
-            <CameraIcon className="h-4 w-4" />
-          </div>
-        ) : (
-          <div className="p-2 cursor-pointer border rounded-lg">
-            <CameraIcon className="h-4 w-4" />
-          </div>
-        )}
-      </label>
-      <Input
-        id="embed"
-        type="file"
-        className="hidden"
-        onChange={handleFileSelect}
-        disabled={isDisabled}
-        accept="image/*"
-      />
-    </>
-  );
-};
 
 const NewCastContent = ({ parent }: { parent?: string }) => {
   const [loading, setLoading] = useState(true);
@@ -278,10 +209,30 @@ const NewCastContent = ({ parent }: { parent?: string }) => {
           </div>
         </ScrollArea>
         <div className="flex flex-row justify-between items-center mt-2 space-x-2">
-          <NewCastFileUpload
+          <FileUpload
             isDisabled={files.length + embeds.length >= 2}
-            onFileUpload={(file) => setFiles([...files, file])}
-          />
+            onFileUpload={(url) =>
+              setFiles([
+                ...files,
+                {
+                  url,
+                  urlHost: "imgur.com",
+                  contentType: "image/png",
+                  parsed: false,
+                },
+              ])
+            }
+          >
+            {files.length + embeds.length >= 2 ? (
+              <div className="p-2 cursor-pointer border rounded-lg text-zinc-500">
+                <CameraIcon className="h-4 w-4" />
+              </div>
+            ) : (
+              <div className="p-2 cursor-pointer border rounded-lg">
+                <CameraIcon className="h-4 w-4" />
+              </div>
+            )}
+          </FileUpload>
           <div className="flex flex-row space-x-2 items-center">
             {!loading && !parent && (
               <ChannelSelect

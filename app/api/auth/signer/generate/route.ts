@@ -20,49 +20,16 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    const existingSigner = await prisma.user.findFirst({
-      where: {
-        address: address.toLowerCase(),
-        signerStatus: "pending_approval",
-      },
-    });
-    if (existingSigner) {
-      return NextResponse.json({
-        signerUuid: existingSigner.signerUuid,
-        signerStatus: existingSigner.signerStatus,
-        signerPublicKey: existingSigner.signerPublicKey,
-        signerApprovalUrl: existingSigner.signerApprovalUrl,
-      });
-    }
-
-    const newData = await fetch("https://api.neynar.com/v2/farcaster/signer", {
+    const data = await fetch("https://api.neynar.com/v2/farcaster/signer", {
       method: "POST",
       headers: {
         api_key: process.env.NEYNAR_API_KEY as string,
       },
     });
-    const newSigner = await newData.json();
-    const { signature, appFid, deadline } = await signMessage(
-      newSigner.public_key
-    );
-    const data = await fetch(
-      "https://api.neynar.com/v2/farcaster/signer/signed_key",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          api_key: process.env.NEYNAR_API_KEY as string,
-        },
-        body: JSON.stringify({
-          signer_uuid: newSigner.signer_uuid,
-          app_fid: appFid,
-          deadline: deadline,
-          signature: signature,
-        }),
-      }
-    );
-
     const signer = await data.json();
+    const { signature, appFid, deadline, appAddress } = await signMessage(
+      signer.public_key
+    );
 
     await prisma.user.create({
       data: {
@@ -70,7 +37,6 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
         signerUuid: signer.signer_uuid,
         signerStatus: signer.status,
         signerPublicKey: signer.public_key,
-        signerApprovalUrl: signer.signer_approval_url,
       },
     });
 
@@ -78,8 +44,10 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       signerUuid: signer.signer_uuid,
       signerStatus: signer.status,
       signerPublicKey: signer.public_key,
-      signerApprovalUrl: signer.signer_approval_url,
-      fid: signer.fid,
+      signature,
+      appFid,
+      deadline,
+      address: appAddress,
     });
   }
 );
@@ -122,5 +90,6 @@ const signMessage = async (publicKey: `0x${string}`) => {
     signature,
     appFid,
     deadline,
+    appAddress: account.address,
   };
 };

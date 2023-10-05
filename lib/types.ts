@@ -116,6 +116,7 @@ export type AuthenticatedUser = {
   pfp?: string;
   display?: string;
   bio?: string;
+  requiresSigner?: boolean;
   likes: { [key: string]: boolean };
   recasts: { [key: string]: boolean };
   casts: { [key: string]: boolean };
@@ -178,3 +179,11 @@ export enum DisplayMode {
   Links = "links",
   Images = "images",
 }
+
+export type TransferRequest = {
+  to: `0x${string}`;
+  fid: number;
+  signature: `0x${string}`;
+  deadline: number;
+  fname: string;
+};

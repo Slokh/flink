@@ -6,8 +6,8 @@ import { Analytics } from "@vercel/analytics/react";
 import "@rainbow-me/rainbowkit/styles.css";
 import WalletProvider from "./wallet";
 import { Nav } from "@/components/nav";
-import { Separator } from "@/components/ui/separator";
 import { ChannelSidebar } from "@/components/channels/channel-sidebar";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -82,6 +82,7 @@ export default function RootLayout({
                 </div>
               </div>
             </div>
+            <Toaster />
           </WalletProvider>
         </ThemeProvider>
         <Analytics />

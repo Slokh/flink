@@ -8,7 +8,7 @@ import {
   NavigationSelect,
 } from "./navigation";
 
-export const LinksNavigation = ({}: {}) => {
+export const LinksNavigation = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
