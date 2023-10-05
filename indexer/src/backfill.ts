@@ -17,8 +17,8 @@ const END_TIMESTAMP = 1695580536000000;
 
 const backfill = async () => {
   const client = await getHubClient();
-  let currentFid = 30000;
-  for (let fid = currentFid; fid >= 1; fid--) {
+  let currentFid = 10605;
+  for (let fid = currentFid; fid <= 21000; fid++) {
     // await handleUserUpdate(client, fid);
 
     const farcasterUser = await client.getFarcasterUser(fid);

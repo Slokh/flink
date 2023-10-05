@@ -54,6 +54,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       signers: Object.keys(activeKeys)
         .map((key) => ({
           key,
+          fid: Number(activeKeys[key].fid),
           timestamp: Number(activeKeys[key].timestamp),
           transactionHash: activeKeys[key].transactionHash,
           user: userMap[Number(activeKeys[key].fid)],
@@ -62,6 +63,17 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
     });
   }
 );
+
+export const getFidForAddress = async (address: `0x${string}`) => {
+  return await client.readContract({
+    address: ID_REGISTRY_ADDRESS,
+    abi: [
+      parseAbiItem("function idOf(address account) view returns (uint256 fid)"),
+    ],
+    functionName: "idOf",
+    args: [address],
+  });
+};
 
 const getAddressForFid = async (fid: bigint) => {
   const transferLogs = await client.getLogs({

@@ -5,6 +5,8 @@ import { Button } from "../ui/button";
 import { useSignTypedData } from "wagmi";
 import { Loading } from "../loading";
 import { TransferRequest } from "@/lib/types";
+import { formatDistanceStrict } from "date-fns";
+import { useUser } from "@/context/user";
 
 const ID_REGISTRY_ADDRESS = "0x00000000FcAf86937e41bA038B4fA40BAA4B780A";
 
@@ -31,7 +33,45 @@ export const AdvancedSettings = () => {
 };
 
 const TransferOwnership = () => {
+  const { primary, isLoading } = useUser();
+
+  if (isLoading) return <Loading />;
+  if (primary) return <TransferOwnershipAccept />;
   return <TransferOwnershipCreate />;
+};
+
+const TransferOwnershipAccept = () => {
+  const [transferReqeusts, setTransferRequests] = useState<TransferRequest[]>(
+    []
+  );
+
+  useEffect(() => {
+    const handle = async () => {
+      const res = await fetch(`/api/auth/transfers/requests`);
+      const { transferRequests } = await res.json();
+      setTransferRequests(transferRequests);
+    };
+    handle();
+  }, []);
+
+  return (
+    <div className="mt-8 mx-2 max-w-md">
+      <div className="text-xl font-semibold">Accept Ownership Transfers</div>
+      <div className="text-zinc-500 text-sm">
+        The following requests have been made to transfer ownership of your
+        Farcaster account.
+      </div>
+      {transferReqeusts.map(({ to }) => (
+        <div
+          key={to}
+          className="flex flex-row items-center p-1 pt-2 justify-between"
+        >
+          <div className="text-sm">{to}</div>
+          <Button size="sm">Accept</Button>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 const TransferOwnershipCreate = () => {
@@ -121,10 +161,11 @@ const TransferOwnershipCreate = () => {
 
   return (
     <div className="mt-8 mx-2 max-w-md">
-      <div className="text-xl font-semibold">Ownership Transfers</div>
+      <div className="text-xl font-semibold">Request Ownership Transfers</div>
       <div className="text-zinc-500 text-sm">
         This wallet currently does not own a Farcaster account. You can initiate
-        a request to transfer one to this wallet.
+        a request to transfer one to this wallet. Creating a new transfer
+        request will replace any pending request.
       </div>
       <div className="mt-2 flex flex-row space-x-2">
         <Input
@@ -139,16 +180,20 @@ const TransferOwnershipCreate = () => {
       {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
       {pending && (
         <>
-          <div className="mt-4 text-xl font-semibold">Pending Transfer</div>
+          <div className="mt-4 text-md font-semibold">Pending Transfer</div>
           <div className="text-zinc-500 text-sm">
-            Creating a new transfer request will replace this pending request.
+            Please connect with the wallet that owns this account to complete
+            the transfer.
           </div>
-          <div className="flex flex-row justify-between items-center">
-            <div className="flex flex-row space-x-1">
-              <div>{pending.fname}</div>
-              <div>{`(fid: ${pending.fid}`}</div>
+          <div className="mt-2 flex flex-row justify-between items-center">
+            <div className="flex flex-row space-x-1 items-center">
+              <div className="font-semibold">{pending.fname}</div>
+              <div className="text-zinc-500 text-sm">{`(fid: ${pending.fid})`}</div>
             </div>
-            <div>{`expires in ${pending.deadline}`}</div>
+            <div className="text-sm">{`expires in ${formatDistanceStrict(
+              new Date(pending.deadline * 1000),
+              new Date()
+            )}`}</div>
           </div>
         </>
       )}

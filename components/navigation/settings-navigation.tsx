@@ -9,25 +9,25 @@ export const SettingsNavigation = () => {
     <Navigation>
       <NavigationGroup>
         <NavigationButton
-          href={`/${params.id}/settings`}
+          href={`/settings`}
           isSelected={pathname.endsWith("settings")}
         >
           Profile
         </NavigationButton>
         <NavigationButton
-          href={`/${params.id}/settings/apps`}
+          href={`/settings/apps`}
           isSelected={pathname.endsWith("apps")}
         >
           Apps
         </NavigationButton>
         <NavigationButton
-          href={`/${params.id}/settings/storage`}
+          href={`/settings/storage`}
           isSelected={pathname.endsWith("storage")}
         >
           Storage
         </NavigationButton>
         <NavigationButton
-          href={`/${params.id}/settings/advanced`}
+          href={`/settings/advanced`}
           isSelected={pathname.endsWith("advanced")}
         >
           Advanced

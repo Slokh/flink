@@ -29,6 +29,7 @@ type SignerData = {
   address: `0x${string}`;
   ok: boolean;
   signers: {
+    fid: number;
     key: `0x${string}`;
     user: FarcasterUser;
     transactionHash: string;
@@ -95,21 +96,21 @@ export const AppSettings = () => {
           </AlertDescription>
         </Alert>
       )}
-      {data.signers.map(({ key, user, transactionHash, timestamp }) => (
+      {data.signers.map(({ key, fid, user, transactionHash, timestamp }) => (
         <div key={key} className="flex flex-row p-2 items-center">
           <div className="w-80">
             <Link
-              href={`/${user.fname}`}
+              href={`/${user?.fname}`}
               className="flex flex-row space-x-2 items-center text-sm"
             >
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user.pfp} className="object-cover" />
+                <AvatarImage src={user?.pfp} className="object-cover" />
                 <AvatarFallback>?</AvatarFallback>
               </Avatar>
               <div className="flex flex-col space-y-1">
                 <div className="flex flex-row space-x-1">
-                  <div>{user.display || user.fname || user.fid}</div>
-                  <div className="text-zinc-500">{`@${user.fname}`}</div>
+                  <div>{user?.display || user?.fname || user?.fid || fid}</div>
+                  <div className="text-zinc-500">{`@${user?.fname}`}</div>
                 </div>
                 <div className="text-purple-600 dark:text-purple-400">
                   {formatHash(key)}
