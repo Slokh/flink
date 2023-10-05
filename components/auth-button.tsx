@@ -21,7 +21,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { FarcasterUser } from "@/lib/types";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
-import { ExclamationTriangleIcon, GearIcon } from "@radix-ui/react-icons";
+import {
+  ArrowRightIcon,
+  ExclamationTriangleIcon,
+  GearIcon,
+} from "@radix-ui/react-icons";
 import { useContractWrite, useDisconnect, useSwitchNetwork } from "wagmi";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -159,6 +163,17 @@ export const AuthButton = () => {
         )}
         {primary?.requiresSigner && <AddSigner />}
         <AddAccount />
+        {!primary && (
+          <Link
+            href={`/settings/advanced`}
+            className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border"
+          >
+            <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+              <ArrowRightIcon className="h-4 w-4 fill-current" />
+            </span>
+            Transfer account
+          </Link>
+        )}
         <DropdownMenuSeparator />
         <Link
           href={`/settings`}
@@ -176,6 +191,7 @@ export const AuthButton = () => {
             if (pathname.includes("settings")) {
               router.push("/");
             }
+            localStorage.setItem("fid", "");
           }}
         >
           Log out
@@ -326,7 +342,7 @@ export const AddSigner = () => {
   );
 };
 
-const AddAccount = () => {
+export const AddAccount = () => {
   const [open, setOpen] = useState(false);
   const [signer, setSigner] = useState<SignerState | undefined>();
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>();

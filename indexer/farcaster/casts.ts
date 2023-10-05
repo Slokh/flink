@@ -24,7 +24,8 @@ import { FarcasterCast } from "@prisma/client";
 export const handleCastMessages = async (
   client: Client,
   messages: Message[],
-  disableEmbeds: boolean
+  disableEmbeds: boolean,
+  disableKeywords: boolean
 ) => {
   if (messages.length === 0) return [];
 
@@ -75,8 +76,9 @@ export const handleCastMessages = async (
   );
   await upsertCastDatas(finalCastDatas, disableEmbeds);
 
-  const promises = [extractKeywordsFromCasts(finalCastDatas)];
-  await Promise.all(promises);
+  if (!disableKeywords) {
+    await extractKeywordsFromCasts(finalCastDatas);
+  }
 
   return finalCastDatas;
 };
@@ -144,7 +146,7 @@ const getCastDatasWithParents = async (
   });
 };
 
-const extractKeywordsFromCasts = async (casts: CastData[]) => {
+export const extractKeywordsFromCasts = async (casts: CastData[]) => {
   const batchSize = 100;
   const keywords = [];
 

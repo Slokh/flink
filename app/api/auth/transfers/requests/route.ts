@@ -28,6 +28,9 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
     const transferRequests = await prisma.farcasterTransferRequests.findMany({
       where: {
         fid: Number(fid),
+        to: {
+          not: address.toLowerCase(),
+        },
       },
     });
 

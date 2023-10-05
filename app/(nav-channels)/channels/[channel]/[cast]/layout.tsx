@@ -40,9 +40,9 @@ export const generateMetadata = async ({
     };
   }
 
-  const { display, fname, fid } = cast.user;
-
-  const title = `${display || fname || fid} ${fname ? `(@${fname})` : ""}`;
+  const title = `${cast.user?.display || cast.user?.fname || cast.user?.fid} ${
+    cast.user?.fname ? `(@${cast.user?.fname})` : ""
+  }`;
   const description = formatText(cast.text, cast.mentions, cast.embeds, true);
   const { previewImage } = getPreview(cast.embeds);
 

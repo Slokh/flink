@@ -2,11 +2,27 @@
 import { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useSignTypedData } from "wagmi";
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  useSignTypedData,
+} from "wagmi";
 import { Loading } from "../loading";
 import { TransferRequest } from "@/lib/types";
 import { formatDistanceStrict } from "date-fns";
 import { useUser } from "@/context/user";
+import { parseAbiItem } from "viem";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { Loading as LoadingIcon } from "@/components/loading";
 
 const ID_REGISTRY_ADDRESS = "0x00000000FcAf86937e41bA038B4fA40BAA4B780A";
 
@@ -29,10 +45,6 @@ const types = {
 };
 
 export const AdvancedSettings = () => {
-  return <TransferOwnership />;
-};
-
-const TransferOwnership = () => {
   const { primary, isLoading } = useUser();
 
   if (isLoading) return <Loading />;
@@ -41,6 +53,7 @@ const TransferOwnership = () => {
 };
 
 const TransferOwnershipAccept = () => {
+  const [loading, setLoading] = useState(true);
   const [transferReqeusts, setTransferRequests] = useState<TransferRequest[]>(
     []
   );
@@ -50,27 +63,110 @@ const TransferOwnershipAccept = () => {
       const res = await fetch(`/api/auth/transfers/requests`);
       const { transferRequests } = await res.json();
       setTransferRequests(transferRequests);
+      setLoading(false);
     };
     handle();
   }, []);
+
+  if (loading) return <Loading />;
 
   return (
     <div className="mt-8 mx-2 max-w-md">
       <div className="text-xl font-semibold">Accept Ownership Transfers</div>
       <div className="text-zinc-500 text-sm">
-        The following requests have been made to transfer ownership of your
-        Farcaster account.
+        If you would like to transfer your Farcaster account to another wallet,
+        you need to log in with that wallet to initiate the transfer.
       </div>
-      {transferReqeusts.map(({ to }) => (
+      {transferReqeusts.length > 0 && (
+        <div className="text-zinc-500 text-sm">
+          The following requests have been made to transfer ownership of your
+          Farcaster account.
+        </div>
+      )}
+      {transferReqeusts.map((request) => (
         <div
-          key={to}
-          className="flex flex-row items-center p-1 pt-2 justify-between"
+          key={request.to}
+          className="flex flex-row items-center p-1 pt-4 justify-between"
         >
-          <div className="text-sm">{to}</div>
-          <Button size="sm">Accept</Button>
+          <div className="flex flex-col">
+            <div className="text-sm">{request.to}</div>
+            <div className="text-zinc-500">{`expires in ${formatDistanceStrict(
+              new Date(request.deadline * 1000),
+              new Date()
+            )}`}</div>
+          </div>
+          <AcceptButton request={request} />
         </div>
       ))}
     </div>
+  );
+};
+
+const AcceptButton = ({ request }: { request: TransferRequest }) => {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const { writeAsync, isSuccess } = useContractWrite({
+    address: ID_REGISTRY_ADDRESS,
+    abi: [
+      parseAbiItem(
+        "function transfer(address to, uint256 deadline, bytes calldata sig) external"
+      ),
+    ],
+    functionName: "transfer",
+  });
+
+  const handleAccept = async () => {
+    setIsLoading(true);
+    try {
+      await writeAsync({
+        args: [request.to, BigInt(request.deadline), request.signature],
+      });
+    } catch (e) {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const handle = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      setOpen(false);
+      window.location.reload();
+    };
+    if (isSuccess) {
+      handle();
+    }
+  }, [isSuccess]);
+
+  if (loading) return <Loading />;
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button size="sm">Accept</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will give full permission over this Farcaster account to the
+            wallet that initiated the transfer request.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <Button
+            onClick={() => setOpen(false)}
+            disabled={isLoading}
+            variant="outline"
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleAccept} disabled={isLoading}>
+            {isLoading ? <LoadingIcon /> : "Accept"}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
@@ -81,6 +177,14 @@ const TransferOwnershipCreate = () => {
   const [pending, setPending] = useState<TransferRequest | undefined>(
     undefined
   );
+  const { address } = useAccount();
+
+  const { data: nonce } = useContractRead({
+    address: ID_REGISTRY_ADDRESS,
+    abi: [parseAbiItem("function nonces(address) view returns (uint256)")],
+    functionName: "nonces",
+    args: address ? [address] : undefined,
+  });
 
   const { signTypedDataAsync } = useSignTypedData({
     domain,
@@ -129,8 +233,8 @@ const TransferOwnershipCreate = () => {
         types,
         message: {
           fid: user.fid,
-          to: ID_REGISTRY_ADDRESS,
-          nonce: Math.floor(Math.random() * 1000000),
+          to: address,
+          nonce,
           deadline,
         },
       });

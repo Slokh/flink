@@ -30,7 +30,7 @@ const run = async () => {
 };
 
 const handleCastAdd = async (client: Client, message: Message) => {
-  const castData = await handleCastMessages(client, [message], false);
+  const castData = await handleCastMessages(client, [message], false, false);
   for (const data of castData) {
     console.log(`[cast-add] [${data.fid}] added cast ${data.hash}`);
   }

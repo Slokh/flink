@@ -43,11 +43,13 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
 
     return NextResponse.json({
       users: mappedUsers,
-      primary: {
-        ...primaryUser,
-        requiresSigner:
-          primaryUser && !users.some(({ fid }) => fid === primaryUser?.fid),
-      },
+      primary: primaryUser
+        ? {
+            ...primaryUser,
+            requiresSigner:
+              primaryUser && !users.some(({ fid }) => fid === primaryUser?.fid),
+          }
+        : undefined,
     });
   }
 );
@@ -64,6 +66,8 @@ const getPrimaryUser = async (address: `0x${string}`) => {
   const account = await prisma.farcaster.findFirst({
     where: { fid: Number(fid) },
   });
+  if (!account) return;
+
   return {
     fid: account?.fid,
     fname: account?.fname,

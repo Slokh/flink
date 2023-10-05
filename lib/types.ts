@@ -181,9 +181,9 @@ export enum DisplayMode {
 }
 
 export type TransferRequest = {
-  to: string;
+  to: `0x${string}`;
   fid: number;
-  signature: string;
+  signature: `0x${string}`;
   deadline: number;
   fname: string;
 };

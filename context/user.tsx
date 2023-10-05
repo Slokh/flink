@@ -69,11 +69,9 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   useEffect(() => {
-    setIsLoading(true);
     if (authState === UserAuthState.LOGGED_IN) {
+      setIsLoading(true);
       initialize();
-    } else {
-      setIsLoading(false);
     }
   }, [authState]);
 

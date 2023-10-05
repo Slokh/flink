@@ -22,6 +22,7 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
+import { AddAccount } from "../auth-button";
 
 const KEY_REGISTRY_ADDRESS = "0x00000000fC9e66f1c6d86D750B4af47fF0Cc343d";
 
@@ -41,12 +42,11 @@ const formatHash = (address: string) =>
   `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 
 export const AppSettings = () => {
-  const { user, primary } = useUser();
+  const { user, primary, isLoading } = useUser();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<SignerData | undefined>(undefined);
 
   useEffect(() => {
-    if (!primary) return;
     const handle = async () => {
       const res = await fetch(`/api/auth/${user?.fid || primary?.fid}/signers`);
       setData(await res.json());
@@ -55,9 +55,23 @@ export const AppSettings = () => {
     handle();
   }, [primary, user?.fid]);
 
-  if (loading) return <Loading />;
-  if ((!primary && !user) || !data) {
-    return <></>;
+  if (isLoading || loading) return <Loading />;
+  if (!data) return <></>;
+  if (!primary && !user && !isLoading) {
+    return (
+      <div className="flex flex-col px-2">
+        <Alert>
+          <ExclamationTriangleIcon className="h-4 w-4" />
+          <AlertTitle className="font-semibold">No account</AlertTitle>
+          <AlertDescription className="space-y-2 mt-2">
+            You don&apos;t currently have any accounts linked to this wallet.
+            <div className="border rounded w-32 mt-2">
+              <AddAccount />
+            </div>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
   }
 
   return (

@@ -4,7 +4,7 @@ import {
 } from "@/lib/iron-session";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { mnemonicToAccount } from "viem/accounts";
+import { mnemonicToAccount, privateKeyToAccount } from "viem/accounts";
 
 export const GET: RouteHandlerWithSession = ironSessionWrapper(
   async (request) => {
@@ -100,7 +100,9 @@ const signMessage = async (publicKey: `0x${string}`) => {
   ];
 
   const appFid = process.env.APP_FID as string;
-  const account = mnemonicToAccount(process.env.APP_MNENOMIC as string);
+  const account = privateKeyToAccount(
+    process.env.APP_PRIVATE_KEY as `0x${string}`
+  );
 
   const deadline = Math.floor(Date.now() / 1000) + 86400;
   const signature = await account.signTypedData({
