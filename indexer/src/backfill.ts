@@ -11,15 +11,14 @@ import {
   upsertCastReactions,
   upsertUrlReactions,
 } from "../db/reaction";
-import { handleUserUpdate } from "../farcaster/users";
 
 const START_TIMESTAMP = 0;
 const END_TIMESTAMP = 1695580536000000;
 
 const backfill = async () => {
   const client = await getHubClient();
-  let currentFid = 1;
-  for (let fid = currentFid; fid < 30000; fid++) {
+  let currentFid = 30000;
+  for (let fid = currentFid; fid >= 1; fid--) {
     // await handleUserUpdate(client, fid);
 
     const farcasterUser = await client.getFarcasterUser(fid);

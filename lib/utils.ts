@@ -64,6 +64,7 @@ export const formatText = (
   let textBuffer = Buffer.from(text, "utf-8");
 
   for (let i = 0; i < mentions.length; i++) {
+    if (!mentions[i].mention) continue;
     // Assuming mentionsPositions consider newlines as bytes, so no newline adjustment
     const adjustedMentionPosition = mentions[i].position;
     const mentionUsername = mentions[i].mention.fname;
