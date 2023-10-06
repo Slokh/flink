@@ -110,9 +110,8 @@ const CastPreview = ({
             className="object-cover w-16 h-16"
           />
         </DialogTrigger>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-4xl p-0">
           <DialogHeader>
-            <DialogTitle className="h-4"></DialogTitle>
             <DialogDescription>
               <img
                 src={previewImage}
@@ -187,9 +186,9 @@ const WebCast = ({
           <div className="text-xs text-zinc-500">
             replying to{" "}
             <Link
-              href={`/${cast.parentCast?.user.fname}`}
+              href={`/${cast.parentCast?.user?.fname}`}
               className="text-purple-600 dark:text-purple-400 hover:underline"
-            >{`@${cast.parentCast?.user.fname}`}</Link>
+            >{`@${cast.parentCast?.user?.fname}`}</Link>
           </div>
         )}
         <Link
@@ -323,9 +322,9 @@ export const MobileCast = ({
         <div className="text-xs text-zinc-500">
           replying to{" "}
           <Link
-            href={`/${cast.parentCast?.user.fname}`}
+            href={`/${cast.parentCast?.user?.fname}`}
             className="text-purple-600 dark:text-purple-400 hover:underline"
-          >{`@${cast.parentCast?.user.fname}`}</Link>
+          >{`@${cast.parentCast?.user?.fname}`}</Link>
         </div>
       )}
       {isLink ? (

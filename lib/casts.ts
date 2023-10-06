@@ -287,7 +287,7 @@ export const getCastsResponseByFid = async (page: number, fid?: number) => {
   return await getCastsResponse(casts.filter(Boolean));
 };
 
-const getCastsResponse = async (casts: any) => {
+export const getCastsResponse = async (casts: any) => {
   let allCasts = casts.concat(
     await getCastsByFidHashes(
       casts

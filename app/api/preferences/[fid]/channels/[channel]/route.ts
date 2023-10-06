@@ -42,7 +42,7 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
     }
 
     const fid = parseInt(params.fid as string);
-    const user = await prisma.user.findFirst({
+    const user = await prisma.userPreferences.findFirst({
       where: {
         address: address.toLowerCase(),
         fid,

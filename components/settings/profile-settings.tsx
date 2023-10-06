@@ -32,7 +32,7 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Loading as LoadingIcon } from "@/components/loading";
-import { useAccount, useSignTypedData } from "wagmi";
+import { useAccount, useSignTypedData, useSwitchNetwork } from "wagmi";
 
 const checkBytesLength = (text: string, maxLength: number) => {
   const encoder = new TextEncoder();
@@ -228,7 +228,7 @@ const VERIFYING_CONTRACT = "0xe3be01d99baa8db9905b33a3ca391238234b79d1";
 const domain = {
   name: "Farcaster name verification",
   version: "1",
-  chainId: 10,
+  chainId: 1,
   verifyingContract: VERIFYING_CONTRACT,
 } as const;
 
@@ -242,11 +242,13 @@ const types = {
 };
 
 const ChangeUsername = ({ fid, fname }: { fid: number; fname: string }) => {
+  const [open, setOpen] = useState(false);
   const { address } = useAccount();
   const [input, setInput] = useState(fname);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { primary } = useUser();
+  const { switchNetwork } = useSwitchNetwork();
 
   const { signTypedDataAsync } = useSignTypedData({
     domain,
@@ -260,7 +262,7 @@ const ChangeUsername = ({ fid, fname }: { fid: number; fname: string }) => {
   });
 
   const handleSubmit = async () => {
-    if (!address || input === fname) return;
+    if (!address || input === fname || !switchNetwork) return;
     setIsLoading(true);
     const transfer = await fetch(
       `https://fnames.farcaster.xyz/transfers/current?name=${input}`
@@ -271,31 +273,68 @@ const ChangeUsername = ({ fid, fname }: { fid: number; fname: string }) => {
       return;
     }
 
-    const message = {
+    await switchNetwork(1);
+
+    if (fname) {
+      const message1 = {
+        name: fname,
+        owner: address,
+        timestamp: Math.floor(Date.now() / 1000),
+      };
+
+      const signature1 = await signTypedDataAsync({
+        primaryType: "UserNameProof",
+        domain,
+        types,
+        message: message1,
+      });
+
+      const submission1 = await fetch(
+        `https://fnames.farcaster.xyz/transfers`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...message1,
+            signature: signature1,
+            from: fid,
+            to: 0,
+            fid,
+          }),
+        }
+      );
+    }
+
+    const message2 = {
       name: input,
       owner: address,
       timestamp: Math.floor(Date.now() / 1000),
     };
 
-    const signature = await signTypedDataAsync({
+    const signature2 = await signTypedDataAsync({
       primaryType: "UserNameProof",
       domain,
       types,
-      message,
+      message: message2,
     });
 
-    const submission = await fetch(`https://fnames.farcaster.xyz/transfers`, {
+    const submission2 = await fetch(`https://fnames.farcaster.xyz/transfers`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        ...message,
-        signature,
+        ...message2,
+        signature: signature2,
         from: 0,
         to: fid,
         fid,
       }),
     });
-    const data = await submission.json();
-    if (submission.ok) {
+
+    if (submission2.ok) {
       window.location.reload();
       setIsLoading(false);
     }
@@ -313,14 +352,42 @@ const ChangeUsername = ({ fid, fname }: { fid: number; fname: string }) => {
           placeholder="flink"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          disabled={true || !primary}
+          disabled={!primary}
         />
-        <Button
-          onClick={handleSubmit}
-          disabled={true || input === fname || isLoading || !primary}
-        >
-          {isLoading ? <LoadingIcon /> : "Accept"}
-        </Button>
+        <AlertDialog open={open} onOpenChange={setOpen}>
+          <AlertDialogTrigger asChild>
+            <Button size="sm">Accept</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You are changing your username to{" "}
+                <b className="text-foreground">{input}</b>. This will make your
+                previous username available for anyone to claim.
+                <div className="font-semibold mt-2 text-foreground">
+                  Note: You will need to sign both messages to change your
+                  username
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <Button
+                onClick={() => setOpen(false)}
+                disabled={isLoading}
+                variant="outline"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={input === fname || isLoading || !primary}
+              >
+                {isLoading ? <LoadingIcon /> : "Accept"}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       <div className="text-sm text-red-500">{error}</div>
     </div>

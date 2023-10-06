@@ -118,7 +118,7 @@ export const LinksTable = ({
           delta !== 0 && (time === "day" || time.endsWith("our"));
         return (
           <div className="flex flex-row items-center space-x-1">
-            {delta && showDelta && (
+            {delta !== undefined && showDelta && (
               <div className="flex flex-row items-center text-xs text-zinc-500">
                 {delta > 0 ? (
                   <TriangleUpIcon className="text-green-500" />

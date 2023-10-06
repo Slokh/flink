@@ -4,7 +4,7 @@ import {
 } from "@/lib/iron-session";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { mnemonicToAccount, privateKeyToAccount } from "viem/accounts";
+import { privateKeyToAccount } from "viem/accounts";
 
 export const GET: RouteHandlerWithSession = ironSessionWrapper(
   async (request) => {

@@ -30,6 +30,7 @@ export const HotCastsForChannel = (
           JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
         WHERE "FarcasterCast"."topParentUrl" = ${parentUrl}
           AND "FarcasterCast"."parentCast" IS NULL
+          AND NOT "FarcasterCastReaction"."deleted"
         GROUP BY "targetFid", "targetHash"
     )
 
@@ -59,6 +60,7 @@ export const HotCastsForChannel = (
         FROM "public"."FarcasterCastReaction"
           JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
         WHERE "FarcasterCast"."topParentUrl" = ${parentUrl}
+          AND NOT "FarcasterCastReaction"."deleted"
         GROUP BY "targetFid", "targetHash"
     )
 
@@ -96,6 +98,7 @@ export const HotCasts = (
           JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
         WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '7 days'::interval
           AND "FarcasterCast"."parentCast" IS NULL
+          AND NOT "FarcasterCastReaction"."deleted"
         GROUP BY "targetFid", "targetHash"
     )
 
@@ -125,6 +128,7 @@ export const HotCasts = (
         FROM "public"."FarcasterCastReaction"
           JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
         WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '7 days'::interval
+          AND NOT "FarcasterCastReaction"."deleted"
         GROUP BY "targetFid", "targetHash"
     )
 
