@@ -12,7 +12,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 type State = {
   users: AuthenticatedUser[];
   user?: AuthenticatedUser;
-  primary?: AuthenticatedUser;
+  custody?: AuthenticatedUser;
   changeUser: (fid: string) => void;
   addNewUser: (fid: number) => void;
 
@@ -34,7 +34,7 @@ const UserContext = createContext<UserContextType>(undefined);
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [channels, setChannels] = useState<string[]>([]);
   const [users, setUsers] = useState<AuthenticatedUser[]>([]);
-  const [primary, setPrimary] = useState<AuthenticatedUser | undefined>();
+  const [custody, setCustody] = useState<AuthenticatedUser | undefined>();
   const [user, setUser] = useState<AuthenticatedUser | undefined>();
   const router = useRouter();
   const pathname = usePathname();
@@ -52,7 +52,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     const data: { users: AuthenticatedUser[]; primary: AuthenticatedUser } =
       await res.json();
     setUsers(data.users);
-    setPrimary(data.primary);
+    setCustody(data.primary);
     if (fid) {
       localStorage.setItem("fid", fid.toString());
       setUser(data.users.find((u) => u.fid === fid));
@@ -111,7 +111,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       value={{
         users,
         user,
-        primary,
+        custody,
         channels,
         displayMode,
         addChannel,

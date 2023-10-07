@@ -45,11 +45,55 @@ const types = {
 };
 
 export const AdvancedSettings = () => {
-  const { primary, isLoading } = useUser();
+  const { custody, isLoading } = useUser();
 
   if (isLoading) return <Loading />;
-  if (primary) return <TransferOwnershipAccept />;
-  return <TransferOwnershipCreate />;
+
+  return (
+    <div className="flex flex-col md:flex-row px-4 py-2 space-y-4 md:space-x-4 md:space-y-0 space-x-0">
+      <div className="flex flex-col space-y-1 max-w-xl">
+        <div className="font-semibold text-xl">Transfer Farcaster Account</div>
+        <div className="text-sm text-muted-foreground">
+          Every Farcaster account has a Farcaster ID, or fid, that is issued and
+          managed on-chain via the IdRegistry on Optimism. The Ethereum account
+          that owns the fid is known as the user&apos;s cutody address. The fid
+          is fully owned by the custody address and can be transferred to
+          another addres, so long as the recipient address does not currently
+          own another fid.
+        </div>
+        <div className="text-sm font-semibold pt-4">How does it work?</div>
+        <div className="text-sm text-muted-foreground">
+          There are two high-level steps to transfer a fid:
+        </div>
+        <div className="text-sm text-muted-foreground">
+          1. Log in with the Etherum wallet that you want to custody the fid.
+          Navigate to this page and request an ownership transfer for your fid
+          from your current custody address.
+        </div>
+        <div className="text-sm text-muted-foreground">
+          2. Log in with the Etherum wallet that currently custodies the fid.
+          Navigate to this page and accept the transfer request from your
+          destination custody address. This will require an on-chain transaction
+          so make sure your wallet has enough funds for gas costs.
+        </div>
+        <div className="text-sm font-semibold pt-4">For Warpcast users:</div>
+        <div className="text-sm text-muted-foreground">
+          When signing up with Warpcast, a new Etherum account is created for
+          you during onboarding. However, you may want to transfer this to a
+          wallet you regularly use for security (such as a hardware wallet) if
+          you plan to primarily use non-Warpcast clients.
+        </div>
+        <div className="text-sm font-semibold">
+          Please note that by transferring your fid, you will break
+          functionality for your account in Warpcast. We highly discourage
+          Warpcast users from using this feature for now.
+        </div>
+      </div>
+      <div className="max-w-xl">
+        {custody ? <TransferOwnershipAccept /> : <TransferOwnershipCreate />}
+      </div>
+    </div>
+  );
 };
 
 const TransferOwnershipAccept = () => {
@@ -68,17 +112,17 @@ const TransferOwnershipAccept = () => {
     handle();
   }, []);
 
-  if (loading) return <Loading />;
+  if (loading) return <></>;
 
   return (
-    <div className="mt-8 mx-2 max-w-md">
-      <div className="text-xl font-semibold">Accept Ownership Transfers</div>
-      <div className="text-zinc-500 text-sm">
+    <div className="">
+      <div className="text-xl font-semibold">Accept Transfer</div>
+      <div className="text-muted-foreground text-sm">
         If you would like to transfer your Farcaster account to another wallet,
         you need to log in with that wallet to initiate the transfer.
       </div>
       {transferReqeusts.length > 0 && (
-        <div className="text-zinc-500 text-sm">
+        <div className="text-muted-foreground text-sm">
           The following requests have been made to transfer ownership of your
           Farcaster account.
         </div>
@@ -88,9 +132,9 @@ const TransferOwnershipAccept = () => {
           key={request.to}
           className="flex flex-row items-center p-1 pt-4 justify-between"
         >
-          <div className="flex flex-col">
-            <div className="text-sm">{request.to}</div>
-            <div className="text-zinc-500">{`expires in ${formatDistanceStrict(
+          <div className="flex flex-col w-1/2">
+            <div className="text-sm truncate">{request.to}</div>
+            <div className="text-muted-foreground text-sm">{`expires in ${formatDistanceStrict(
               new Date(request.deadline * 1000),
               new Date()
             )}`}</div>
@@ -104,7 +148,6 @@ const TransferOwnershipAccept = () => {
 
 const AcceptButton = ({ request }: { request: TransferRequest }) => {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { writeAsync, isSuccess } = useContractWrite({
     address: ID_REGISTRY_ADDRESS,
@@ -138,8 +181,6 @@ const AcceptButton = ({ request }: { request: TransferRequest }) => {
     }
   }, [isSuccess]);
 
-  if (loading) return <Loading />;
-
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
@@ -148,10 +189,15 @@ const AcceptButton = ({ request }: { request: TransferRequest }) => {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
+          <div className="text-sm text-muted-foreground">
             This will give full permission over this Farcaster account to the
             wallet that initiated the transfer request.
-          </AlertDialogDescription>
+          </div>
+          <div className="text-sm text-destructive">
+            Please note that by transferring your account, you will break
+            functionality for your account in Warpcast. We highly discourage
+            Warpcast users from using this feature for now.
+          </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <Button
@@ -264,12 +310,12 @@ const TransferOwnershipCreate = () => {
   };
 
   return (
-    <div className="mt-8 mx-2 max-w-md">
-      <div className="text-xl font-semibold">Request Ownership Transfers</div>
-      <div className="text-zinc-500 text-sm">
-        This wallet currently does not own a Farcaster account. You can initiate
-        a request to transfer one to this wallet. Creating a new transfer
-        request will replace any pending request.
+    <div className="">
+      <div className="text-xl font-semibold">Request Transfer</div>
+      <div className="text-muted-foreground text-sm">
+        This wallet currently does not custody a Farcaster account. You can
+        initiate a request to transfer one to this wallet. Creating a new
+        transfer request will replace any pending request.
       </div>
       <div className="mt-2 flex flex-row space-x-2">
         <Input
@@ -285,14 +331,14 @@ const TransferOwnershipCreate = () => {
       {pending && (
         <>
           <div className="mt-4 text-md font-semibold">Pending Transfer</div>
-          <div className="text-zinc-500 text-sm">
+          <div className="text-muted-foreground text-sm">
             Please connect with the wallet that owns this account to complete
             the transfer.
           </div>
           <div className="mt-2 flex flex-row justify-between items-center">
             <div className="flex flex-row space-x-1 items-center">
               <div className="font-semibold">{pending.fname}</div>
-              <div className="text-zinc-500 text-sm">{`(fid: ${pending.fid})`}</div>
+              <div className="text-muted-foreground text-sm">{`(fid: ${pending.fid})`}</div>
             </div>
             <div className="text-sm">{`expires in ${formatDistanceStrict(
               new Date(pending.deadline * 1000),

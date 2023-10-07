@@ -40,7 +40,7 @@ export const LikeCast = ({
       {mode === "icons" ? (
         <>
           <div
-            className={`p-1 rounded-full text-zinc-500 ${
+            className={`p-1 rounded-full text-muted-foreground ${
               user
                 ? "cursor-pointer group-hover:bg-red-500/30 group-hover:text-red-500"
                 : ""

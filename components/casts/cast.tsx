@@ -170,7 +170,7 @@ const WebCast = ({
   return (
     <div className="hidden md:flex flex-row items-center border-b hover:bg-zinc-100 pl-4 hover:dark:bg-zinc-900 transition-all">
       {rank && (
-        <div className="flex w-6 items-center justify-center text-zinc-500 font-semibold">
+        <div className="flex w-6 items-center justify-center text-muted-foreground font-semibold">
           {rank}
         </div>
       )}
@@ -178,12 +178,12 @@ const WebCast = ({
         <LikeCast hash={cast.hash} likes={cast.likes} mode="icons" />
         <RecastCast hash={cast.hash} recasts={cast.recasts} mode="icons" />
       </div>
-      <div className="flex w-20 justify-center items-center text-zinc-500">
+      <div className="flex w-20 justify-center items-center text-muted-foreground">
         <CastPreview previewImage={previewImage} externalUrl={externalUrl} />
       </div>
       <div className="flex flex-col w-full p-2">
         {isReply && (
-          <div className="text-xs text-zinc-500">
+          <div className="text-xs text-muted-foreground">
             replying to{" "}
             <Link
               href={`/${cast.parentCast?.user?.fname}`}
@@ -207,12 +207,12 @@ const WebCast = ({
         </Link>
         <div className="flex flex-row space-x-1">
           <div className="flex flex-row space-x-1 items-center text-purple-600 dark:text-purple-400 text-sm">
-            <div className="text-zinc-500">
+            <div className="text-muted-foreground">
               {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
                 addSuffix: true,
               })}
             </div>
-            <div className="text-zinc-500">by</div>
+            <div className="text-muted-foreground">by</div>
             <Link href={`/${user.fname}`}>
               <Avatar className="h-4 w-4">
                 <AvatarImage src={user.pfp} className="object-cover" />
@@ -224,7 +224,7 @@ const WebCast = ({
             </Link>
             {channel && (
               <>
-                <div className="text-zinc-500">in</div>
+                <div className="text-muted-foreground">in</div>
                 <Link
                   href={`/channels/${channel.channelId}`}
                   className="hover:underline"
@@ -244,7 +244,7 @@ const WebCast = ({
             )}
           </div>
         </div>
-        <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-2">
+        <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-2">
           <Link
             href={`/${channel ? `channels/${channel.channelId}` : user.fname}/${
               cast.hash
@@ -302,7 +302,7 @@ export const MobileCast = ({
       <div className="flex flex-row items-center space-x-1 text-sm w-full justify-between">
         <div className="flex flex-row items-center space-x-1">
           {rank && (
-            <div className="flex text-zinc-500 font-semibold">{`${rank}.`}</div>
+            <div className="flex text-muted-foreground font-semibold">{`${rank}.`}</div>
           )}
           <Link href={`/${user.fname}`}>
             <Avatar className="h-4 w-4">
@@ -314,12 +314,12 @@ export const MobileCast = ({
             <div>{user.fname}</div>
           </Link>
         </div>
-        <div className="text-zinc-500">
+        <div className="text-muted-foreground">
           {formatDistanceCustom(new Date(cast.timestamp), new Date())}
         </div>
       </div>
       {isReply && (
-        <div className="text-xs text-zinc-500">
+        <div className="text-xs text-muted-foreground">
           replying to{" "}
           <Link
             href={`/${cast.parentCast?.user?.fname}`}
@@ -357,7 +357,7 @@ export const MobileCast = ({
           />
         </div>
       )}
-      <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center">
+      <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-1 items-center">
         <Link href={`/${user.fname}/${cast.hash}`} className="hover:underline">
           {`${cast.replies} replies`}
         </Link>
@@ -366,8 +366,8 @@ export const MobileCast = ({
       </div>
       {cast.embeds.length > 0 && <EmbedPreview embed={cast.embeds[0]} />}
       {channel && (
-        <div className="text-zinc-500 text-sm font-medium flex flex-row space-x-1 items-center justify-end">
-          <div className="text-zinc-500">in</div>
+        <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-1 items-center justify-end">
+          <div className="text-muted-foreground">in</div>
           <Link
             href={`/channels/${channel.channelId}`}
             className="hover:underline"

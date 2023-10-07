@@ -16,7 +16,7 @@ export const Profile = ({ entity, id }: { entity: Entity; id: string }) => (
             {entity.display?.value || id}
           </div>
           {entity.fname && (
-            <div className="text-zinc-500">{`@${entity.fname}`}</div>
+            <div className="text-muted-foreground">{`@${entity.fname}`}</div>
           )}
         </div>
         {entity.fid && <FollowUser fid={entity.fid} />}
@@ -33,7 +33,7 @@ export const Profile = ({ entity, id }: { entity: Entity; id: string }) => (
                   ? `${Math.floor(entity.following / 1000)}k`
                   : entity.following.toLocaleString("en-US")}
               </span>
-              <span className="text-sm text-zinc-500">following</span>
+              <span className="text-sm text-muted-foreground">following</span>
             </div>
             <div className="flex flex-row space-x-1 items-center">
               <span className="font-semibold">
@@ -41,7 +41,7 @@ export const Profile = ({ entity, id }: { entity: Entity; id: string }) => (
                   ? `${Math.floor(entity.followers / 1000)}k`
                   : entity.followers.toLocaleString("en-US")}
               </span>
-              <span className="text-sm text-zinc-500">followers</span>
+              <span className="text-sm text-muted-foreground">followers</span>
             </div>
           </div>
         </div>

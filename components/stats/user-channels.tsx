@@ -110,7 +110,7 @@ export const UserChannels = ({ data }: { data: UserChannelStats[] }) => {
             href={`/`}
             className="flex flex-row space-x-2 items-center hover:text-purple-600 hover:dark:text-purple-400 transition p-1"
           >
-            <div className="text-zinc-500">No Channel</div>
+            <div className="text-muted-foreground">No Channel</div>
           </a>
         ) : isUnknown ? (
           <TooltipProvider>
@@ -124,7 +124,7 @@ export const UserChannels = ({ data }: { data: UserChannelStats[] }) => {
                     <AvatarImage src={channel.image} className="object-cover" />
                     <AvatarFallback>?</AvatarFallback>
                   </Avatar>
-                  <div className="text-zinc-500">Unknown</div>
+                  <div className="text-muted-foreground">Unknown</div>
                 </a>
               </TooltipTrigger>
               <TooltipContent>

@@ -63,35 +63,55 @@ const AuthUser = ({
 export const AuthButton = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, primary, users, changeUser, isLoading } = useUser();
+  const { user, custody: primary, users, changeUser, isLoading } = useUser();
   const { authState, verifyMessage } = useAuth();
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
+  const [clickedConnect, setClickedConnect] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+
+  const handleConnect = () => {
+    setClickedConnect(true);
+    if (openConnectModal) openConnectModal();
+  };
+
+  const handleVerify = async () => {
+    setVerifying(true);
+    try {
+      await verifyMessage();
+    } catch (e) {
+      setVerifying(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authState === UserAuthState.CONNECTED && clickedConnect) {
+      verifyMessage();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authState, clickedConnect]);
 
   if (authState === UserAuthState.DISCONNECTED) {
     return (
       <Button
-        onClick={openConnectModal}
+        onClick={handleConnect}
         className="font-semibold rounded-md bg-foreground text-background p-2 pr-3 pl-3 text-center h-8"
       >
         Connect
       </Button>
     );
-  } else if (authState === UserAuthState.CONNECTED) {
+  } else if (authState === UserAuthState.CONNECTED && !verifying) {
     return (
       <Button
-        onClick={verifyMessage}
+        onClick={handleVerify}
         className="font-semibold rounded-md bg-foreground text-background p-2 pr-3 pl-3 text-center h-8"
       >
         Log in
       </Button>
     );
-  } else if (authState === UserAuthState.UNKNOWN || isLoading) {
+  } else if (authState === UserAuthState.UNKNOWN || isLoading || verifying) {
     return (
-      <div
-        onClick={verifyMessage}
-        className="font-semibold rounded-md bg-foreground text-background p-2 pr-3 pl-3 text-center h-8"
-      >
+      <div className="font-semibold rounded-md bg-foreground text-background p-2 pr-3 pl-3 text-center h-8">
         <Loading />
       </div>
     );
@@ -163,17 +183,7 @@ export const AuthButton = () => {
         )}
         {primary?.requiresSigner && <AddSigner />}
         <AddAccount />
-        {!primary && (
-          <Link
-            href={`/settings/advanced`}
-            className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border"
-          >
-            <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-              <ArrowRightIcon className="h-4 w-4 fill-current" />
-            </span>
-            Transfer account
-          </Link>
-        )}
+        {!primary && <TransferAccount />}
         <DropdownMenuSeparator />
         <Link
           href={`/settings`}
@@ -376,7 +386,7 @@ export const AddAccount = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border">
+      <DialogTrigger className="relative w-full flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border">
         <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
           <img src="/warpcast.png" alt="warpcast" />
         </span>
@@ -406,3 +416,15 @@ export const AddAccount = () => {
     </Dialog>
   );
 };
+
+export const TransferAccount = () => (
+  <Link
+    href={`/settings/advanced`}
+    className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border"
+  >
+    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <ArrowRightIcon className="h-4 w-4 fill-current" />
+    </span>
+    Transfer account
+  </Link>
+);

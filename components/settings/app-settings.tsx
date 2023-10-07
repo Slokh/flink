@@ -22,7 +22,6 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
-import { AddAccount } from "../auth-button";
 
 const KEY_REGISTRY_ADDRESS = "0x00000000fC9e66f1c6d86D750B4af47fF0Cc343d";
 
@@ -42,75 +41,61 @@ const formatHash = (address: string) =>
   `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 
 export const AppSettings = () => {
-  const { user, primary, isLoading } = useUser();
+  const { isLoading } = useUser();
+
+  if (isLoading) return <Loading />;
+
+  return (
+    <div className="flex flex-col md:flex-row px-4 py-2 space-y-4 md:space-x-4 md:space-y-0 space-x-0">
+      <div className="flex flex-col space-y-1 max-w-xl">
+        <div className="font-semibold text-xl">Manage Connected Apps</div>
+        <div className="text-sm text-muted-foreground">
+          Farcaster allows you to use as many applications as you want with the
+          same underlying account. In order to authorize different applications
+          without giving up control of your Farcaster identity, signers are
+          used. Signers delegate permissions to post to Farcaster on a
+          user&apos;s behalf to others. This requires an on-chain transaction to
+          the KeyRegistry on Optimism.
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Here you can manage your existing app connections and the signers that
+          are being used for those apps. If you no longer want to give an app
+          permission to post on behalf of you, you can remove that connection by
+          submitting a transaction on-chain here.
+        </div>
+      </div>
+      <div className="max-w-xl">
+        <Apps />
+      </div>
+    </div>
+  );
+};
+
+const Apps = () => {
+  const { user, custody, isLoading } = useUser();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<SignerData | undefined>(undefined);
 
   useEffect(() => {
     const handle = async () => {
-      const res = await fetch(`/api/auth/${user?.fid || primary?.fid}/signers`);
+      const res = await fetch(`/api/auth/${user?.fid || custody?.fid}/signers`);
       setData(await res.json());
       setLoading(false);
     };
-    handle();
-  }, [primary, user?.fid]);
+    if (user?.fid || custody?.fid) {
+      handle();
+    } else {
+      setLoading(false);
+    }
+  }, [custody, user?.fid]);
 
-  if (isLoading || loading) return <Loading />;
-  if (!data) return <></>;
-  if (!primary && !user && !isLoading) {
-    return (
-      <div className="flex flex-col px-2">
-        <Alert>
-          <ExclamationTriangleIcon className="h-4 w-4" />
-          <AlertTitle className="font-semibold">No account</AlertTitle>
-          <AlertDescription className="space-y-2 mt-2">
-            You don&apos;t currently have any accounts linked to this wallet.
-            <div className="border rounded w-32 mt-2">
-              <AddAccount />
-            </div>
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
+  if (!custody && !user && !isLoading) {
+    return <></>;
   }
 
   return (
     <div className="flex flex-col space-y-2 p-2">
-      {!data.ok && (
-        <Alert>
-          <ExclamationTriangleIcon className="h-4 w-4" />
-          <AlertTitle className="font-semibold">
-            This Farcaster accounter account is managed by{" "}
-            <a
-              href={`https://optimistic.etherscan.io/address/${data.address}`}
-              target="_blank"
-              className="text-purple-600 dark:text-purple-400"
-            >
-              {formatHash(data.address)}
-            </a>
-          </AlertTitle>
-          <AlertDescription className="space-y-1 mt-2">
-            <div>
-              If this account was created on Warpcast, you will need to export
-              your recovery phrase into your own wallet. To do this:
-            </div>
-            <div className="ml-1">
-              1. Open up the Warpcast app and go to the settings page.
-            </div>
-            <div className="ml-1">
-              2. Go to &ldquo;Advanced&rdquo; and click on &ldquo;Reveal
-              recovery phrase&rdquo;.
-            </div>
-            <div className="ml-1">
-              3. Enter this recovery phrase into your wallet of choice.
-            </div>
-            <div className="ml-1">
-              4. Log out of flink.fyi and reconnect using this wallet.
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
-      {data.signers.map(({ key, fid, user, transactionHash, timestamp }) => (
+      {data?.signers.map(({ key, fid, user, transactionHash, timestamp }) => (
         <div key={key} className="flex flex-row p-2 items-center">
           <div className="w-80">
             <Link
@@ -124,7 +109,7 @@ export const AppSettings = () => {
               <div className="flex flex-col space-y-1">
                 <div className="flex flex-row space-x-1">
                   <div>{user?.display || user?.fname || user?.fid || fid}</div>
-                  <div className="text-zinc-500">{`@${user?.fname}`}</div>
+                  <div className="text-muted-foreground">{`@${user?.fname}`}</div>
                 </div>
                 <div className="text-purple-600 dark:text-purple-400">
                   {formatHash(key)}
@@ -132,7 +117,7 @@ export const AppSettings = () => {
               </div>
             </Link>
           </div>
-          <div className="w-80">
+          <div className="w-80 hidden sm:flex">
             <Link
               href={`https://optimistic.etherscan.io/tx/${transactionHash}`}
               target="_blank"
@@ -147,7 +132,9 @@ export const AppSettings = () => {
               </div>
             </Link>
           </div>
-          {data.ok && <RemoveButton signerKey={key} />}
+          {data.ok && user.fname !== "warpcast" && (
+            <RemoveButton signerKey={key} />
+          )}
         </div>
       ))}
     </div>

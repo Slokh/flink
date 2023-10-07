@@ -1,4 +1,4 @@
-import { SettingsNavigation } from "@/components/navigation/settings-navigation";
+import { SettingsOverview } from "@/components/settings/settings-overview";
 
 export default function SettingsLayout({
   children,
@@ -8,7 +8,7 @@ export default function SettingsLayout({
   return (
     <div className="w-full flex flex-col space-y-2">
       <div className="text-2xl font-semibold p-2">Settings</div>
-      <SettingsNavigation />
+      <SettingsOverview />
       {children}
     </div>
   );

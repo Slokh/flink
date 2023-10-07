@@ -41,14 +41,14 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
             <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${user.fname}`}</div>
           </Link>
           <div className="flex flex-row space-x-1 text-sm">
-            <div className="text-zinc-500">
+            <div className="text-muted-foreground">
               {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
                 addSuffix: true,
               })}
             </div>
             {channel && (
               <>
-                <div className="text-zinc-500">in</div>
+                <div className="text-muted-foreground">in</div>
                 <Link
                   href={`/channels/${channel.channelId}`}
                   className="hover:underline"
@@ -101,7 +101,7 @@ export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
       </div>
       <div className="flex flex-col space-y-1 w-full">
         <CastContent cast={cast} />
-        <div className="text-zinc-500 text-sm flex flex-row space-x-4">
+        <div className="text-muted-foreground text-sm flex flex-row space-x-4">
           <ReplyCastButton parent={cast} />
           <a
             href={`https://warpcast.com/${user.fname}/${cast.hash.slice(0, 8)}`}

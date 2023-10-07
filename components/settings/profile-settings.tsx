@@ -21,7 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Loading from "@/app/loading";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { AddAccount, AddSigner } from "../auth-button";
+import { AddSigner } from "../auth-button";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import {
   AlertDialogContent,
@@ -53,7 +53,64 @@ const formSchema = z.object({
 });
 
 export const ProfileSettings = () => {
-  const { user, primary, isLoading } = useUser();
+  const { isLoading } = useUser();
+  if (isLoading) return <Loading />;
+
+  return (
+    <div className="flex flex-col md:flex-row px-4 py-2 space-y-4 md:space-x-4 md:space-y-0 space-x-0">
+      <div className="w-full max-w-xl">
+        <Profile />
+      </div>
+      <div className="flex flex-col space-y-1 max-w-xl">
+        <div className="font-semibold text-xl">Change Username</div>
+        <div className="text-sm text-muted-foreground">
+          A username can be used to identify or mention an account on Farcaster.
+          Users can connect many names to an account but only one can be active
+          at any given time. Usernames come in two formats: fnames and ENS
+          names.
+        </div>
+        <div className="text-sm text-muted-foreground pt-2">
+          <b className="text-foreground">fnames</b> - These are unique usernames
+          issued off-chain by the Farcaster Name Registry. Registering a
+          username requires a signed message from the Farcaster account&apos;s
+          custody address. Fnames have a usage policy to prevent squatting and
+          impersonation and can be reclaimed. For users who do not want to be
+          subject to this policy, you can use ENS.
+        </div>
+        <div className="text-sm text-muted-foreground pt-2">
+          <b className="text-foreground">ENS names</b> - For a purely
+          decentralized approach to usernames, ENS names can be used as an
+          alternative to fnames. You can use an ENS name from any of the
+          connected wallets to your Farcaster account.{" "}
+          <b className="text-foreground">
+            Currently, flink.fyi does not support ENS names.
+          </b>
+        </div>
+        <div className="text-sm font-semibold pt-4">How do fnames work?</div>
+        <div className="text-sm text-muted-foreground">
+          fnames are entirely off-chain. Thefore, they are managed via
+          signatures from the custody address of the Farcaster account. This
+          means that you can only change your fname if you have access to the
+          custody address of your Farcaster account. If you lose access to your
+          custody address, you will not be able to change your fname. fnames can
+          only be changed once every 28 days.
+        </div>
+        <div className="text-sm text-muted-foreground">
+          1. If you currently have an fname associated with your account, you
+          will be prompted to deregister it. This will make your previous fname
+          available for anyone to use.
+        </div>
+        <div className="text-sm text-muted-foreground">
+          2. You will be prompted to register your new fname.
+        </div>
+        <ChangeUsername />
+      </div>
+    </div>
+  );
+};
+
+const Profile = () => {
+  const { user, custody, isLoading } = useUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,31 +122,17 @@ export const ProfileSettings = () => {
   });
 
   useEffect(() => {
-    if (user || primary) {
+    if (user || custody) {
       form.reset({
-        display: user?.display || primary?.display || "",
-        bio: user?.bio || primary?.bio || "",
-        pfp: user?.pfp || primary?.pfp || "",
+        display: user?.display || custody?.display || "",
+        bio: user?.bio || custody?.bio || "",
+        pfp: user?.pfp || custody?.pfp || "",
       });
     }
-  }, [user, form, primary]);
+  }, [user, form, custody]);
 
-  if (isLoading) return <Loading />;
-  if (!primary && !user && !isLoading) {
-    return (
-      <div className="flex flex-col px-2">
-        <Alert>
-          <ExclamationTriangleIcon className="h-4 w-4" />
-          <AlertTitle className="font-semibold">No account</AlertTitle>
-          <AlertDescription className="space-y-2 mt-2">
-            You don&apos;t currently have any accounts linked to this wallet.
-            <div className="border rounded w-32 mt-2">
-              <AddAccount />
-            </div>
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
+  if (!custody && !user && !isLoading) {
+    return <></>;
   }
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -217,7 +260,6 @@ export const ProfileSettings = () => {
           </Button>
         </form>
       </Form>
-      <ChangeUsername fid={user?.fid || 0} fname={user?.fname || ""} />
     </div>
   );
 };
@@ -241,13 +283,13 @@ const types = {
   ],
 };
 
-const ChangeUsername = ({ fid, fname }: { fid: number; fname: string }) => {
+const ChangeUsername = () => {
   const [open, setOpen] = useState(false);
   const { address } = useAccount();
-  const [input, setInput] = useState(fname);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { primary } = useUser();
+  const { custody } = useUser();
+  const [input, setInput] = useState(custody?.fname || "");
   const { switchNetwork } = useSwitchNetwork();
 
   const { signTypedDataAsync } = useSignTypedData({
@@ -262,8 +304,90 @@ const ChangeUsername = ({ fid, fname }: { fid: number; fname: string }) => {
   });
 
   const handleSubmit = async () => {
-    if (!address || input === fname || !switchNetwork) return;
+    if (!address || input === custody?.fname || !switchNetwork) return;
     setIsLoading(true);
+    try {
+      await switchNetwork(1);
+
+      if (custody?.fname) {
+        const message1 = {
+          name: custody?.fname,
+          owner: address,
+          timestamp: Math.floor(Date.now() / 1000),
+        };
+
+        const signature1 = await signTypedDataAsync({
+          primaryType: "UserNameProof",
+          domain,
+          types,
+          message: message1,
+        });
+
+        await fetch(`https://fnames.farcaster.xyz/transfers`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...message1,
+            signature: signature1,
+            from: custody?.fid,
+            to: 0,
+            fid: custody?.fid,
+          }),
+        });
+      }
+
+      const message2 = {
+        name: input,
+        owner: address,
+        timestamp: Math.floor(Date.now() / 1000),
+      };
+
+      const signature2 = await signTypedDataAsync({
+        primaryType: "UserNameProof",
+        domain,
+        types,
+        message: message2,
+      });
+
+      const submission2 = await fetch(
+        `https://fnames.farcaster.xyz/transfers`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...message2,
+            signature: signature2,
+            from: 0,
+            to: custody?.fid,
+            fid: custody?.fid,
+          }),
+        }
+      );
+
+      if (submission2.ok) {
+        window.location.reload();
+      }
+    } catch (e) {}
+    setIsLoading(false);
+  };
+
+  const handleChange = async () => {
+    const current = await fetch(
+      `https://fnames.farcaster.xyz/transfers/current?name=${custody?.fname}`
+    );
+    const {
+      transfer: { timestamp },
+    } = await current.json();
+    if (timestamp && Date.now() - timestamp * 1000 < 28 * 24 * 60 * 60 * 1000) {
+      setIsLoading(false);
+      setError("You can only change your username once every 28 days.");
+      return;
+    }
+
     const transfer = await fetch(
       `https://fnames.farcaster.xyz/transfers/current?name=${input}`
     );
@@ -273,103 +397,35 @@ const ChangeUsername = ({ fid, fname }: { fid: number; fname: string }) => {
       return;
     }
 
-    await switchNetwork(1);
-
-    if (fname) {
-      const message1 = {
-        name: fname,
-        owner: address,
-        timestamp: Math.floor(Date.now() / 1000),
-      };
-
-      const signature1 = await signTypedDataAsync({
-        primaryType: "UserNameProof",
-        domain,
-        types,
-        message: message1,
-      });
-
-      const submission1 = await fetch(
-        `https://fnames.farcaster.xyz/transfers`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...message1,
-            signature: signature1,
-            from: fid,
-            to: 0,
-            fid,
-          }),
-        }
-      );
-    }
-
-    const message2 = {
-      name: input,
-      owner: address,
-      timestamp: Math.floor(Date.now() / 1000),
-    };
-
-    const signature2 = await signTypedDataAsync({
-      primaryType: "UserNameProof",
-      domain,
-      types,
-      message: message2,
-    });
-
-    const submission2 = await fetch(`https://fnames.farcaster.xyz/transfers`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...message2,
-        signature: signature2,
-        from: 0,
-        to: fid,
-        fid,
-      }),
-    });
-
-    if (submission2.ok) {
-      window.location.reload();
-      setIsLoading(false);
-    }
+    setOpen(true);
   };
 
   return (
-    <div className="flex flex-col space-y-1 mt-4 ml-2">
-      <div className="font-semibold">Change Username</div>
-      <div className="text-sm text-zinc-500">
-        You can only change your username if you are logged in with your custody
-        wallet.
-      </div>
-      <div className="flex flex-row space-x-2 max-w-lg">
+    <div className="flex flex-col space-y-1 pt-2">
+      <div className="flex flex-row space-x-2">
         <Input
           placeholder="flink"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          disabled={!primary}
+          disabled={!custody}
         />
         <AlertDialog open={open} onOpenChange={setOpen}>
-          <AlertDialogTrigger asChild>
-            <Button size="sm">Accept</Button>
-          </AlertDialogTrigger>
+          <Button size="sm" onClick={handleChange}>
+            Change
+          </Button>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
+              <div className="text-sm text-muted-foreground">
                 You are changing your username to{" "}
                 <b className="text-foreground">{input}</b>. This will make your
-                previous username available for anyone to claim.
+                previous username available for anyone to claim and prevent you
+                from changing your name for the next 28 days.
                 <div className="font-semibold mt-2 text-foreground">
                   Note: You will need to sign both messages to change your
                   username
                 </div>
-              </AlertDialogDescription>
+              </div>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <Button
@@ -381,9 +437,9 @@ const ChangeUsername = ({ fid, fname }: { fid: number; fname: string }) => {
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={input === fname || isLoading || !primary}
+                disabled={input === custody?.fname || isLoading || !custody}
               >
-                {isLoading ? <LoadingIcon /> : "Accept"}
+                {isLoading ? <LoadingIcon /> : "Change"}
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

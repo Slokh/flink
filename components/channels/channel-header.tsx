@@ -20,7 +20,7 @@ export const ChannelHeader = ({ channelId }: { channelId: string }) => {
           <div className="font-semibold text-xl">
             {isUnknownChannel ? "Unknown" : channel.name}
           </div>
-          <div className="text-zinc-500 text-xs hidden lg:flex">
+          <div className="text-muted-foreground text-xs hidden lg:flex">
             {channel.parentUrl}
           </div>
         </div>

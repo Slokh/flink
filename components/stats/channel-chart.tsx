@@ -53,21 +53,29 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="p-2 border rounded-md bg-foreground text-background">
         <div className="flex flex-row space-x-1 items-center">
-          <div className="font-semibold text-xs text-zinc-500">Date:</div>
+          <div className="font-semibold text-xs text-muted-foreground">
+            Date:
+          </div>
           <div className="text-sm">
             {format(new Date(label), "MMM d, yyyy")}
           </div>
         </div>
         <div className="flex flex-row space-x-1 items-center">
-          <div className="font-semibold text-xs text-zinc-500">Posts:</div>
+          <div className="font-semibold text-xs text-muted-foreground">
+            Posts:
+          </div>
           <div className="text-sm">{payload[0].value}</div>
         </div>
         <div className="flex flex-row space-x-1 items-center">
-          <div className="font-semibold text-xs text-zinc-500">Replies:</div>
+          <div className="font-semibold text-xs text-muted-foreground">
+            Replies:
+          </div>
           <div className="text-sm">{payload[1].value}</div>
         </div>
         <div className="flex flex-row space-x-1 items-center">
-          <div className="font-semibold text-xs text-zinc-500">Activity:</div>
+          <div className="font-semibold text-xs text-muted-foreground">
+            Activity:
+          </div>
           <div className="text-sm">{payload[2].value.toFixed(0)}</div>
         </div>
       </div>

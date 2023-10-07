@@ -48,8 +48,8 @@ const TwitterEmbed = ({
               )}
             </div>
           </div>
-          <div className="text-zinc-500 text-xs">{urlHost}</div>
-          <div className="text-zinc-500 text-sm line-clamp-4">
+          <div className="text-muted-foreground text-xs">{urlHost}</div>
+          <div className="text-muted-foreground text-sm line-clamp-4">
             {metadata.open_graph?.description
               ?.replaceAll(URL_REGEX, "")
               .replace(/0x([a-fA-F0-9]{4}).*/, "0x$1...")}
@@ -93,12 +93,12 @@ const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
                 {title?.replace(/0x([a-fA-F0-9]{4}).*/, "0x$1...")}
               </div>
               {username && (
-                <div className="font-normal text-sm text-zinc-500">{`@${username}`}</div>
+                <div className="font-normal text-sm text-muted-foreground">{`@${username}`}</div>
               )}
             </div>
           </div>
           {!metadata.open_graph?.images && (
-            <div className="text-zinc-500 text-xs">{urlHost}</div>
+            <div className="text-muted-foreground text-xs">{urlHost}</div>
           )}
           <div className="text-sm">
             {metadata.open_graph?.description?.replace(
@@ -152,7 +152,7 @@ const NftEmbed = ({ metadata }: { metadata: NftMetadata }) => (
         <div className="flex flex-row space-x-2 items-center">
           <div className="font-normal font-semibold">{metadata.name}</div>
         </div>
-        {/* <div className="text-zinc-500">{metadata.description}</div> */}
+        {/* <div className="text-muted-foreground">{metadata.description}</div> */}
       </div>
     </Card>
   </a>

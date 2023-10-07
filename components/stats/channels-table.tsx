@@ -129,7 +129,7 @@ export const ChannelsTable = ({
         return (
           <div className="flex flex-row items-center space-x-1">
             {delta !== 0 && time !== "year" && time !== "all" && (
-              <div className="flex flex-row items-center text-xs text-zinc-500">
+              <div className="flex flex-row items-center text-xs text-muted-foreground">
                 {delta > 0 ? (
                   <TriangleUpIcon className="text-green-500" />
                 ) : (
@@ -188,7 +188,7 @@ export const ChannelsTable = ({
                     <AvatarImage src={channel.image} className="object-cover" />
                     <AvatarFallback>?</AvatarFallback>
                   </Avatar>
-                  <div className="text-zinc-500">Unknown</div>
+                  <div className="text-muted-foreground">Unknown</div>
                 </a>
               </TooltipTrigger>
               <TooltipContent>

@@ -20,12 +20,12 @@ export const SettingsNavigation = () => {
         >
           Apps
         </NavigationButton>
-        <NavigationButton
+        {/* <NavigationButton
           href={`/settings/storage`}
           isSelected={pathname.endsWith("storage")}
         >
           Storage
-        </NavigationButton>
+        </NavigationButton> */}
         <NavigationButton
           href={`/settings/advanced`}
           isSelected={pathname.endsWith("advanced")}

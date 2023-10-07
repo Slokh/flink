@@ -28,7 +28,7 @@ export type SignerState = {
 
 type State = {
   authState: UserAuthState;
-  verifyMessage: () => void;
+  verifyMessage: () => Promise<void>;
 };
 
 type AuthContextType = State | undefined;
@@ -46,39 +46,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [verifiedAddress, setVerifiedAddress] = useState<string | undefined>();
 
   const verifyMessage = async () => {
-    try {
-      const chainId = chain?.id;
-      if (!address || !chainId) return;
+    const chainId = chain?.id;
+    if (!address || !chainId) return;
 
-      const nonceRes = await fetch("/api/auth/nonce");
-      const { nonce } = await nonceRes.json();
+    const nonceRes = await fetch("/api/auth/nonce");
+    const { nonce } = await nonceRes.json();
 
-      const message = {
-        domain: window.location.host,
-        address,
-        statement: "Sign in with Ethereum to the app.",
-        uri: window.location.origin,
-        version: "1",
-        chainId,
-        nonce: nonce,
-      } as SiweMessage;
-      const signature = await signMessageAsync({
-        message: formatSiweMessage(message),
-      });
+    const message = {
+      domain: window.location.host,
+      address,
+      statement: "Sign in with Ethereum to the app.",
+      uri: window.location.origin,
+      version: "1",
+      chainId,
+      nonce: nonce,
+    } as SiweMessage;
+    const signature = await signMessageAsync({
+      message: formatSiweMessage(message),
+    });
 
-      // Verify signature
-      const verifyRes = await fetch("/api/auth/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message, signature }),
-      });
-      if (!verifyRes.ok) throw new Error("Error verifying message");
-      setVerifiedAddress(address);
-    } catch (error) {
-      console.error(error);
-    }
+    // Verify signature
+    const verifyRes = await fetch("/api/auth/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message, signature }),
+    });
+    if (!verifyRes.ok) throw new Error("Error verifying message");
+    setVerifiedAddress(address);
   };
 
   const getVerifiedAddress = async () => {

@@ -75,7 +75,9 @@ export const ChannelSidebarDisplay = ({
               <div className="flex flex-row items-center w-full justify-between text-sm p-2 whitespace-nowrap">
                 <div className="font-semibold mr-2">
                   Trending Channels{" "}
-                  <span className="text-xs text-zinc-500">(last 6h)</span>
+                  <span className="text-xs text-muted-foreground">
+                    (last 6h)
+                  </span>
                 </div>
                 <ChannelSelect
                   suffix={
@@ -102,7 +104,7 @@ export const ChannelSidebarDisplay = ({
                       <div className="flex flex-row items-center">
                         <div className="flex flex-col items-center w-10 text-xs">
                           <div>{i + 1}</div>
-                          <div className="flex flex-row items-center text-zinc-500">
+                          <div className="flex flex-row items-center text-muted-foreground">
                             {delta > 0 ? (
                               <TriangleUpIcon className="text-green-500" />
                             ) : delta < 0 ? (
@@ -136,7 +138,7 @@ export const ChannelSidebarDisplay = ({
                                     />
                                     <AvatarFallback>?</AvatarFallback>
                                   </Avatar>
-                                  <div className="text-zinc-500 text-sm">
+                                  <div className="text-muted-foreground text-sm">
                                     Unknown
                                   </div>
                                 </a>
@@ -179,11 +181,11 @@ export const ChannelSidebarDisplay = ({
                       </div>
                       <div className="flex flex-col items-end space-x-1 text-xs">
                         <div className="flex flex-row space-x-1">
-                          <div className="text-zinc-500">Posts:</div>
+                          <div className="text-muted-foreground">Posts:</div>
                           <div>{channel.posts}</div>
                         </div>
                         <div className="flex flex-row space-x-1">
-                          <div className="text-zinc-500">Replies:</div>
+                          <div className="text-muted-foreground">Replies:</div>
                           <div>{channel.replies}</div>
                         </div>
                       </div>

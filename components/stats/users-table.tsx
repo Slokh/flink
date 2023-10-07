@@ -125,7 +125,7 @@ export const UsersTable = ({
         return (
           <div className="flex flex-row items-center space-x-1">
             {delta !== 0 && time !== "year" && time !== "all" && (
-              <div className="flex flex-row items-center text-xs text-zinc-500">
+              <div className="flex flex-row items-center text-xs text-muted-foreground">
                 {delta > 0 ? (
                   <TriangleUpIcon className="text-green-500" />
                 ) : (
@@ -157,7 +157,7 @@ export const UsersTable = ({
             </Avatar>
             <div className="flex flex-col text-sm">
               <div className="font-semibold">{user.display || user.fname}</div>
-              <div className="text-zinc-500">{`@${user.fname}`}</div>
+              <div className="text-muted-foreground">{`@${user.fname}`}</div>
             </div>
           </Link>
         );

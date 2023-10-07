@@ -94,7 +94,7 @@ export const ChannelUsers = ({ data }: { data: ChannelUserStats[] }) => {
             </Avatar>
             <div className="flex flex-col text-sm">
               <div className="font-semibold">{user.display || user.fname}</div>
-              <div className="text-zinc-500">{`@${user.fname}`}</div>
+              <div className="text-muted-foreground">{`@${user.fname}`}</div>
             </div>
           </Link>
         );

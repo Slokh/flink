@@ -119,7 +119,7 @@ export const LinksTable = ({
         return (
           <div className="flex flex-row items-center space-x-1">
             {delta !== undefined && showDelta && (
-              <div className="flex flex-row items-center text-xs text-zinc-500">
+              <div className="flex flex-row items-center text-xs text-muted-foreground">
                 {delta > 0 ? (
                   <TriangleUpIcon className="text-green-500" />
                 ) : (
@@ -135,7 +135,7 @@ export const LinksTable = ({
               </div>
             )}
             {!delta && showDelta && (
-              <div className="flex flex-row items-center text-xs text-zinc-500">
+              <div className="flex flex-row items-center text-xs text-muted-foreground">
                 new
               </div>
             )}
@@ -168,7 +168,7 @@ export const LinksTable = ({
               <a
                 href={`https://${url}`}
                 target="_blank"
-                className="truncate text-zinc-500 text-xs hover:underline transition"
+                className="truncate text-muted-foreground text-xs hover:underline transition"
               >
                 {url}
               </a>

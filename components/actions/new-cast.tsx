@@ -224,7 +224,7 @@ const NewCastContent = ({ parent }: { parent?: string }) => {
             }
           >
             {files.length + embeds.length >= 2 ? (
-              <div className="p-2 cursor-pointer border rounded-lg text-zinc-500">
+              <div className="p-2 cursor-pointer border rounded-lg text-muted-foreground">
                 <CameraIcon className="h-4 w-4" />
               </div>
             ) : (

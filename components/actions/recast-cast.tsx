@@ -40,7 +40,7 @@ export const RecastCast = ({
       {mode === "icons" ? (
         <>
           <div
-            className={`p-1 rounded-full text-zinc-500 ${
+            className={`p-1 rounded-full text-muted-foreground ${
               user
                 ? "cursor-pointer group-hover:bg-green-500/30 group-hover:text-green-500"
                 : ""
