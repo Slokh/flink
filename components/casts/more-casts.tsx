@@ -13,6 +13,7 @@ export const MoreCasts = ({
   page,
   fid,
   url,
+  viewerFid,
 }: {
   page: number;
   time?: string;
@@ -20,6 +21,7 @@ export const MoreCasts = ({
   fid?: number;
   sort: CastsSort;
   url?: string;
+  viewerFid?: number;
 }) => {
   const [casts, setCasts] = useState<FarcasterCast[]>([]);
   const [done, setDone] = useState(false);
@@ -34,7 +36,8 @@ export const MoreCasts = ({
           time ? `&time=${time}` : ""
         }${fid ? `&fid=${fid}` : ""}${
           currentPage ? `&page=${currentPage}` : ""
-        }${url ? `&url=${encodeURI(url)}` : ""}`
+        }${url ? `&url=${encodeURI(url)}` : ""}
+      ${viewerFid ? `&viewerFid=${viewerFid}` : ""}`
       );
       const newCasts = await data.json();
       if (newCasts.length !== 25) {

@@ -16,6 +16,8 @@ export const CastsNavigation = () => {
     ? CastsSort.Top
     : pathname.endsWith("new")
     ? CastsSort.New
+    : pathname.endsWith("home")
+    ? CastsSort.Home
     : CastsSort.Hot;
   const time =
     sort === CastsSort.Top ? searchParams.get("time") || "day" : undefined;
@@ -46,6 +48,9 @@ export const CastsNavigation = () => {
             ]}
           />
         )}
+        <NavigationButton href="/home" isSelected={sort === CastsSort.Home}>
+          Home
+        </NavigationButton>
         <NavigationButton href="/" isSelected={sort === CastsSort.Hot}>
           Hot
         </NavigationButton>

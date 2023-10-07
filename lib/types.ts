@@ -87,6 +87,7 @@ export type NftMetadata = {
 };
 
 export enum CastsSort {
+  Home = "Home",
   Hot = "Hot",
   New = "New",
   Top = "Top",

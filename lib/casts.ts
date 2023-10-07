@@ -1,7 +1,7 @@
 import { getEmbedMetadata } from "@/indexer/embeds";
 import prisma from "@/lib/prisma";
 import { Embed, FarcasterUser } from "@/lib/types";
-import { HotCasts, HotCastsForChannel } from "./sql";
+import { HotCasts, HotCastsForChannel, HotCastsForFid } from "./sql";
 
 const PAGE_SIZE = 25;
 
@@ -41,10 +41,13 @@ export const getCast = async (hash: string) => {
 export const getCastsResponseByHotness = async (
   page: number,
   onlyParents: boolean,
-  parentUrl?: string
+  parentUrl?: string,
+  viewerFid?: number
 ) => {
   const results: FidHash[] = parentUrl
     ? await HotCastsForChannel(parentUrl, page, onlyParents)
+    : viewerFid
+    ? await HotCastsForFid(viewerFid, page, onlyParents)
     : await HotCasts(page, onlyParents);
 
   const casts = await getCastsByFidHashes(

@@ -41,7 +41,7 @@ const TwitterEmbed = ({
                 className="h-4 w-4"
               />
             )}
-            <div className="font-normal font-semibold text-sm">
+            <div className="font-semibold text-sm">
               {metadata.open_graph?.title?.replace(
                 /0x([a-fA-F0-9]{4}).*/,
                 "0x$1..."
@@ -62,7 +62,7 @@ const TwitterEmbed = ({
 
 const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
   const urlHost =
-    (url.startsWith("https://") ? url.split("/")[2] : url.split("/")[0]) || "";
+    (url.startsWith("http") ? url.split("/")[2] : url.split("/")[0]) || "";
 
   let title = metadata.open_graph?.title || metadata.title || "";
   let username;

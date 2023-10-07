@@ -21,7 +21,17 @@ export async function GET(
     : undefined;
 
   let response = [];
-  if (sort === CastsSort.Hot) {
+  if (sort === CastsSort.Home) {
+    const viewerFid = url.searchParams.get("viewerFid")
+      ? parseInt(url.searchParams.get("viewerFid") as string)
+      : undefined;
+    response = await getCastsResponseByHotness(
+      page,
+      onlyParents,
+      parentUrl,
+      viewerFid
+    );
+  } else if (sort === CastsSort.Hot) {
     response = await getCastsResponseByHotness(page, onlyParents, parentUrl);
   } else if (sort === CastsSort.Top || sort === CastsSort.TopReplies) {
     const time = url.searchParams.get("time") as

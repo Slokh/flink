@@ -56,12 +56,14 @@ export const ImageCasts = ({
   time,
   page,
   fid,
+  viewerFid,
 }: {
   page: number;
   time?: string;
   parentUrl?: string;
   fid?: number;
   sort: CastsSort;
+  viewerFid?: number;
 }) => {
   const [casts, setCasts] = useState<FarcasterCast[]>([]);
   const [images, setImages] = useState<Image[]>([]);
@@ -85,7 +87,8 @@ export const ImageCasts = ({
           time ? `&time=${time}` : ""
         }${fid ? `&fid=${fid}` : ""}${
           currentPage ? `&page=${currentPage}` : ""
-        }&all=true`
+        }&all=true
+        ${viewerFid ? `&viewerFid=${viewerFid}` : ""}`
       );
       const newCasts = await data.json();
       if (newCasts.length !== 25) {

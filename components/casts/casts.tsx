@@ -12,7 +12,7 @@ export const CastsTable = async ({
   sort,
   params,
   searchParams,
-}: { sort: CastsSort; nav?: React.ReactNode } & CastsQuery) => {
+}: { sort: CastsSort; viewerFid?: number } & CastsQuery) => {
   const page = parseInt(searchParams.page || "1");
   const channel = params.channel
     ? CHANNELS_BY_ID[params.channel] || {
@@ -63,38 +63,13 @@ export const CastsTable = async ({
   );
 
   return (
-    <>
-      <ScrollArea className="hidden md:flex md:h-full">
-        <div className="flex flex-col w-full">
-          {casts.map((cast, i) => (
-            <Cast
-              key={cast.hash}
-              cast={cast}
-              rank={
-                sort !== CastsSort.New ? (page - 1) * 25 + i + 1 : undefined
-              }
-              isReply={
-                sort === CastsSort.NewReplies || sort === CastsSort.TopReplies
-              }
-              isLink
-            />
-          ))}
-          <MoreCasts
-            sort={sort}
-            page={page + 1}
-            parentUrl={channel?.parentUrl}
-            time={time}
-            fid={entity?.fid}
-            url={url}
-          />
-        </div>
-      </ScrollArea>
-      <div className="flex md:hidden flex-col w-full">
+    <ScrollArea className="h-full">
+      <div className="flex flex-col w-full">
         {casts.map((cast, i) => (
           <Cast
             key={cast.hash}
             cast={cast}
-            rank={sort !== CastsSort.New ? i + 1 : undefined}
+            rank={sort !== CastsSort.New ? (page - 1) * 25 + i + 1 : undefined}
             isReply={
               sort === CastsSort.NewReplies || sort === CastsSort.TopReplies
             }
@@ -107,8 +82,9 @@ export const CastsTable = async ({
           parentUrl={channel?.parentUrl}
           time={time}
           fid={entity?.fid}
+          url={url}
         />
       </div>
-    </>
+    </ScrollArea>
   );
 };
