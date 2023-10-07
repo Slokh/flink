@@ -7,8 +7,10 @@ import {
   NavigationGroup,
   NavigationSelect,
 } from "./navigation";
+import { useUser } from "@/context/user";
 
 export const CastsNavigation = () => {
+  const { user } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -48,9 +50,11 @@ export const CastsNavigation = () => {
             ]}
           />
         )}
-        <NavigationButton href="/home" isSelected={sort === CastsSort.Home}>
-          Home
-        </NavigationButton>
+        {user && (
+          <NavigationButton href="/home" isSelected={sort === CastsSort.Home}>
+            Home
+          </NavigationButton>
+        )}
         <NavigationButton href="/" isSelected={sort === CastsSort.Hot}>
           Hot
         </NavigationButton>
