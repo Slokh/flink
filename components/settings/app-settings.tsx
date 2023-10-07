@@ -5,8 +5,7 @@ import { FarcasterUser } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
-import { ExclamationTriangleIcon, TrashIcon } from "@radix-ui/react-icons";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { TrashIcon } from "@radix-ui/react-icons";
 import Loading from "@/app/loading";
 import { format } from "date-fns";
 import { useContractWrite } from "wagmi";
@@ -22,6 +21,12 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 const KEY_REGISTRY_ADDRESS = "0x00000000fC9e66f1c6d86D750B4af47fF0Cc343d";
 
@@ -72,29 +77,27 @@ export const AppSettings = () => {
 };
 
 const Apps = () => {
-  const { user, custody, isLoading } = useUser();
-  const [loading, setLoading] = useState(true);
+  const { user: authUser, custody, isLoading } = useUser();
   const [data, setData] = useState<SignerData | undefined>(undefined);
 
   useEffect(() => {
     const handle = async () => {
-      const res = await fetch(`/api/auth/${user?.fid || custody?.fid}/signers`);
+      const res = await fetch(
+        `/api/auth/${authUser?.fid || custody?.fid}/signers`
+      );
       setData(await res.json());
-      setLoading(false);
     };
-    if (user?.fid || custody?.fid) {
+    if (authUser?.fid || custody?.fid) {
       handle();
-    } else {
-      setLoading(false);
     }
-  }, [custody, user?.fid]);
+  }, [custody, authUser?.fid]);
 
-  if (!custody && !user && !isLoading) {
+  if (!custody && !authUser && !isLoading) {
     return <></>;
   }
 
   return (
-    <div className="flex flex-col space-y-2 p-2">
+    <div className="flex flex-col space-y-1 p-2">
       {data?.signers.map(({ key, fid, user, transactionHash, timestamp }) => (
         <div key={key} className="flex flex-row p-2 items-center">
           <div className="w-80">
@@ -106,11 +109,9 @@ const Apps = () => {
                 <AvatarImage src={user?.pfp} className="object-cover" />
                 <AvatarFallback>?</AvatarFallback>
               </Avatar>
-              <div className="flex flex-col space-y-1">
-                <div className="flex flex-row space-x-1">
-                  <div>{user?.display || user?.fname || user?.fid || fid}</div>
-                  <div className="text-muted-foreground">{`@${user?.fname}`}</div>
-                </div>
+              <div className="flex flex-col">
+                <div>{user?.display || user?.fname || user?.fid || fid}</div>
+                <div className="text-muted-foreground">{`@${user?.fname}`}</div>
                 <div className="text-purple-600 dark:text-purple-400">
                   {formatHash(key)}
                 </div>
@@ -121,7 +122,7 @@ const Apps = () => {
             <Link
               href={`https://optimistic.etherscan.io/tx/${transactionHash}`}
               target="_blank"
-              className="flex flex-col space-y-1 text-sm"
+              className="flex flex-col text-sm"
             >
               <div>{`Added on ${format(
                 new Date(timestamp * 1000),
@@ -132,16 +133,23 @@ const Apps = () => {
               </div>
             </Link>
           </div>
-          {data.ok && user.fname !== "warpcast" && (
-            <RemoveButton signerKey={key} />
-          )}
+          <RemoveButton
+            signerKey={key}
+            disabled={!(data.ok && authUser && user.fname !== "warpcast")}
+          />
         </div>
       ))}
     </div>
   );
 };
 
-const RemoveButton = ({ signerKey }: { signerKey: `0x${string}` }) => {
+const RemoveButton = ({
+  signerKey,
+  disabled,
+}: {
+  signerKey: `0x${string}`;
+  disabled: boolean;
+}) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -183,10 +191,23 @@ const RemoveButton = ({ signerKey }: { signerKey: `0x${string}` }) => {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger>
-        <div className="hover:bg-red-500/30 hover:text-red-500 p-1 rounded-full transition">
-          <TrashIcon className="w-6 h-6 text-red-500 cursor-pointer" />
-        </div>
+      <AlertDialogTrigger disabled={disabled}>
+        {disabled ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <TrashIcon className="w-6 h-6 text-gray-500 cursor-pointer" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <div>This wallet does not custody this account.</div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          <div className="hover:bg-red-500/30 hover:text-red-500 p-1 rounded-full transition">
+            <TrashIcon className="w-6 h-6 text-red-500 cursor-pointer" />
+          </div>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

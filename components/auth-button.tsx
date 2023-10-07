@@ -79,9 +79,8 @@ export const AuthButton = () => {
     setVerifying(true);
     try {
       await verifyMessage();
-    } catch (e) {
-      setVerifying(false);
-    }
+    } catch (e) {}
+    setVerifying(false);
   };
 
   useEffect(() => {

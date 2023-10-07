@@ -16,7 +16,6 @@ import { parseAbiItem } from "viem";
 import {
   AlertDialog,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -45,7 +44,7 @@ const types = {
 };
 
 export const AdvancedSettings = () => {
-  const { custody, isLoading } = useUser();
+  const { user, custody, isLoading } = useUser();
 
   if (isLoading) return <Loading />;
 
@@ -90,7 +89,18 @@ export const AdvancedSettings = () => {
         </div>
       </div>
       <div className="max-w-xl">
-        {custody ? <TransferOwnershipAccept /> : <TransferOwnershipCreate />}
+        {custody ? (
+          custody?.fid !== user?.fid ? (
+            <div className="text-red-500 text-sm">
+              This account can&apos;t be transfered as it&apos;s not custodied
+              by this wallet.
+            </div>
+          ) : (
+            <TransferOwnershipAccept />
+          )
+        ) : (
+          <TransferOwnershipCreate />
+        )}
       </div>
     </div>
   );
