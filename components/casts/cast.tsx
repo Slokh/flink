@@ -22,7 +22,7 @@ import {
 } from "date-fns";
 import { EmbedPreview } from "../embeds";
 import { CopyLink } from "../copy-link";
-import { ReplyCastButton } from "../actions/new-cast";
+import { ReplyCastButton, XPostButton } from "../actions/new-cast";
 import Link from "next/link";
 import { DeleteCast } from "../actions/delete-cast";
 import { LikeCast } from "../actions/like-cast";
@@ -262,6 +262,7 @@ const WebCast = ({
             warpcast
           </a>
           <CopyLink link={`https://flink.fyi/${user.fname}/${cast.hash}`} />
+          <XPostButton cast={cast} />
           <DeleteCast hash={cast.hash}>
             <div className="hover:underline">delete</div>
           </DeleteCast>

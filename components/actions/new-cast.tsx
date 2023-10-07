@@ -23,9 +23,8 @@ import {
   FormItem,
   FormMessage,
 } from "../ui/form";
-import { Input } from "../ui/input";
 import { usePathname } from "next/navigation";
-import { CHANNELS_BY_ID } from "@/lib/channels";
+import { CHANNELS_BY_ID, CHANNELS_BY_URL } from "@/lib/channels";
 import { Channel, Embed, FarcasterCast } from "@/lib/types";
 import { ChannelSelect } from "../channels/channel-select";
 import { CastContent } from "../casts/cast-thread";
@@ -33,6 +32,10 @@ import { ScrollArea } from "../ui/scroll-area";
 import { EmbedPreview } from "../embeds";
 import { useUser } from "@/context/user";
 import { FileUpload } from "../file-upload";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { formatText } from "@/lib/utils";
+import { formatDistanceStrict } from "date-fns";
 
 const formSchema = z.object({
   text: z.string().refine(
@@ -48,14 +51,24 @@ const formSchema = z.object({
   embeds: z.array(z.string().url()).max(2),
 });
 
-const NewCastContent = ({ parent }: { parent?: string }) => {
+const NewCastContent = ({
+  parent,
+  children,
+  placeholder,
+  disableEmbeds,
+}: {
+  parent?: string;
+  children?: React.ReactNode;
+  placeholder?: string;
+  disableEmbeds?: boolean;
+}) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const { user } = useUser();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      text: "",
+      text: placeholder || "",
       embeds: [],
     },
   });
@@ -207,32 +220,37 @@ const NewCastContent = ({ parent }: { parent?: string }) => {
               </div>
             ))}
           </div>
+          {children}
         </ScrollArea>
         <div className="flex flex-row justify-between items-center mt-2 space-x-2">
-          <FileUpload
-            isDisabled={files.length + embeds.length >= 2}
-            onFileUpload={(url) =>
-              setFiles([
-                ...files,
-                {
-                  url,
-                  urlHost: "imgur.com",
-                  contentType: "image/png",
-                  parsed: false,
-                },
-              ])
-            }
-          >
-            {files.length + embeds.length >= 2 ? (
-              <div className="p-2 cursor-pointer border rounded-lg text-muted-foreground">
-                <CameraIcon className="h-4 w-4" />
-              </div>
-            ) : (
-              <div className="p-2 cursor-pointer border rounded-lg">
-                <CameraIcon className="h-4 w-4" />
-              </div>
-            )}
-          </FileUpload>
+          {!disableEmbeds ? (
+            <FileUpload
+              isDisabled={files.length + embeds.length >= 2}
+              onFileUpload={(url) =>
+                setFiles([
+                  ...files,
+                  {
+                    url,
+                    urlHost: "imgur.com",
+                    contentType: "image/png",
+                    parsed: false,
+                  },
+                ])
+              }
+            >
+              {files.length + embeds.length >= 2 ? (
+                <div className="p-2 cursor-pointer border rounded-lg text-muted-foreground">
+                  <CameraIcon className="h-4 w-4" />
+                </div>
+              ) : (
+                <div className="p-2 cursor-pointer border rounded-lg">
+                  <CameraIcon className="h-4 w-4" />
+                </div>
+              )}
+            </FileUpload>
+          ) : (
+            <div />
+          )}
           <div className="flex flex-row space-x-2 items-center">
             {!loading && !parent && (
               <ChannelSelect
@@ -302,3 +320,90 @@ export const ReplyCastButton = ({ parent }: { parent: FarcasterCast }) => (
     <div className="hover:underline">reply</div>
   </NewCastDialog>
 );
+
+export const XPostButton = ({ cast }: { cast: FarcasterCast }) => {
+  const { user } = useUser();
+  if (!user) return <></>;
+
+  const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
+  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
+
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <div className="hover:underline">x-post</div>
+      </DialogTrigger>
+      <DialogContent>
+        <NewCastContent placeholder="x-post" disableEmbeds>
+          <div className="flex flex-col space-y-1 border rounded-lg p-2 my-2">
+            <div className="flex flex-row space-x-2">
+              <Link href={`/${cast.user.fname}`}>
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={cast.user.pfp} className="object-cover" />
+                  <AvatarFallback>?</AvatarFallback>
+                </Avatar>
+              </Link>
+              <div className="flex flex-col text-sm">
+                <Link
+                  href={`/${cast.user.fname}`}
+                  className="flex flex-row space-x-1 cursor-pointer"
+                >
+                  <div className="font-semibold">
+                    {cast.user.display || cast.user.fname}
+                  </div>
+                  <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${cast.user.fname}`}</div>
+                </Link>
+                <div className="flex flex-row space-x-1 text-sm">
+                  <div className="text-muted-foreground">
+                    {formatDistanceStrict(
+                      new Date(cast.timestamp),
+                      new Date(),
+                      {
+                        addSuffix: true,
+                      }
+                    )}
+                  </div>
+                  {channel && (
+                    <>
+                      <div className="text-muted-foreground">in</div>
+                      <Link
+                        href={`/channels/${channel.channelId}`}
+                        className="hover:underline"
+                      >
+                        <Avatar className="h-4 w-4">
+                          <AvatarImage
+                            src={channel.image}
+                            className="object-cover"
+                          />
+                          <AvatarFallback>?</AvatarFallback>
+                        </Avatar>
+                      </Link>
+                      <Link
+                        href={`/channels/${channel.channelId}`}
+                        className="hover:underline"
+                      >
+                        <div>{channel.name}</div>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col whitespace-pre-wrap break-words leading-6 tracking-normal w-full space-y-2 ">
+              <div dangerouslySetInnerHTML={{ __html: formattedText }} />
+              {cast.embeds.length > 0 && (
+                <div className="flex flex-row flex-wrap">
+                  {cast.embeds.map((embed, i) => (
+                    <div key={i} className="w-1/2 pr-2">
+                      <EmbedPreview embed={embed} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </NewCastContent>
+      </DialogContent>
+    </Dialog>
+  );
+};
