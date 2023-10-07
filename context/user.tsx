@@ -103,6 +103,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   const addNewUser = async (fid: number) => {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     await initialize(fid);
   };
 

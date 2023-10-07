@@ -55,7 +55,7 @@ export const AdvancedSettings = () => {
         <div className="text-sm text-muted-foreground">
           Every Farcaster account has a Farcaster ID, or fid, that is issued and
           managed on-chain via the IdRegistry on Optimism. The Ethereum account
-          that owns the fid is known as the user&apos;s cutody address. The fid
+          that owns the fid is known as the user&apos;s custody address. The fid
           is fully owned by the custody address and can be transferred to
           another addres, so long as the recipient address does not currently
           own another fid.

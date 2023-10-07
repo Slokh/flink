@@ -67,59 +67,7 @@ export const ProfileSettings = () => {
       <div className="w-full max-w-xl">
         <Profile />
       </div>
-      <div className="flex flex-col space-y-1 w-full max-w-xl">
-        <div className="font-semibold text-xl">Change Username</div>
-        <Accordion type="single" collapsible>
-          <AccordionItem value="item-1">
-            <AccordionTrigger>More info</AccordionTrigger>
-            <AccordionContent>
-              <div className="text-sm text-muted-foreground">
-                A username can be used to identify or mention an account on
-                Farcaster. Users can connect many names to an account but only
-                one can be active at any given time. Usernames come in two
-                formats: fnames and ENS names.
-              </div>
-              <div className="text-sm text-muted-foreground pt-2">
-                <b className="text-foreground">fnames</b> - These are unique
-                usernames issued off-chain by the Farcaster Name Registry.
-                Registering a username requires a signed message from the
-                Farcaster account&apos;s custody address. Fnames have a usage
-                policy to prevent squatting and impersonation and can be
-                reclaimed. For users who do not want to be subject to this
-                policy, you can use ENS.
-              </div>
-              <div className="text-sm text-muted-foreground pt-2">
-                <b className="text-foreground">ENS names</b> - For a purely
-                decentralized approach to usernames, ENS names can be used as an
-                alternative to fnames. You can use an ENS name from any of the
-                connected wallets to your Farcaster account.{" "}
-                <b className="text-foreground">
-                  Currently, flink.fyi does not support ENS names.
-                </b>
-              </div>
-              <div className="text-sm font-semibold pt-4">
-                How do fnames work?
-              </div>
-              <div className="text-sm text-muted-foreground">
-                fnames are entirely off-chain. Thefore, they are managed via
-                signatures from the custody address of the Farcaster account.
-                This means that you can only change your fname if you have
-                access to the custody address of your Farcaster account. If you
-                lose access to your custody address, you will not be able to
-                change your fname. fnames can only be changed once every 28
-                days.
-              </div>
-              <div className="text-sm text-muted-foreground">
-                1. If you currently have an fname associated with your account,
-                you will be prompted to deregister it. This will make your
-                previous fname available for anyone to use.
-              </div>
-              <div className="text-sm text-muted-foreground">
-                2. You will be prompted to register your new fname.
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+      <div className="w-full max-w-xl">
         <ChangeUsername />
       </div>
     </div>
@@ -290,8 +238,8 @@ const types = {
 const ChangeUsername = () => {
   const [open, setOpen] = useState(false);
   const { address } = useAccount();
-  const [isLoading, setIsLoading] = useState(false);
-  const { user, custody } = useUser();
+  const [loading, setLoading] = useState(false);
+  const { user, custody, isLoading } = useUser();
   const [input, setInput] = useState(custody?.fname || "");
   const { switchNetwork } = useSwitchNetwork();
   const [error, setError] = useState("");
@@ -321,7 +269,7 @@ const ChangeUsername = () => {
 
   const handleSubmit = async () => {
     if (!address || input === custody?.fname || !switchNetwork) return;
-    setIsLoading(true);
+    setLoading(true);
     try {
       await switchNetwork(1);
 
@@ -388,7 +336,7 @@ const ChangeUsername = () => {
         window.location.reload();
       }
     } catch (e) {}
-    setIsLoading(false);
+    setLoading(false);
   };
 
   const handleChange = async () => {
@@ -399,7 +347,7 @@ const ChangeUsername = () => {
       transfer: { timestamp },
     } = await current.json();
     if (timestamp && Date.now() - timestamp * 1000 < 28 * 24 * 60 * 60 * 1000) {
-      setIsLoading(false);
+      setLoading(false);
       setError("You can only change your username once every 28 days.");
       return;
     }
@@ -408,7 +356,7 @@ const ChangeUsername = () => {
       `https://fnames.farcaster.xyz/transfers/current?name=${input}`
     );
     if (transfer.ok) {
-      setIsLoading(false);
+      setLoading(false);
       setError("Username is already taken.");
       return;
     }
@@ -416,68 +364,125 @@ const ChangeUsername = () => {
     setOpen(true);
   };
 
+  if (!custody && !user && !isLoading) {
+    return <></>;
+  }
+
   return (
-    <div className="flex flex-col space-y-1 pt-2">
-      <div className="flex flex-row space-x-2">
-        <Input
-          placeholder="flink"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          disabled={isLoading || !user || !custody || custody.fid !== user.fid}
-        />
-        <AlertDialog open={open} onOpenChange={setOpen}>
-          <Button
-            size="sm"
-            onClick={handleChange}
-            disabled={
-              input === custody?.fname ||
-              isLoading ||
-              !user ||
-              !custody ||
-              custody.fid !== user.fid
-            }
-          >
-            Change
-          </Button>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <div className="text-sm text-muted-foreground">
-                You are changing your username to{" "}
-                <b className="text-foreground">{input}</b>. This will make your
-                previous username available for anyone to claim and prevent you
-                from changing your name for the next 28 days.
-                <div className="font-semibold mt-2 text-foreground">
-                  Note: You will need to sign both messages to change your
-                  username
+    <div className="flex flex-col space-y-1">
+      <div className="font-semibold text-xl">Change Username</div>
+      <Accordion type="single" collapsible>
+        <AccordionItem value="item-1">
+          <AccordionTrigger>More info</AccordionTrigger>
+          <AccordionContent>
+            <div className="text-sm text-muted-foreground">
+              A username can be used to identify or mention an account on
+              Farcaster. Users can connect many names to an account but only one
+              can be active at any given time. Usernames come in two formats:
+              fnames and ENS names.
+            </div>
+            <div className="text-sm text-muted-foreground pt-2">
+              <b className="text-foreground">fnames</b> - These are unique
+              usernames issued off-chain by the Farcaster Name Registry.
+              Registering a username requires a signed message from the
+              Farcaster account&apos;s custody address. Fnames have a usage
+              policy to prevent squatting and impersonation and can be
+              reclaimed. For users who do not want to be subject to this policy,
+              you can use ENS.
+            </div>
+            <div className="text-sm text-muted-foreground pt-2">
+              <b className="text-foreground">ENS names</b> - For a purely
+              decentralized approach to usernames, ENS names can be used as an
+              alternative to fnames. You can use an ENS name from any of the
+              connected wallets to your Farcaster account.{" "}
+              <b className="text-foreground">
+                Currently, flink.fyi does not support ENS names.
+              </b>
+            </div>
+            <div className="text-sm font-semibold pt-4">
+              How do fnames work?
+            </div>
+            <div className="text-sm text-muted-foreground">
+              fnames are entirely off-chain. Thefore, they are managed via
+              signatures from the custody address of the Farcaster account. This
+              means that you can only change your fname if you have access to
+              the custody address of your Farcaster account. If you lose access
+              to your custody address, you will not be able to change your
+              fname. fnames can only be changed once every 28 days.
+            </div>
+            <div className="text-sm text-muted-foreground">
+              1. If you currently have an fname associated with your account,
+              you will be prompted to deregister it. This will make your
+              previous fname available for anyone to use.
+            </div>
+            <div className="text-sm text-muted-foreground">
+              2. You will be prompted to register your new fname.
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+      <div className="flex flex-col space-y-1 pt-2">
+        <div className="flex flex-row space-x-2">
+          <Input
+            placeholder="flink"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={loading || !user || !custody || custody.fid !== user.fid}
+          />
+          <AlertDialog open={open} onOpenChange={setOpen}>
+            <Button
+              size="sm"
+              onClick={handleChange}
+              disabled={
+                input === custody?.fname ||
+                loading ||
+                !user ||
+                !custody ||
+                custody.fid !== user.fid
+              }
+            >
+              Change
+            </Button>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <div className="text-sm text-muted-foreground">
+                  You are changing your username to{" "}
+                  <b className="text-foreground">{input}</b>. This will make
+                  your previous username available for anyone to claim and
+                  prevent you from changing your name for the next 28 days.
+                  <div className="font-semibold mt-2 text-foreground">
+                    Note: You will need to sign both messages to change your
+                    username
+                  </div>
                 </div>
-              </div>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <Button
-                onClick={() => setOpen(false)}
-                disabled={isLoading}
-                variant="outline"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={
-                  input === custody?.fname ||
-                  isLoading ||
-                  !user ||
-                  !custody ||
-                  custody.fid !== user.fid
-                }
-              >
-                {isLoading ? <LoadingIcon /> : "Change"}
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <Button
+                  onClick={() => setOpen(false)}
+                  disabled={loading}
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={
+                    input === custody?.fname ||
+                    loading ||
+                    !user ||
+                    !custody ||
+                    custody.fid !== user.fid
+                  }
+                >
+                  {loading ? <LoadingIcon /> : "Change"}
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+        <div className="text-sm text-red-500">{error}</div>
       </div>
-      <div className="text-sm text-red-500">{error}</div>
     </div>
   );
 };
