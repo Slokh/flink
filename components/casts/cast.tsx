@@ -107,19 +107,15 @@ const CastPreview = ({
           <img
             src={previewImage}
             alt={previewImage}
-            className="object-cover w-16 h-16"
+            className="rounded-lg object-cover w-16 h-16"
           />
         </DialogTrigger>
-        <DialogContent className="max-w-4xl p-0">
-          <DialogHeader>
-            <DialogDescription>
-              <img
-                src={previewImage}
-                alt={previewImage}
-                className="rounded-lg"
-              />
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-w-4xl p-0 md:w-fit">
+          <img
+            src={previewImage}
+            alt={previewImage}
+            className="rounded-lg object-contain max-h-full"
+          />
         </DialogContent>
       </Dialog>
     );

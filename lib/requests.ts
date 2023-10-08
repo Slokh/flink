@@ -110,3 +110,10 @@ export const getUserStats = async (fid: number, time?: string) => {
   );
   return await data.json();
 };
+
+export const getChannelMembers = async (url: string) => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(`${protocol}://${host}/api/channels/${url}/members`);
+  return await data.json();
+};

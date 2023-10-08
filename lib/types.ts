@@ -188,3 +188,27 @@ export type TransferRequest = {
   deadline: number;
   fname: string;
 };
+
+export type ChannelMember = {
+  collection: {
+    name: string;
+    quantity: number;
+  };
+  token: {
+    contractAddress: string;
+    tokenId: string;
+    ownerAddress: string;
+    quantity: number;
+    firstAcquiredAt: string;
+    metadata: {
+      name: string;
+      description?: string;
+      image?: string;
+      openseaUrl?: string;
+    };
+  };
+  user: FarcasterUser;
+  followers: number;
+  recentActivity: UserStatsEntries;
+  allActivity: UserStatsEntries;
+};

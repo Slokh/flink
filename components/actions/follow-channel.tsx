@@ -36,8 +36,6 @@ export const FollowChannel = () => {
     }
   };
 
-  console.log(channels);
-
   if (!user) return <></>;
 
   return (

@@ -130,8 +130,12 @@ const ImageEmbed = ({ url }: { url: string }) => {
         <DialogTrigger>
           <img src={url} alt={url} className="rounded-lg" />
         </DialogTrigger>
-        <DialogContent className="max-w-4xl p-0">
-          <img src={url} alt={url} className="rounded-lg" />
+        <DialogContent className="max-w-4xl p-0 md:w-fit">
+          <img
+            src={url}
+            alt={url}
+            className="rounded-lg object-contain max-h-full"
+          />
         </DialogContent>
       </Dialog>
     </div>
@@ -150,7 +154,7 @@ const NftEmbed = ({ metadata }: { metadata: NftMetadata }) => (
       </div>
       <div className="flex flex-col p-2 space-y-1">
         <div className="flex flex-row space-x-2 items-center">
-          <div className="font-normal font-semibold">{metadata.name}</div>
+          <div className="font-semibold">{metadata.name}</div>
         </div>
         {/* <div className="text-muted-foreground">{metadata.description}</div> */}
       </div>

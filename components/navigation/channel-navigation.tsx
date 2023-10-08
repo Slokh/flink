@@ -12,8 +12,11 @@ import {
   NavigationGroup,
   NavigationSelect,
 } from "./navigation";
+import { CHANNELS_BY_ID } from "@/lib/channels";
+import { useEffect, useState } from "react";
 
 export const ChannelNavigation = () => {
+  const [membersEnabled, setMembersEnabled] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
@@ -26,7 +29,11 @@ export const ChannelNavigation = () => {
   const time =
     sort === CastsSort.Top ? searchParams.get("time") || "day" : undefined;
 
-  const mainNav = pathname.includes("stats") ? "stats" : "casts";
+  const mainNav = pathname.includes("stats")
+    ? "stats"
+    : pathname.includes("members")
+    ? "members"
+    : "casts";
 
   const handleSelect = (value: string) => {
     const params = new URLSearchParams(searchParams);
@@ -34,6 +41,21 @@ export const ChannelNavigation = () => {
     const newQuery = params.toString();
     router.push(`${pathname}?${newQuery}`);
   };
+
+  const channelId = params.channel as string;
+  const channel =
+    CHANNELS_BY_ID[channelId]?.parentUrl || decodeURIComponent(channelId);
+
+  useEffect(() => {
+    const handle = async () => {
+      const res = await fetch(`/api/channels/${encodeURIComponent(channel)}`);
+      const { collection } = await res.json();
+      if (collection.quantity > 500) {
+        setMembersEnabled(true);
+      }
+    };
+    handle();
+  }, [channel]);
 
   return (
     <Navigation>
@@ -50,6 +72,14 @@ export const ChannelNavigation = () => {
         >
           Stats
         </NavigationButton>
+        {membersEnabled && (
+          <NavigationButton
+            href={`/channels/${params.channel}/members`}
+            isSelected={mainNav === "members"}
+          >
+            Members
+          </NavigationButton>
+        )}
       </NavigationGroup>
       {mainNav === "casts" && (
         <NavigationGroup>
