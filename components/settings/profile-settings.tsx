@@ -19,17 +19,12 @@ import { useEffect, useState } from "react";
 import { FileUpload } from "../file-upload";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Loading from "@/app/loading";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { AddSigner } from "../auth-button";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import {
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Loading as LoadingIcon } from "@/components/loading";
 import { useAccount, useSignTypedData, useSwitchNetwork } from "wagmi";
@@ -47,13 +42,13 @@ const checkBytesLength = (text: string, maxLength: number) => {
 };
 
 const formSchema = z.object({
-  display: z
+  display_name: z
     .string()
     .refine((text) => checkBytesLength(text, 32), { message: "Invalid fname" }),
   bio: z.string().refine((text) => checkBytesLength(text, 256), {
     message: "Invalid fname",
   }),
-  pfp: z.string().refine((text) => checkBytesLength(text, 256), {
+  pfp_url: z.string().refine((text) => checkBytesLength(text, 256), {
     message: "Invalid fname",
   }),
 });
@@ -76,55 +71,51 @@ export const ProfileSettings = () => {
 
 const Profile = () => {
   const { user, custody, isLoading } = useUser();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      display: "",
+      display_name: "",
       bio: "",
-      pfp: "",
+      pfp_url: "",
     },
   });
 
   useEffect(() => {
-    if (user || custody) {
+    if (user) {
       form.reset({
-        display: user?.display || custody?.display || "",
-        bio: user?.bio || custody?.bio || "",
-        pfp: user?.pfp || custody?.pfp || "",
+        display_name: user?.display || "",
+        bio: user?.bio || "",
+        pfp_url: user?.pfp || "",
       });
     }
-  }, [user, form, custody]);
+  }, [user, form]);
 
   if (!custody && !user && !isLoading) {
     return <></>;
   }
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
     await fetch(`/api/auth/${user?.fid}/settings`, {
       method: "POST",
       body: JSON.stringify(values),
     });
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    window.location.reload();
   };
 
   return (
     <div className="flex flex-col px-2">
-      <Alert>
-        <ExclamationTriangleIcon className="h-4 w-4" />
-        <AlertTitle className="font-semibold">Not supported</AlertTitle>
-        <AlertDescription className="space-y-2 mt-2">
-          Modifying profile settings are currently not supported.
-        </AlertDescription>
-      </Alert>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 p-4 max-w-lg"
         >
           <FormField
-            disabled={true || !user}
             control={form.control}
-            name="pfp"
+            name="pfp_url"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Profile Picture</FormLabel>
@@ -132,22 +123,22 @@ const Profile = () => {
                   <div className="flex flex-row space-x-8 items-center">
                     <FileUpload
                       onFileUpload={(url) => {
-                        form.setValue("pfp", url);
+                        form.setValue("pfp_url", url);
                       }}
                     >
                       <Avatar className="h-24 w-24">
                         <AvatarImage
-                          src={form.watch("pfp")}
+                          src={form.watch("pfp_url")}
                           className="object-cover"
                         />
                         <AvatarFallback>?</AvatarFallback>
                       </Avatar>
                     </FileUpload>
-                    {!true && user && (
+                    {user && (
                       <div className="flex flex-col space-y-4">
                         <FileUpload
                           onFileUpload={(url) => {
-                            form.setValue("pfp", url);
+                            form.setValue("pfp_url", url);
                           }}
                         >
                           <div
@@ -161,7 +152,7 @@ const Profile = () => {
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => form.setValue("pfp", "")}
+                          onClick={() => form.setValue("pfp_url", "")}
                         >
                           Remove
                         </Button>
@@ -173,14 +164,13 @@ const Profile = () => {
             )}
           />
           <FormField
-            disabled={true || !user}
             control={form.control}
-            name="display"
+            name="display_name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Display Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Flink" {...field} />
+                  <Input disabled={!user} placeholder="Flink" {...field} />
                 </FormControl>
                 <FormDescription>
                   This is your display name on Farcaster. It can be anything you
@@ -191,14 +181,17 @@ const Profile = () => {
             )}
           />
           <FormField
-            disabled={true || !user}
             control={form.control}
             name="bio"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Bio</FormLabel>
                 <FormControl>
-                  <Input placeholder="Shadowy Super Coder" {...field} />
+                  <Input
+                    disabled={!user}
+                    placeholder="Shadowy Super Coder"
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>
                   Tell Farcaster a little bit about yourself.
@@ -207,8 +200,8 @@ const Profile = () => {
               </FormItem>
             )}
           />
-          <Button disabled={true || !user} type="submit">
-            Submit
+          <Button disabled={!user || loading} type="submit">
+            {loading ? <LoadingIcon /> : "Save"}
           </Button>
         </form>
       </Form>
@@ -273,7 +266,12 @@ const ChangeUsername = () => {
     try {
       await switchNetwork(1);
 
-      if (custody?.fname) {
+      const current = await fetch(
+        `https://fnames.farcaster.xyz/transfers/current?name=${custody?.fname}`
+      );
+      const { transfer } = await current.json();
+
+      if (transfer?.to === custody?.fid) {
         const message1 = {
           name: custody?.fname,
           owner: address,
@@ -302,22 +300,25 @@ const ChangeUsername = () => {
         });
       }
 
-      const message2 = {
-        name: input,
-        owner: address,
-        timestamp: Math.floor(Date.now() / 1000),
-      };
+      const newTransfer = await fetch(
+        `https://fnames.farcaster.xyz/transfers/current?name=${input}`
+      );
+      const newTransferData = await newTransfer.json();
+      if (newTransferData.transfer?.to !== custody?.fid) {
+        const message2 = {
+          name: input,
+          owner: address,
+          timestamp: Math.floor(Date.now() / 1000),
+        };
 
-      const signature2 = await signTypedDataAsync({
-        primaryType: "UserNameProof",
-        domain,
-        types,
-        message: message2,
-      });
+        const signature2 = await signTypedDataAsync({
+          primaryType: "UserNameProof",
+          domain,
+          types,
+          message: message2,
+        });
 
-      const submission2 = await fetch(
-        `https://fnames.farcaster.xyz/transfers`,
-        {
+        await fetch(`https://fnames.farcaster.xyz/transfers`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -329,12 +330,17 @@ const ChangeUsername = () => {
             to: custody?.fid,
             fid: custody?.fid,
           }),
-        }
-      );
-
-      if (submission2.ok) {
-        window.location.reload();
+        });
       }
+
+      await fetch(`/api/auth/${user?.fid}/settings`, {
+        method: "POST",
+        body: JSON.stringify({
+          username: input,
+        }),
+      });
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      window.location.reload();
     } catch (e) {}
     setLoading(false);
   };
@@ -343,19 +349,21 @@ const ChangeUsername = () => {
     const current = await fetch(
       `https://fnames.farcaster.xyz/transfers/current?name=${custody?.fname}`
     );
-    const {
-      transfer: { timestamp },
-    } = await current.json();
-    if (timestamp && Date.now() - timestamp * 1000 < 28 * 24 * 60 * 60 * 1000) {
+    const { transfer } = await current.json();
+    if (
+      transfer?.timestamp &&
+      Date.now() - transfer?.timestamp * 1000 < 28 * 24 * 60 * 60 * 1000
+    ) {
       setLoading(false);
       setError("You can only change your username once every 28 days.");
       return;
     }
 
-    const transfer = await fetch(
+    const newTransfer = await fetch(
       `https://fnames.farcaster.xyz/transfers/current?name=${input}`
     );
-    if (transfer.ok) {
+    const newTransferData = await newTransfer.json();
+    if (newTransfer.ok && newTransferData.transfer?.to !== custody?.fid) {
       setLoading(false);
       setError("Username is already taken.");
       return;

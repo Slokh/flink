@@ -15,15 +15,16 @@ import {
   upsertCastReactions,
   upsertUrlReactions,
 } from "../db/reaction";
+import { handleUserUpdate } from "../farcaster/users";
 
 const START_TIMESTAMP = 1696743988;
 const END_TIMESTAMP = 1696787188;
 
 const backfill = async () => {
   const client = await getHubClient();
-  let currentFid = 1;
+  let currentFid = 22000;
   for (let fid = currentFid; fid <= 21000; fid++) {
-    // await handleUserUpdate(client, fid);
+    await handleUserUpdate(client, fid);
 
     // const farcasterUser = await client.getFarcasterUser(fid);
     // if (!farcasterUser) {
@@ -37,7 +38,7 @@ const backfill = async () => {
     // await handleLinks(client, fid),
     // ]);
 
-    await handleFidCasts(client, fid);
+    // await handleFidCasts(client, fid);
   }
 };
 

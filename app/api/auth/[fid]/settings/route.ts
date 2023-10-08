@@ -34,29 +34,28 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    //   const data = await fetch("https://api.neynar.com/v2/farcaster/cast", {
-    //     method: "POST",
-    //     headers: {
-    //       "content-type": "application/json",
-    //       api_key: process.env.NEYNAR_API_KEY as string,
-    //     },
-    //     body: JSON.stringify({
-    //       signer_uuid: signer.signerUuid,
-    //       ...(await request.json()),
-    //     }),
-    //   });
+    const body = await request.json();
+    const data = await fetch("https://api.neynar.com/v2/farcaster/user", {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        api_key: process.env.NEYNAR_API_KEY as string,
+      },
+      body: JSON.stringify({
+        signer_uuid: signer.signerUuid,
+        ...body,
+      }),
+    });
 
-    //   const res = await data.json();
+    const res = await data.json();
 
-    //   if (!data.ok) {
-    //     return NextResponse.json({
-    //       status: data.status,
-    //       statusText: data.statusText,
-    //       error: res,
-    //     });
-    //   }
-
-    console.log(await request.json());
+    if (!data.ok) {
+      return NextResponse.json({
+        status: data.status,
+        statusText: data.statusText,
+        error: res,
+      });
+    }
 
     return NextResponse.json({});
   }
