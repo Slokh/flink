@@ -86,6 +86,7 @@ model FarcasterCast {
     @@index([fid, topParentUrl, timestamp])
     @@index([parentCast, timestamp])
     @@index([fid, hash, parentCast])
+    @@index([parentFid, timestamp])
 }
 
 model FarcasterCastEmbedUrl {
@@ -142,6 +143,7 @@ model FarcasterCastMention {
     @@id([fid, hash, mention])
     @@index([mention, fid])
     @@index([mention, hash, timestamp])
+    @@index([mention, timestamp])
 }
 
 model FarcasterCastReaction {
@@ -158,6 +160,7 @@ model FarcasterCastReaction {
     @@index([timestamp])
     @@index([fid, targetHash, timestamp])
     @@index([targetFid, targetHash, reactionType, timestamp])
+    @@index([reactionType, targetFid, timestamp])
 }
 
 model FarcasterUrlReaction {
@@ -200,6 +203,7 @@ model FarcasterLink {
 
     @@id([linkType, fid, targetFid])
     @@index([linkType, targetFid, fid])
+    @@index([linkType, targetFid, timestamp])
 }
 
 model FarcasterChannelStats {
@@ -246,9 +250,10 @@ model User {
 }
 
 model UserPreferences {
-    address     String
-    fid         Int
-    preferences Json?
+    address               String
+    fid                   Int
+    preferences           Json?
+    notificationsViewedAt DateTime?
 
     @@id([address, fid])
 }

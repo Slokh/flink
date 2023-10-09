@@ -212,3 +212,11 @@ export type ChannelMember = {
   recentActivity: UserStatsEntries;
   allActivity: UserStatsEntries;
 };
+
+export type Notification = {
+  type: "like" | "recast" | "follow" | "reply" | "mention";
+  timestamp: Date;
+  user: FarcasterUser;
+  viewed: boolean;
+  data?: FarcasterCast;
+};

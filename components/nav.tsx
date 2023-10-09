@@ -3,8 +3,9 @@ import Link from "next/link";
 import { AuthButton } from "./auth-button";
 import { NewCastButton } from "./actions/new-cast";
 import { usePathname } from "next/navigation";
-import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { BellIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
+import { useUser } from "@/context/user";
 
 export const Nav = () => {
   const pathname = usePathname();
@@ -13,6 +14,7 @@ export const Nav = () => {
   const isUsers = pathname.startsWith("/users");
   const isLinks = pathname.startsWith("/links");
   const [open, setOpen] = useState(false);
+  const { hasUnreadNotifications } = useUser();
 
   return (
     <>
@@ -59,6 +61,11 @@ export const Nav = () => {
         <div className="flex flex-row text-sm font-medium items-center space-x-2">
           <NewCastButton />
           <AuthButton />
+          <Link href="/notifications">
+            <BellIcon
+              className={hasUnreadNotifications ? "text-red-500" : ""}
+            />
+          </Link>
         </div>
       </div>
       <div className="flex lg:hidden flex-col border p-1 w-full">
@@ -85,6 +92,22 @@ export const Nav = () => {
               }`}
             >
               Channels
+            </Link>
+            <Link
+              href="/users"
+              className={`hover:text-foreground transition ${
+                isUsers ? "font-semibold text-foreground" : ""
+              }`}
+            >
+              Users
+            </Link>
+            <Link
+              href="/links"
+              className={`hover:text-foreground transition ${
+                isLinks ? "font-semibold text-foreground" : ""
+              }`}
+            >
+              Links
             </Link>
             <AuthButton />
             <NewCastButton />

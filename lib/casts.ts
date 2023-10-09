@@ -375,7 +375,7 @@ const getUsersByFids = async (fids: number[]) => {
   }, {} as Record<number, FarcasterUser>);
 };
 
-const getCastsByFidHashes = async (fidHashes: FidHash[]) => {
+export const getCastsByFidHashes = async (fidHashes: FidHash[]) => {
   return await prisma.farcasterCast.findMany({
     where: {
       OR: fidHashes,

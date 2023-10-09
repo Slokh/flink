@@ -7,7 +7,6 @@ import { NextResponse } from "next/server";
 import { createPublicClient, http, parseAbiItem } from "viem";
 import { optimism } from "viem/chains";
 
-const FROM_BLOCK = BigInt(108869029);
 const ID_REGISTRY_ADDRESS = "0x00000000FcAf86937e41bA038B4fA40BAA4B780A";
 
 const client = createPublicClient({

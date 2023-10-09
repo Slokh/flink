@@ -1,4 +1,4 @@
-import { AuthenticatedUser, DisplayMode, TransferRequest } from "@/lib/types";
+import { AuthenticatedUser, DisplayMode, Notification } from "@/lib/types";
 import {
   useEffect,
   useState,
@@ -23,7 +23,11 @@ type State = {
   displayMode: DisplayMode;
   changeDisplayMode: (mode: DisplayMode) => void;
 
+  notifications: Notification[];
+  hasUnreadNotifications: boolean;
+
   isLoading: boolean;
+  isNotificationsLoading: boolean;
 };
 
 type UserContextType = State | undefined;
@@ -44,7 +48,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       ? DisplayMode.Images
       : DisplayMode.Default;
   const { authState } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNotificationsLoading, setNotificationsLoading] = useState(true);
 
   const initialize = async (fid?: number) => {
     const res = await fetch(`/api/auth/users`);
@@ -53,20 +60,40 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       await res.json();
     setUsers(data.users);
     setCustody(data.primary);
+
+    let user;
     if (fid) {
       localStorage.setItem("fid", fid.toString());
-      setUser(data.users.find((u) => u.fid === fid));
+      user = data.users.find((u) => u.fid === fid);
     } else if (localStorage.getItem("fid")) {
-      setUser(
-        data.users.find(
-          (u) => u.fid === parseInt(localStorage.getItem("fid") ?? "")
-        )
+      user = data.users.find(
+        (u) => u.fid === parseInt(localStorage.getItem("fid") ?? "")
       );
-    } else {
-      setUser(data.users[0]);
     }
+
+    if (!user) {
+      user = data.users[0];
+    }
+    setUser(user);
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    if (!user) return;
+
+    const handle = async () => {
+      const notificationsRes = await fetch(
+        `/api/auth/${user.fid}/notifications`
+      );
+      const { notifications, hasUnreadNotifications, notificationsViewedAt } =
+        await notificationsRes.json();
+      setNotifications(notifications);
+      setHasUnreadNotifications(hasUnreadNotifications);
+      setNotificationsLoading(false);
+    };
+
+    handle();
+  }, [user]);
 
   useEffect(() => {
     if (authState === UserAuthState.LOGGED_IN) {
@@ -121,6 +148,9 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         changeUser,
         addNewUser,
         isLoading,
+        notifications,
+        hasUnreadNotifications,
+        isNotificationsLoading,
       }}
     >
       {children}
