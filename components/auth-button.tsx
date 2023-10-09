@@ -26,7 +26,14 @@ import {
   ExclamationTriangleIcon,
   GearIcon,
 } from "@radix-ui/react-icons";
-import { useContractWrite, useDisconnect, useSwitchNetwork } from "wagmi";
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  useDisconnect,
+  useSignTypedData,
+  useSwitchNetwork,
+} from "wagmi";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Tooltip,
@@ -42,6 +49,26 @@ import {
 } from "./ui/alert-dialog";
 
 const KEY_REGISTRY_ADDRESS = "0x00000000fC9e66f1c6d86D750B4af47fF0Cc343d";
+const BUNDLER_ADDRESS = "0x00000000fc94856f3967b047325f88d47bc225d0";
+const ID_REGISTRY_ADDRESS = "0x00000000FcAf86937e41bA038B4fA40BAA4B780A";
+
+// Define the EIP-712 domain
+const domain = {
+  name: "Farcaster IdRegistry",
+  version: "1",
+  chainId: 10,
+  verifyingContract: ID_REGISTRY_ADDRESS,
+} as const;
+
+// Create the EIP-712 typed data
+const types = {
+  Register: [
+    { name: "to", type: "address" },
+    { name: "recovery", type: "address" },
+    { name: "nonce", type: "uint256" },
+    { name: "deadline", type: "uint256" },
+  ],
+};
 
 const AuthUser = ({
   user,
@@ -427,3 +454,249 @@ export const TransferAccount = () => (
     Transfer account
   </Link>
 );
+
+export const CreateAccount = () => {
+  const [open, setOpen] = useState(false);
+  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>();
+  const { addNewUser } = useUser();
+  const [isLoading, setIsLoading] = useState(false);
+  const { address } = useAccount();
+  const router = useRouter();
+
+  const { switchNetwork } = useSwitchNetwork();
+
+  const { signTypedDataAsync } = useSignTypedData();
+
+  const { data: nonce } = useContractRead({
+    address: ID_REGISTRY_ADDRESS,
+    abi: [parseAbiItem("function nonces(address) view returns (uint256)")],
+    functionName: "nonces",
+    args: address ? [address] : undefined,
+  });
+
+  const { writeAsync } = useContractWrite({
+    address: BUNDLER_ADDRESS,
+    abi: [
+      {
+        inputs: [
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "to",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "recovery",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "deadline",
+                type: "uint256",
+              },
+              {
+                internalType: "bytes",
+                name: "sig",
+                type: "bytes",
+              },
+            ],
+            internalType: "struct IBundler.RegistrationParams",
+            name: "registration",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "uint32",
+                name: "keyType",
+                type: "uint32",
+              },
+              {
+                internalType: "bytes",
+                name: "key",
+                type: "bytes",
+              },
+              {
+                internalType: "uint8",
+                name: "metadataType",
+                type: "uint8",
+              },
+              {
+                internalType: "bytes",
+                name: "metadata",
+                type: "bytes",
+              },
+              {
+                internalType: "uint256",
+                name: "deadline",
+                type: "uint256",
+              },
+              {
+                internalType: "bytes",
+                name: "sig",
+                type: "bytes",
+              },
+            ],
+            internalType: "struct IBundler.SignerParams[]",
+            name: "signers",
+            type: "tuple[]",
+          },
+          {
+            internalType: "uint256",
+            name: "storageUnits",
+            type: "uint256",
+          },
+        ],
+        name: "register",
+        outputs: [],
+        stateMutability: "payable",
+        type: "function",
+      },
+    ],
+    functionName: "register",
+  });
+
+  const write = async () => {
+    if (!switchNetwork || !writeAsync) return;
+
+    try {
+      setIsLoading(true);
+      switchNetwork(10);
+
+      const registerDeadline = Math.floor(Date.now() / 1000) + 86400;
+      const registerSignature = await signTypedDataAsync({
+        primaryType: "Register",
+        domain,
+        types,
+        message: {
+          to: address,
+          recovery: address,
+          nonce,
+          deadline: registerDeadline,
+        },
+      });
+
+      const res = await fetch(`/api/auth/signer/generate`);
+      const {
+        appFid,
+        signature,
+        deadline,
+        signerAddress,
+        signerPublicKey,
+        signerUuid,
+      }: {
+        appFid: number;
+        signature: `0x${string}`;
+        deadline: number;
+        signerAddress: `0x${string}`;
+        signerPublicKey: `0x${string}`;
+        signerUuid: string;
+        signerStatus: string;
+      } = await res.json();
+
+      await writeAsync({
+        args: [
+          [address, address, registerDeadline, registerSignature],
+          [
+            1,
+            signerPublicKey,
+            1,
+            encodeAbiParameters(
+              [
+                {
+                  components: [
+                    {
+                      type: "uint256",
+                      name: "requestFid",
+                    },
+                    {
+                      type: "address",
+                      name: "requestSigner",
+                    },
+                    {
+                      type: "bytes",
+                      name: "signature",
+                    },
+                    {
+                      type: "uint256",
+                      name: "deadline",
+                    },
+                  ],
+                  name: "signedKey",
+                  type: "tuple",
+                },
+              ],
+              [
+                {
+                  requestFid: BigInt(appFid),
+                  requestSigner: signerAddress,
+                  signature,
+                  deadline: BigInt(deadline),
+                },
+              ]
+            ),
+            deadline,
+            signature,
+          ],
+          1,
+        ],
+      });
+      setPollInterval(
+        setInterval(async () => {
+          const res = await fetch(`/api/auth/signer/${signerUuid}`);
+          const data = await res.json();
+          if (!data?.fid) return;
+          addNewUser(data.fid.toString());
+          setOpen(false);
+          router.push("/settings");
+        }, 2000)
+      );
+    } catch (e) {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (open) {
+      write();
+    } else if (pollInterval) {
+      clearInterval(pollInterval);
+      setPollInterval(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border w-full">
+        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+          <ExclamationTriangleIcon className="text-yellow-500 w-4 h-4" />
+        </span>
+        Create account
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <div className="flex flex-col items-center space-y-2">
+          <div className="font-semibold">
+            Please sign the messages and confirm the transaction in your wallet
+            and wait...
+          </div>
+          <div className="text-sm">
+            This modal will close automatically when the process is complete.
+          </div>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <div className="flex flex-row space-x-2">
+              <Button variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={write}>Create account</Button>
+            </div>
+          )}
+        </div>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};

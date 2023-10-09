@@ -182,13 +182,15 @@ export const ChannelsTable = ({
               <TooltipTrigger>
                 <a
                   href={`/channels/${encodeURIComponent(channel.channelId)}`}
-                  className="flex flex-row space-x-2 items-center transition cursor-pointer p-1"
+                  className="flex flex-row space-x-2 items-center transition cursor-pointer p-1 w-64"
                 >
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={channel.image} className="object-cover" />
                     <AvatarFallback>?</AvatarFallback>
                   </Avatar>
-                  <div className="text-muted-foreground">Unknown</div>
+                  <div className="text-muted-foreground truncate">
+                    {channel.parentUrl}
+                  </div>
                 </a>
               </TooltipTrigger>
               <TooltipContent>

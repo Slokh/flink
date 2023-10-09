@@ -242,17 +242,7 @@ const TransferOwnershipCreate = () => {
     args: address ? [address] : undefined,
   });
 
-  const { signTypedDataAsync } = useSignTypedData({
-    domain,
-    message: {
-      fid: input,
-      to: ID_REGISTRY_ADDRESS,
-      nonce: 0,
-      deadline: 0,
-    },
-    primaryType: "Transfer",
-    types,
-  });
+  const { signTypedDataAsync } = useSignTypedData();
 
   const getPending = async () => {
     const res = await fetch(`/api/auth/transfers`);

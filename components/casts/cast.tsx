@@ -280,7 +280,12 @@ export const MobileCast = ({
   isLink?: boolean;
 }) => {
   const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
-  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
+  const formattedText = formatText(
+    cast.text,
+    cast.mentions,
+    cast.embeds,
+    false
+  );
 
   const { externalUrl } = getPreview(cast.embeds);
 
