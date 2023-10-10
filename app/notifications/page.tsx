@@ -64,9 +64,9 @@ export default function Home() {
                   ) : type === "follow" ? (
                     <PersonIcon className="w-5 h-5 text-purple-500" />
                   ) : type === "reply" ? (
-                    <ChatBubbleIcon className="w-5 h-5 text-red-500" />
+                    <ChatBubbleIcon className="w-5 h-5 text-muted-foreground" />
                   ) : type === "mention" ? (
-                    <div className="text-lg">@</div>
+                    <div className="text-lg text-muted-foreground">@</div>
                   ) : (
                     <></>
                   )}

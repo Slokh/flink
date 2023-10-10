@@ -83,21 +83,22 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     setIsLoading(false);
   };
 
+  const fetchNotifications = async () => {
+    const notificationsRes = await fetch(
+      `/api/auth/${user?.fid}/notifications`
+    );
+    const { notifications, unreadNotifications } =
+      await notificationsRes.json();
+    setNotifications(notifications);
+    setUnreadNotifications(unreadNotifications);
+    setNotificationsLoading(false);
+  };
+
   useEffect(() => {
     if (!user) return;
-
-    const handle = async () => {
-      const notificationsRes = await fetch(
-        `/api/auth/${user.fid}/notifications`
-      );
-      const { notifications, unreadNotifications } =
-        await notificationsRes.json();
-      setNotifications(notifications);
-      setUnreadNotifications(unreadNotifications);
-      setNotificationsLoading(false);
-    };
-
-    handle();
+    fetchNotifications();
+    setInterval(fetchNotifications, 30000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
