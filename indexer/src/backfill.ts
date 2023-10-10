@@ -26,19 +26,17 @@ const backfill = async () => {
   for (let fid = currentFid; fid <= 22000; fid++) {
     // await handleUserUpdate(client, fid);
 
-    // const farcasterUser = await client.getFarcasterUser(fid);
-    // if (!farcasterUser) {
-    //   return;
-    // }
-    // await upsertFarcaster(farcasterUser);
+    const farcasterUser = await client.getFarcasterUser(fid);
+    if (!farcasterUser) {
+      return;
+    }
+    await upsertFarcaster(farcasterUser);
 
-    // await Promise.all([
-    //   await handleFidCasts(client, fid),
-    // await handleReactions(client, fid),
-    // await handleLinks(client, fid),
-    // ]);
-
-    await handleFidCasts(client, fid);
+    await Promise.all([
+      await handleFidCasts(client, fid),
+      await handleReactions(client, fid),
+      await handleLinks(client, fid),
+    ]);
   }
 };
 
