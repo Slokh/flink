@@ -225,18 +225,22 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       ...mentionNotifications,
     ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
+    const notificationsViewedAt = preferences.notificationsViewedAt;
+    let unreadNotifications = notifications.length;
+    if (notificationsViewedAt) {
+      unreadNotifications = notifications.filter(
+        (n) => notificationsViewedAt < n.timestamp
+      ).length;
+    }
     return NextResponse.json({
-      notifications: notifications.slice(0, 20).map((n) => ({
+      notifications: notifications.map((n) => ({
         ...n,
         viewed:
           preferences?.notificationsViewedAt &&
           preferences.notificationsViewedAt >= n.timestamp,
       })),
       notificationsViewedAt: preferences.notificationsViewedAt,
-      hasUnreadNotifications:
-        notifications.length > 0 &&
-        (!preferences.notificationsViewedAt ||
-          preferences.notificationsViewedAt < notifications[0].timestamp),
+      unreadNotifications,
     });
   }
 );

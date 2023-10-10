@@ -25,6 +25,7 @@ import {
   ArrowRightIcon,
   ExclamationTriangleIcon,
   GearIcon,
+  PersonIcon,
 } from "@radix-ui/react-icons";
 import {
   useAccount,
@@ -90,10 +91,16 @@ const AuthUser = ({
 export const AuthButton = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, custody: primary, users, changeUser, isLoading } = useUser();
+  const {
+    user,
+    custody: primary,
+    users,
+    changeUser,
+    isLoading,
+    logout,
+  } = useUser();
   const { authState, verifyMessage } = useAuth();
   const { openConnectModal } = useConnectModal();
-  const { disconnect } = useDisconnect();
   const [clickedConnect, setClickedConnect] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
@@ -211,6 +218,17 @@ export const AuthButton = () => {
         <AddAccount />
         {!primary && <TransferAccount />}
         <DropdownMenuSeparator />
+        {user && (
+          <Link
+            href={`/${user?.fname}`}
+            className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border"
+          >
+            <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+              <PersonIcon className="h-4 w-4 fill-current" />
+            </span>
+            Profile
+          </Link>
+        )}
         <Link
           href={`/settings`}
           className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border"
@@ -222,13 +240,7 @@ export const AuthButton = () => {
         </Link>
         <DropdownMenuItem
           className="cursor-pointer text-red-500"
-          onClick={() => {
-            disconnect();
-            if (pathname.includes("settings")) {
-              router.push("/");
-            }
-            localStorage.setItem("fid", "");
-          }}
+          onClick={logout}
         >
           Log out
         </DropdownMenuItem>

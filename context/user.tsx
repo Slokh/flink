@@ -8,6 +8,7 @@ import {
 } from "react";
 import { UserAuthState, useAuth } from "./auth";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDisconnect } from "wagmi";
 
 type State = {
   users: AuthenticatedUser[];
@@ -23,8 +24,11 @@ type State = {
   displayMode: DisplayMode;
   changeDisplayMode: (mode: DisplayMode) => void;
 
+  logout: () => void;
+
   notifications: Notification[];
-  hasUnreadNotifications: boolean;
+  unreadNotifications: number;
+  markNotificationsAsRead: () => void;
 
   isLoading: boolean;
   isNotificationsLoading: boolean;
@@ -49,9 +53,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       : DisplayMode.Default;
   const { authState } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isNotificationsLoading, setNotificationsLoading] = useState(true);
+  const { disconnect } = useDisconnect();
 
   const initialize = async (fid?: number) => {
     const res = await fetch(`/api/auth/users`);
@@ -85,10 +90,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       const notificationsRes = await fetch(
         `/api/auth/${user.fid}/notifications`
       );
-      const { notifications, hasUnreadNotifications, notificationsViewedAt } =
+      const { notifications, unreadNotifications } =
         await notificationsRes.json();
       setNotifications(notifications);
-      setHasUnreadNotifications(hasUnreadNotifications);
+      setUnreadNotifications(unreadNotifications);
       setNotificationsLoading(false);
     };
 
@@ -134,6 +139,20 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     await initialize(fid);
   };
 
+  const logout = async () => {
+    disconnect();
+    if (pathname.includes("settings")) {
+      router.push("/");
+    }
+    localStorage.setItem("fid", "");
+    setUser(undefined);
+  };
+
+  const markNotificationsAsRead = async () => {
+    await fetch(`/api/auth/${user?.fid}/notifications`, { method: "POST" });
+    setUnreadNotifications(0);
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -149,8 +168,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         addNewUser,
         isLoading,
         notifications,
-        hasUnreadNotifications,
+        unreadNotifications,
         isNotificationsLoading,
+        markNotificationsAsRead,
+        logout,
       }}
     >
       {children}

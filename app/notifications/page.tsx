@@ -14,16 +14,20 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatText } from "@/lib/utils";
 import { CHANNELS_BY_URL } from "@/lib/channels";
 import { useEffect } from "react";
+import { formatDistanceStrict } from "date-fns";
 
 export default function Home() {
-  const { notifications, isNotificationsLoading, user } = useUser();
+  const {
+    notifications,
+    isNotificationsLoading,
+    user,
+    markNotificationsAsRead,
+  } = useUser();
 
   useEffect(() => {
     if (isNotificationsLoading) return;
-    const handle = async () => {
-      await fetch(`/api/auth/${user?.fid}/notifications`, { method: "POST" });
-    };
-    handle();
+    markNotificationsAsRead();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsLoading]);
 
   return (
@@ -90,6 +94,11 @@ export default function Home() {
                         : type === "mention"
                         ? " mentioned you in a post"
                         : ""}
+                      <span className="text-muted-foreground">{` ${formatDistanceStrict(
+                        new Date(timestamp),
+                        new Date(),
+                        { addSuffix: true }
+                      )}`}</span>
                     </span>
                   </div>
                   {data && (
