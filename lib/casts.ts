@@ -430,11 +430,12 @@ const getEmbedsForCasts = async (casts: any) => {
 
   const embedsToFetch = urlEmbeds.filter(
     ({ url, contentMetadata, contentType }: any) =>
-      url &&
-      (!contentMetadata ||
-        (Object.keys(contentMetadata).length === 0 &&
-          url.startsWith("chain://"))) &&
-      (!contentType || !contentType.includes("image"))
+      (url &&
+        (!contentMetadata ||
+          (Object.keys(contentMetadata).length === 0 &&
+            url.startsWith("chain://"))) &&
+        (!contentType || !contentType.includes("image"))) ||
+      (url.includes("warpcast.com") && !contentMetadata?.["user"])
   );
 
   let fetchedEmbedsMap: Record<string, any> = {};

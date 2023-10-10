@@ -71,11 +71,16 @@ export type FarcasterCastTree = FarcasterCast & {
   children: FarcasterCastTree[];
 };
 
+export type CastMetadata = {
+  user: FarcasterUser;
+  cast: FarcasterCast;
+};
+
 export type Embed = {
   url: string;
   urlHost: string;
   contentType: string;
-  contentMetadata?: NftMetadata | Metadata | {};
+  contentMetadata?: NftMetadata | Metadata | CastMetadata | {};
   parsed: boolean;
 };
 

@@ -1,3 +1,4 @@
+import prisma from "../lib/prisma";
 import { CHAIN_ID_TO_NAME, fetchWithRetry } from "../util";
 import { unfurl } from "unfurl.js";
 
@@ -8,6 +9,7 @@ export const getEmbedMetadata = async (url: string) => {
     !url.startsWith("chain://")
       ? `https://${url}`
       : url;
+
   console.log(`[embed] fetching embed metadata for ${formattedUrl}`);
   const [metadata, headMetadata] = await Promise.all([
     getMetadata(formattedUrl),
@@ -55,7 +57,33 @@ const getHeadMetadata = async (url: string) => {
 const getMetadata = async (url: string) => {
   let contentMetadata = {};
   try {
-    if (!url.startsWith("chain://")) {
+    if (url.includes("warpcast.com") && url.match(/0x[0-9a-fA-F]+$/i)) {
+      const split = url.split("/");
+      const hash = split[split.length - 1];
+      const fname = split[split.length - 2];
+
+      const user = await prisma.farcaster.findFirst({
+        where: { fname },
+      });
+      const cast = await prisma.farcasterCast.findFirst({
+        where: {
+          fid: user?.fid,
+          hash: {
+            startsWith: hash,
+          },
+        },
+        include: {
+          mentions: true,
+          urlEmbeds: true,
+        },
+      });
+      if (cast) {
+        contentMetadata = {
+          user,
+          cast,
+        };
+      }
+    } else if (!url.startsWith("chain://")) {
       contentMetadata = await Promise.race<any>([unfurl(url), timeout(10000)]);
     } else {
       contentMetadata = await Promise.race<any>([

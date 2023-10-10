@@ -2,7 +2,10 @@
 import { Metadata } from "unfurl.js/dist/types";
 import { Card } from "./ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Embed, NftMetadata } from "@/lib/types";
+import { CastMetadata, Embed, NftMetadata } from "@/lib/types";
+import Link from "next/link";
+import { formatText } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 const URL_REGEX =
   /\b(?:https?:\/\/|www\.|ftp:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?\b/gi;
@@ -162,6 +165,55 @@ const NftEmbed = ({ metadata }: { metadata: NftMetadata }) => (
   </a>
 );
 
+const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
+  // @ts-ignore
+  const embeds: Embed[] = metadata.cast.urlEmbeds
+    .filter(({ contentType }: any) => contentType?.startsWith("image/"))
+    .map(({ url, contentType, contentMetadata }: any) => ({
+      url,
+      contentType,
+      contentMetadata,
+    }));
+
+  const formattedText = formatText(metadata.cast.text, [], embeds, true);
+  return (
+    <Link
+      href={`https://flink.fyi/${metadata.user.fname}/${metadata.cast.hash}`}
+      className="max-w-lg w-full"
+    >
+      <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
+        <div className="flex flex-col p-2 space-y-1">
+          <Link
+            href={`/${metadata.user.fname}`}
+            className="flex flex-row space-x-1 items-center text-sm"
+          >
+            <Avatar className="h-4 w-4">
+              <AvatarImage src={metadata.user.pfp} className="object-cover" />
+              <AvatarFallback>?</AvatarFallback>
+            </Avatar>
+            <div className="font-semibold">
+              {metadata.user.display || metadata.user.fname}
+            </div>
+            <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${metadata.user.fname}`}</div>
+          </Link>
+          <div className="text-muted-foreground text-sm line-clamp-4 flex flex-col whitespace-pre-wrap break-words leading-6 tracking-normal w-full space-y-2">
+            <div dangerouslySetInnerHTML={{ __html: formattedText }} />
+            {embeds.length > 0 && (
+              <div className="flex flex-row flex-wrap">
+                {embeds.map((embed, i) => (
+                  <div key={i} className="w-1/2 pr-2">
+                    <EmbedPreview embed={embed} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
+    </Link>
+  );
+};
+
 export const EmbedPreview = ({ embed }: { embed: Embed }) => {
   if (embed.url.includes("i.imgur.com")) {
     return <ImageEmbed url={embed.url} />;
@@ -179,6 +231,13 @@ export const EmbedPreview = ({ embed }: { embed: Embed }) => {
 
   if (embed.url.startsWith("chain://")) {
     return <NftEmbed metadata={embed.contentMetadata as NftMetadata} />;
+  }
+
+  if (
+    embed.url.includes("warpcast.com") &&
+    embed.url.match(/0x[0-9a-fA-F]+$/i)
+  ) {
+    return <FlinkEmbed metadata={embed.contentMetadata as CastMetadata} />;
   }
 
   const metadata = embed.contentMetadata as Metadata;
