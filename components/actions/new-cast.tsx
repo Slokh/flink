@@ -334,7 +334,7 @@ export const ReplyCastButton = ({
   inThread,
 }: {
   parent: FarcasterCast;
-  inThread: boolean;
+  inThread?: boolean;
 }) => (
   <NewCastDialog
     header={
