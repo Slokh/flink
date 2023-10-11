@@ -8,8 +8,17 @@ import {
   NavigationSelect,
 } from "./navigation";
 import { useUser } from "@/context/user";
+import { useEffect, useState } from "react";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const CastsNavigation = () => {
+  const [active, setActive] = useState(0);
   const { user } = useUser();
   const router = useRouter();
   const pathname = usePathname();
@@ -31,9 +40,49 @@ export const CastsNavigation = () => {
     router.push(`${pathname}?${newQuery}`);
   };
 
+  useEffect(() => {
+    const handle = async () => {
+      const res = await fetch("/api/stats/users/active");
+      const { active } = await res.json();
+      setActive(active);
+    };
+    handle();
+  }, []);
+
   return (
     <Navigation>
-      <NavigationGroup />
+      <NavigationGroup>
+        {active > 0 && (
+          <div className="flex flex-row text-sm items-center space-x-1">
+            <svg
+              className="animate-pulse h-2 w-2 text-green-500"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="currentColor"
+                cx="12"
+                cy="12"
+                r="10"
+              />
+            </svg>
+            <div>{`${active} users online`}</div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <QuestionMarkCircledIcon className="text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Users who casted or reacted in the last 5 minutes</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
+      </NavigationGroup>
       <NavigationGroup>
         {sort === CastsSort.Top && (
           <NavigationSelect
