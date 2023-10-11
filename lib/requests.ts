@@ -62,7 +62,8 @@ export const getCasts = async (
   time?: string,
   fid?: number,
   all?: boolean,
-  url?: string
+  url?: string,
+  query?: string
 ): Promise<FarcasterCast[]> => {
   const host = headers().get("host");
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
@@ -71,20 +72,23 @@ export const getCasts = async (
       parentUrl ? `&parentUrl=${parentUrl}` : ""
     }${time ? `&time=${time}` : ""}${fid ? `&fid=${fid}` : ""}${
       page ? `&page=${page}` : ""
-    }${all ? `&all=true` : ""}${url ? `&url=${encodeURI(url)}` : ""}`
+    }${all ? `&all=true` : ""}${url ? `&url=${encodeURI(url)}` : ""}${
+      query ? `&query=${query}` : ""
+    }`
   );
   return await data.json();
 };
 
 export const getUserEngagementStats = async (
-  time: string
+  time: string,
+  query?: string
 ): Promise<UserStats[]> => {
   const host = headers().get("host");
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(
     `${protocol}://${host}/api/stats/users/engagement${
       time ? `?time=${time}` : ""
-    }`
+    }${query ? `&query=${query}` : ""}`
   );
   return await data.json();
 };

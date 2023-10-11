@@ -108,8 +108,12 @@ export type Channel = {
 };
 
 export type CastsQuery = {
-  params: { id: string; channel: string; url?: string[] };
-  searchParams: { time?: string; page?: string; display?: string };
+  params: { id: string; channel: string; url?: string[]; query?: string };
+  searchParams: {
+    time?: string;
+    page?: string;
+    display?: string;
+  };
 };
 
 type AuthenticatedUserPreferences = {

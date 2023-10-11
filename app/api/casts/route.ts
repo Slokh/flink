@@ -19,6 +19,9 @@ export async function GET(
   const urlParsed = url.searchParams.get("url")
     ? decodeURI(url.searchParams.get("url") as string)
     : undefined;
+  const query = url.searchParams.get("query")
+    ? ` ${decodeURIComponent(url.searchParams.get("query") as string)} `
+    : "";
 
   let response = [];
   if (sort === CastsSort.Home) {
@@ -47,7 +50,8 @@ export async function GET(
       time || "all",
       parentUrl,
       fidParsed,
-      urlParsed
+      urlParsed,
+      query
     );
   } else if (sort === CastsSort.New || sort === CastsSort.NewReplies) {
     response = await getCastsResponseByNewness(
@@ -55,7 +59,8 @@ export async function GET(
       sort === CastsSort.NewReplies,
       parentUrl,
       fidParsed,
-      urlParsed
+      urlParsed,
+      query
     );
   }
 

@@ -47,4 +47,15 @@ const handleLinkRemove = async (message: Message) => {
   );
 };
 
-run();
+const main = async () => {
+  while (true) {
+    try {
+      await run();
+      break;
+    } catch (e) {
+      console.error("An error occurred, retrying...", e);
+    }
+  }
+};
+
+main();

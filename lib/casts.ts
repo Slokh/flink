@@ -96,12 +96,14 @@ export const getCastsResponseByTopLikes = async (
   time: "hour" | "day" | "week" | "month" | "year" | "all",
   parentUrl?: string,
   fid?: number,
-  url?: string
+  url?: string,
+  query?: string
 ) => {
   const timeInterval = getTimeInterval(time);
 
-  const results: FidHash[] = await (parentUrl
-    ? prisma.$queryRaw`
+  const results: FidHash[] = await (query
+    ? fid
+      ? prisma.$queryRaw`
     SELECT
         "targetFid" AS fid,
         "targetHash" AS hash,
@@ -111,12 +113,46 @@ export const getCastsResponseByTopLikes = async (
     WHERE
         "reactionType" = 'like'
         AND "FarcasterCast"."timestamp" >= NOW() -  ${timeInterval}::interval
-        AND "FarcasterCast"."parentUrl" = ${parentUrl}
+        AND "FarcasterCast"."text" ILIKE ${`%${query}%`}
+        AND "FarcasterCast"."fid" = ${fid}
         AND NOT "FarcasterCast"."deleted"
     GROUP BY "targetFid", "targetHash"
     ORDER BY COUNT(*) DESC, "targetFid" DESC
     LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
   `
+      : prisma.$queryRaw`
+    SELECT
+        "targetFid" AS fid,
+        "targetHash" AS hash,
+        COUNT(*) as count
+    FROM "public"."FarcasterCastReaction"
+      JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+    WHERE
+        "reactionType" = 'like'
+        AND "FarcasterCast"."timestamp" >= NOW() -  ${timeInterval}::interval
+        AND "FarcasterCast"."text" ILIKE ${`%${query}%`}
+        AND NOT "FarcasterCast"."deleted"
+    GROUP BY "targetFid", "targetHash"
+    ORDER BY COUNT(*) DESC, "targetFid" DESC
+    LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
+  `
+    : parentUrl
+    ? prisma.$queryRaw`
+      SELECT
+          "targetFid" AS fid,
+          "targetHash" AS hash,
+          COUNT(*) as count
+      FROM "public"."FarcasterCastReaction"
+        JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
+      WHERE
+          "reactionType" = 'like'
+          AND "FarcasterCast"."timestamp" >= NOW() -  ${timeInterval}::interval
+          AND "FarcasterCast"."parentUrl" = ${parentUrl}
+          AND NOT "FarcasterCast"."deleted"
+      GROUP BY "targetFid", "targetHash"
+      ORDER BY COUNT(*) DESC, "targetFid" DESC
+      LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
+    `
     : fid
     ? replies
       ? prisma.$queryRaw`
@@ -212,7 +248,8 @@ export const getCastsResponseByNewness = async (
   replies: boolean,
   parentUrl?: string,
   fid?: number,
-  url?: string
+  url?: string,
+  query?: string
 ) => {
   if (url) {
     const fidHashes: FidHash[] = await prisma.$queryRaw`
@@ -253,6 +290,7 @@ export const getCastsResponseByNewness = async (
             },
         ...(parentUrl ? { parentUrl } : {}),
         ...(fid ? { fid } : {}),
+        ...(query ? { text: { contains: query, mode: "insensitive" } } : {}),
         deleted: false,
       },
       orderBy: {

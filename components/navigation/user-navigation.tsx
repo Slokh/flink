@@ -1,5 +1,5 @@
 "use client";
-import { CastsSort } from "@/lib/types";
+import { CastsSort, DisplayMode } from "@/lib/types";
 import {
   useParams,
   usePathname,
@@ -12,6 +12,7 @@ import {
   NavigationGroup,
   NavigationSelect,
 } from "./navigation";
+import { useUser } from "@/context/user";
 
 export const UserNavigation = () => {
   const router = useRouter();
@@ -27,6 +28,7 @@ export const UserNavigation = () => {
     : CastsSort.New;
   const time =
     sort === CastsSort.Top ? searchParams.get("time") || "day" : undefined;
+  const { displayMode, changeDisplayMode } = useUser();
 
   const mainNav = pathname.includes("stats") ? "stats" : "casts";
 
@@ -48,6 +50,23 @@ export const UserNavigation = () => {
       </NavigationGroup>
       {mainNav === "casts" && (
         <NavigationGroup>
+          <div className="hidden sm:flex">
+            <NavigationSelect
+              defaultValue={displayMode}
+              onValueChange={() =>
+                changeDisplayMode(
+                  displayMode === DisplayMode.Default
+                    ? DisplayMode.Images
+                    : DisplayMode.Default
+                )
+              }
+              placeholder="Display mode"
+              options={[
+                { value: DisplayMode.Default, label: "Default" },
+                { value: DisplayMode.Images, label: "Images" },
+              ]}
+            />
+          </div>
           {sort === CastsSort.Top && (
             <NavigationSelect
               defaultValue={time || "day"}

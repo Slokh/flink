@@ -2,18 +2,25 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export const SearchInput = () => {
   const router = useRouter();
+  const params = useParams();
   const [search, setSearch] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (params.query) {
+      setSearch(params.query as string);
+    } else {
+      setSearch("");
+    }
+  }, [params.query]);
 
   const handleClick = () => {
     if (!search) return;
-    setLoading(true);
-    router.push(`/${search}`);
+    router.push(`/search/${encodeURIComponent(search)}`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -26,10 +33,11 @@ export const SearchInput = () => {
     <div className="relative">
       <Input
         id="name"
-        placeholder="Search users..."
+        placeholder="Search..."
+        value={search}
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="pr-8 border-0" // Add padding to prevent text from going under the button
+        className="pr-8 bg-muted"
       />
       <Button
         variant="outline"

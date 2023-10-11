@@ -34,6 +34,7 @@ export const CastsTable = async ({
     sort === CastsSort.Top
       ? searchParams.time || (url ? "all" : "day")
       : undefined;
+  const query = params.query;
 
   let entity;
   if (params.id) {
@@ -48,6 +49,7 @@ export const CastsTable = async ({
         parentUrl={channel?.parentUrl}
         time={time}
         fid={entity?.fid}
+        query={query}
       />
     );
   }
@@ -59,7 +61,8 @@ export const CastsTable = async ({
     time,
     entity?.fid,
     false,
-    url
+    url,
+    query
   );
 
   return (
@@ -83,6 +86,7 @@ export const CastsTable = async ({
           time={time}
           fid={entity?.fid}
           url={url}
+          query={query}
         />
       </div>
     </ScrollArea>

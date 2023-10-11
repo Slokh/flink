@@ -63,7 +63,7 @@ export const NavigationGroup = ({
   className?: string;
 }) => (
   <div
-    className={`flex flex-row space-x-2 overflow-auto overflow-x-scroll whitespace-nowrap h-12 items-center px-2 ${
+    className={`flex flex-row space-x-2 overflow-auto overflow-x-scroll whitespace-nowrap sm:h-12 h-fit items-center px-2 ${
       className ? ` ${className}` : ""
     }`}
   >

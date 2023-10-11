@@ -1,5 +1,5 @@
 "use client";
-import { CastsSort } from "@/lib/types";
+import { CastsSort, DisplayMode } from "@/lib/types";
 import {
   useParams,
   usePathname,
@@ -14,9 +14,11 @@ import {
 } from "./navigation";
 import { CHANNELS_BY_ID } from "@/lib/channels";
 import { useEffect, useState } from "react";
+import { useUser } from "@/context/user";
 
 export const ChannelNavigation = () => {
   const [membersEnabled, setMembersEnabled] = useState(false);
+  const { displayMode, changeDisplayMode } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
@@ -83,6 +85,23 @@ export const ChannelNavigation = () => {
       </NavigationGroup>
       {mainNav === "casts" && (
         <NavigationGroup>
+          <div className="hidden sm:flex">
+            <NavigationSelect
+              defaultValue={displayMode}
+              onValueChange={() =>
+                changeDisplayMode(
+                  displayMode === DisplayMode.Default
+                    ? DisplayMode.Images
+                    : DisplayMode.Default
+                )
+              }
+              placeholder="Display mode"
+              options={[
+                { value: DisplayMode.Default, label: "Default" },
+                { value: DisplayMode.Images, label: "Images" },
+              ]}
+            />
+          </div>
           {sort === CastsSort.Top && (
             <NavigationSelect
               defaultValue={time || "day"}

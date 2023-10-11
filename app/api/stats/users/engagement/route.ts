@@ -31,14 +31,36 @@ export async function GET(
 ): Promise<NextResponse<UserStats[]>> {
   const url = new URL(request.url);
   const time = url.searchParams.get("time") || "year";
+  const query = url.searchParams.get("query")
+    ? decodeURIComponent(url.searchParams.get("query") as string)
+    : undefined;
 
   const curHours = timeToHours[time];
   const prevHours = timeToHours[time] * 2;
 
   const [curData, prevData]: any = await Promise.all([
-    prisma.$queryRaw`
+    query
+      ? prisma.$queryRaw`
         SELECT
-            fid,
+            "FarcasterUserStats".fid,
+            sum(likes) as likes,
+            sum(recasts) as recasts,
+            sum(replies) as replies,
+            sum(posts) as posts,
+            sum(liked) as liked,
+            sum(recasted) as recasted,
+            sum(mentions) as mentions,
+            sum(1 * posts + 0.5 * replies + 0.25 * liked + 0.25 * recasted) as engagement
+        FROM "public"."FarcasterUserStats"
+          JOIN "public"."Farcaster" ON "Farcaster"."fid" = "FarcasterUserStats"."fid"
+        WHERE timestamp > NOW() - ${`${curHours} hour`}::INTERVAL
+          AND ("Farcaster"."display"  ILIKE ${`%${query}%`} OR "Farcaster"."fname"  ILIKE ${`%${query}%`})
+        GROUP BY "FarcasterUserStats".fid
+        ORDER BY engagement DESC
+    `
+      : prisma.$queryRaw`
+        SELECT
+            "FarcasterUserStats".fid,
             sum(likes) as likes,
             sum(recasts) as recasts,
             sum(replies) as replies,
@@ -49,24 +71,44 @@ export async function GET(
             sum(1 * posts + 0.5 * replies + 0.25 * liked + 0.25 * recasted) as engagement
         FROM "public"."FarcasterUserStats"
         WHERE timestamp > NOW() - ${`${curHours} hour`}::INTERVAL
-        GROUP BY fid
+        GROUP BY "FarcasterUserStats".fid
         ORDER BY engagement DESC
     `,
-    prisma.$queryRaw`
-    SELECT
-        fid,
-        sum(likes) as likes,
-        sum(recasts) as recasts,
-        sum(replies) as replies,
-        sum(posts) as posts,
-        sum(liked) as liked,
-        sum(recasted) as recasted,
-        sum(mentions) as mentions,
-        sum(1 * posts + 0.5 * replies + 0.25 * liked + 0.25 * recasted) as engagement
-    FROM "public"."FarcasterUserStats"
+    query
+      ? prisma.$queryRaw`
+        SELECT
+            "FarcasterUserStats".fid,
+            sum(likes) as likes,
+            sum(recasts) as recasts,
+            sum(replies) as replies,
+            sum(posts) as posts,
+            sum(liked) as liked,
+            sum(recasted) as recasted,
+            sum(mentions) as mentions,
+            sum(1 * posts + 0.5 * replies + 0.25 * liked + 0.25 * recasted) as engagement
+        FROM "public"."FarcasterUserStats"
+          JOIN "public"."Farcaster" ON "Farcaster"."fid" = "FarcasterUserStats"."fid"
         WHERE timestamp > NOW() - ${`${prevHours} hour`}::INTERVAL
             AND timestamp < NOW() - ${`${curHours} hour`}::INTERVAL
-        GROUP BY fid
+          AND ("Farcaster"."display"  ILIKE ${`%${query}%`} OR "Farcaster"."fname"  ILIKE ${`%${query}%`})
+        GROUP BY "FarcasterUserStats".fid
+        ORDER BY engagement DESC
+    `
+      : prisma.$queryRaw`
+        SELECT
+            "FarcasterUserStats".fid,
+            sum(likes) as likes,
+            sum(recasts) as recasts,
+            sum(replies) as replies,
+            sum(posts) as posts,
+            sum(liked) as liked,
+            sum(recasted) as recasted,
+            sum(mentions) as mentions,
+            sum(1 * posts + 0.5 * replies + 0.25 * liked + 0.25 * recasted) as engagement
+        FROM "public"."FarcasterUserStats"
+        WHERE timestamp > NOW() - ${`${prevHours} hour`}::INTERVAL
+            AND timestamp < NOW() - ${`${curHours} hour`}::INTERVAL
+        GROUP BY "FarcasterUserStats".fid
         ORDER BY engagement DESC
     `,
   ]);

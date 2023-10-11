@@ -301,9 +301,21 @@ export const NewCastButton = () => (
       </DialogHeader>
     }
   >
-    <div className="flex flex-row space-x-2 items-center font-medium rounded-md bg-foreground text-background p-2 text-sm text-center h-8">
-      <PlusIcon />
-      New
+    <div className="p-2 rounded-none w-12 h-12 flex justify-center items-center hover:bg-muted-foreground transition-all bg-foreground text-background">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2.25"
+        stroke="currentColor"
+        className="w-6 h-6"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 4.5v15m7.5-7.5h-15"
+        />
+      </svg>
     </div>
   </NewCastDialog>
 );

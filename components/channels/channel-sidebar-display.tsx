@@ -28,6 +28,7 @@ import {
 import { useEffect, useState } from "react";
 import { CHANNELS_BY_URL } from "@/lib/channels";
 import { useUser } from "@/context/user";
+import { NewCastButton } from "../actions/new-cast";
 
 export const ChannelSidebarDisplay = ({
   channels,
@@ -58,7 +59,7 @@ export const ChannelSidebarDisplay = ({
   };
 
   return (
-    <div className="hidden xl:flex">
+    <div className="hidden md:flex">
       <Collapsible
         open={open}
         onOpenChange={handleOpenChange}
@@ -197,6 +198,7 @@ export const ChannelSidebarDisplay = ({
         </CollapsibleContent>
         <div className="h-full w-12 flex flex-col justify-between">
           <div>
+            <NewCastButton />
             <SidebarButton label="Trending channels">
               <CollapsibleTrigger asChild>
                 <div className="p-2 rounded-none w-12 h-12 flex justify-center items-center hover:bg-border transition-all">
@@ -245,7 +247,7 @@ export const ChannelSidebarDisplay = ({
               );
             })}
           </div>
-          {!pathname.includes("/stats") && (
+          {/* {!pathname.includes("/stats") && (
             <SidebarButton
               label="Change display mode"
               borderTop
@@ -263,7 +265,7 @@ export const ChannelSidebarDisplay = ({
                 <ImageIcon />
               )}
             </SidebarButton>
-          )}
+          )} */}
         </div>
       </Collapsible>
     </div>

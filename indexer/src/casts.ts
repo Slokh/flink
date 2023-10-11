@@ -44,4 +44,15 @@ const handleCastRemove = async (message: Message) => {
   console.log(`[cast-remove] [${fid}] deleted cast ${hash}`);
 };
 
-run();
+const main = async () => {
+  while (true) {
+    try {
+      await run();
+      break;
+    } catch (e) {
+      console.error("An error occurred, retrying...", e);
+    }
+  }
+};
+
+main();

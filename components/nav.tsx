@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { NotificationsButton } from "./notifications-button";
+import { SearchInput } from "./search-input";
 
 export const Nav = () => {
   const pathname = usePathname();
@@ -58,7 +59,7 @@ export const Nav = () => {
           </div>
         </div>
         <div className="flex flex-row text-sm font-medium items-center space-x-2">
-          <NewCastButton />
+          <SearchInput />
           <NotificationsButton />
           <AuthButton />
         </div>
