@@ -149,4 +149,15 @@ const isValidTimestamp = (message: Message) => {
   return timestamp >= START_TIMESTAMP && timestamp <= END_TIMESTAMP;
 };
 
-backfill();
+const main = async () => {
+  while (true) {
+    try {
+      await backfill();
+      break;
+    } catch (e) {
+      console.error("An error occurred, retrying...", e);
+    }
+  }
+};
+
+main();
