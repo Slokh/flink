@@ -18,7 +18,11 @@ export const getAddressForENS = async (input: string) => {
 };
 
 export const getENSForAddress = async (address: string) => {
-  return await client.getEnsName({ address: address as `0x${string}` });
+  try {
+    return await client.getEnsName({ address: address as `0x${string}` });
+  } catch (e) {
+    return undefined;
+  }
 };
 
 export const getAddressesWithEnsNames = async (addresses: string[]) => {

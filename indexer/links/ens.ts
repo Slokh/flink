@@ -21,19 +21,23 @@ export const getAddressForENS = async (input: string) => {
 };
 
 export const getEnsLinks = async (address: string): Promise<Link[]> => {
-  const ensName = await client.getEnsName({
-    address: address as `0x${string}`,
-  });
+  try {
+    const ensName = await client.getEnsName({
+      address: address as `0x${string}`,
+    });
 
-  if (!ensName) {
+    if (!ensName) {
+      return [];
+    }
+
+    const records = await getEnsTextRecords(ensName);
+
+    return records
+      .map(recordsAsLinks)
+      .filter((link) => link && link.url) as Link[];
+  } catch (e) {
     return [];
   }
-
-  const records = await getEnsTextRecords(ensName);
-
-  return records
-    .map(recordsAsLinks)
-    .filter((link) => link && link.url) as Link[];
 };
 
 const getEnsTextRecords = async (ensName: string): Promise<EnsRecord[]> => {

@@ -153,7 +153,6 @@ const main = async () => {
   while (true) {
     try {
       await backfill();
-      break;
     } catch (e) {
       console.error("An error occurred, retrying...", e);
     }
