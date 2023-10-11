@@ -63,11 +63,13 @@ export const formatText = (
   // Convert text to a Buffer object to deal with bytes
   let textBuffer = Buffer.from(text, "utf-8");
 
-  for (let i = 0; i < mentions.length; i++) {
-    if (!mentions[i].mention) continue;
+  const sortedMentions = mentions.sort((a, b) => b.position - a.position);
+
+  for (let i = 0; i < sortedMentions.length; i++) {
+    if (!sortedMentions[i].mention) continue;
     // Assuming mentionsPositions consider newlines as bytes, so no newline adjustment
-    const adjustedMentionPosition = mentions[i].position;
-    const mentionUsername = mentions[i].mention.fname;
+    const adjustedMentionPosition = sortedMentions[i].position;
+    const mentionUsername = sortedMentions[i].mention.fname;
 
     const mentionLink = withLinks
       ? `<a href="/${mentionUsername}" class="current relative hover:underline text-purple-600 dark:text-purple-400">@${mentionUsername}</a>`
@@ -75,7 +77,7 @@ export const formatText = (
     const mentionLinkBuffer = Buffer.from(mentionLink, "utf-8");
 
     // Apply the offset only when slicing the text
-    const actualPosition = adjustedMentionPosition + offset;
+    const actualPosition = adjustedMentionPosition;
 
     const beforeMention = textBuffer.slice(0, actualPosition);
     const afterMention = textBuffer.slice(actualPosition);
