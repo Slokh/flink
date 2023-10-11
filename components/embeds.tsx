@@ -6,6 +6,7 @@ import { CastMetadata, Embed, NftMetadata } from "@/lib/types";
 import Link from "next/link";
 import { formatText } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { formatDistanceStrict } from "date-fns";
 
 const URL_REGEX =
   /\b(?:https?:\/\/|www\.|ftp:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?\b/gi;
@@ -183,10 +184,7 @@ const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
     >
       <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
         <div className="flex flex-col p-2 space-y-1">
-          <Link
-            href={`/${metadata.user.fname}`}
-            className="flex flex-row space-x-1 items-center text-sm"
-          >
+          <div className="flex flex-row space-x-1 items-center text-sm">
             <Avatar className="h-4 w-4">
               <AvatarImage src={metadata.user.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
@@ -194,8 +192,17 @@ const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
             <div className="font-semibold">
               {metadata.user.display || metadata.user.fname}
             </div>
-            <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${metadata.user.fname}`}</div>
-          </Link>
+            <div className="text-purple-600 dark:text-purple-400">{`@${metadata.user.fname}`}</div>
+            <div className="text-muted-foreground">
+              {formatDistanceStrict(
+                new Date(metadata.cast.timestamp),
+                new Date(),
+                {
+                  addSuffix: true,
+                }
+              )}
+            </div>
+          </div>
           <div className="text-muted-foreground text-sm line-clamp-4 flex flex-col whitespace-pre-wrap break-words leading-6 tracking-normal w-full space-y-2">
             <div dangerouslySetInnerHTML={{ __html: formattedText }} />
             {embeds.length > 0 && (

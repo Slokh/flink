@@ -1,3 +1,4 @@
+import { CONTRACTS } from "@/lib/contracts";
 import {
   RouteHandlerWithSession,
   ironSessionWrapper,
@@ -5,13 +6,14 @@ import {
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createPublicClient, http, parseAbiItem } from "viem";
-import { optimism } from "viem/chains";
-
-const ID_REGISTRY_ADDRESS = "0x00000000FcAf86937e41bA038B4fA40BAA4B780A";
+import { optimism, optimismGoerli } from "viem/chains";
 
 const client = createPublicClient({
-  chain: optimism,
-  transport: http(process.env.OPTIMISM_RPC_URL as string),
+  chain: CONTRACTS.NETWORK === 10 ? optimism : optimismGoerli,
+  transport:
+    CONTRACTS.NETWORK === 10
+      ? http(process.env.OPTIMISM_RPC_URL as string)
+      : http(process.env.OPTIMISM_GOERLI_RPC_URL as string),
 });
 
 export const GET: RouteHandlerWithSession = ironSessionWrapper(
@@ -55,7 +57,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
 
 const getPrimaryUser = async (address: `0x${string}`) => {
   const fid = await client.readContract({
-    address: ID_REGISTRY_ADDRESS,
+    address: CONTRACTS.ID_REGISTRY_ADDRESS,
     abi: [parseAbiItem("function idOf(address owner) view returns (uint256)")],
     functionName: "idOf",
     args: [address],

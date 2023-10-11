@@ -127,6 +127,11 @@ export const formatText = (
 
       const urlRegex = new RegExp(`(?<!href=")${originalUrl}`, "g");
 
+      if (url.includes("warpcast.com") && url.match(/0x[0-9a-fA-F]+$/i)) {
+        text = text.replace(urlRegex, "");
+        return;
+      }
+
       text = text.replace(
         urlRegex,
         `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${

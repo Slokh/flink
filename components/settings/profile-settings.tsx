@@ -60,17 +60,37 @@ export const ProfileSettings = () => {
   return (
     <div className="flex flex-col md:flex-row px-4 py-2 space-y-4 md:space-x-4 md:space-y-0 space-x-0">
       <div className="w-full max-w-xl">
-        <Profile />
+        <ProfileContent />
       </div>
       <div className="w-full max-w-xl">
-        <ChangeUsername />
+        <ChangeUsernameContent />
       </div>
     </div>
   );
 };
 
-const Profile = () => {
+const ProfileContent = () => {
   const { user, custody, isLoading } = useUser();
+
+  if (!custody && !user && !isLoading) {
+    return <></>;
+  }
+
+  return (
+    <div className="flex flex-col px-2 max-w-lg">
+      <Profile onSuccess={() => window.location.reload()} useCustody={false} />
+    </div>
+  );
+};
+
+export const Profile = ({
+  onSuccess,
+  useCustody,
+}: {
+  onSuccess: () => void;
+  useCustody: boolean;
+}) => {
+  const { user } = useUser();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -83,7 +103,7 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user && !useCustody) {
       form.reset({
         display_name: user?.display || "",
         bio: user?.bio || "",
@@ -92,10 +112,6 @@ const Profile = () => {
     }
   }, [user, form]);
 
-  if (!custody && !user && !isLoading) {
-    return <></>;
-  }
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
     await fetch(`/api/auth/${user?.fid}/settings`, {
@@ -103,109 +119,106 @@ const Profile = () => {
       body: JSON.stringify(values),
     });
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    window.location.reload();
+    onSuccess();
   };
 
   return (
-    <div className="flex flex-col px-2">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 p-4 max-w-lg"
-        >
-          <FormField
-            control={form.control}
-            name="pfp_url"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Profile Picture</FormLabel>
-                <FormControl>
-                  <div className="flex flex-row space-x-8 items-center">
-                    <FileUpload
-                      onFileUpload={(url) => {
-                        form.setValue("pfp_url", url);
-                      }}
-                    >
-                      <Avatar className="h-24 w-24">
-                        <AvatarImage
-                          src={form.watch("pfp_url")}
-                          className="object-cover"
-                        />
-                        <AvatarFallback>?</AvatarFallback>
-                      </Avatar>
-                    </FileUpload>
-                    {user && (
-                      <div className="flex flex-col space-y-4">
-                        <FileUpload
-                          onFileUpload={(url) => {
-                            form.setValue("pfp_url", url);
-                          }}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="pfp_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Profile Picture</FormLabel>
+              <FormControl>
+                <div className="flex flex-row space-x-8 items-center">
+                  <FileUpload
+                    onFileUpload={(url) => {
+                      form.setValue("pfp_url", url);
+                    }}
+                  >
+                    <Avatar className="h-24 w-24">
+                      <AvatarImage
+                        src={form.watch("pfp_url")}
+                        className="object-cover"
+                      />
+                      <AvatarFallback>?</AvatarFallback>
+                    </Avatar>
+                  </FileUpload>
+                  {user && (
+                    <div className="flex flex-col space-y-4">
+                      <FileUpload
+                        onFileUpload={(url) => {
+                          form.setValue("pfp_url", url);
+                        }}
+                      >
+                        <div
+                          className={`cursor-pointer ${buttonVariants({
+                            size: "sm",
+                          })}`}
                         >
-                          <div
-                            className={`cursor-pointer ${buttonVariants({
-                              size: "sm",
-                            })}`}
-                          >
-                            Upload
-                          </div>
-                        </FileUpload>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => form.setValue("pfp_url", "")}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="display_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Display Name</FormLabel>
-                <FormControl>
-                  <Input disabled={!user} placeholder="Flink" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is your display name on Farcaster. It can be anything you
-                  want.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="bio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bio</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={!user}
-                    placeholder="Shadowy Super Coder"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Tell Farcaster a little bit about yourself.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                          Upload
+                        </div>
+                      </FileUpload>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => form.setValue("pfp_url", "")}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="display_name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Display Name</FormLabel>
+              <FormControl>
+                <Input disabled={!user} placeholder="Flink" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is your display name on Farcaster. It can be anything you
+                want.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="bio"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Bio</FormLabel>
+              <FormControl>
+                <Input
+                  disabled={!user}
+                  placeholder="Shadowy Super Coder"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                Tell Farcaster a little bit about yourself.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex justify-end">
           <Button disabled={!user || loading} type="submit">
             {loading ? <LoadingIcon /> : "Save"}
           </Button>
-        </form>
-      </Form>
-    </div>
+        </div>
+      </form>
+    </Form>
   );
 };
 
@@ -228,19 +241,86 @@ const types = {
   ],
 };
 
-const ChangeUsername = () => {
+const ChangeUsernameContent = () => {
+  const { user, custody, isLoading } = useUser();
+
+  if (!custody && !user && !isLoading) {
+    return <></>;
+  }
+
+  return (
+    <div className="flex flex-col space-y-1">
+      <div className="font-semibold text-xl">Change Username</div>
+      <Accordion type="single" collapsible>
+        <AccordionItem value="item-1">
+          <AccordionTrigger>More info</AccordionTrigger>
+          <AccordionContent>
+            <div className="text-sm text-muted-foreground">
+              A username can be used to identify or mention an account on
+              Farcaster. Users can connect many names to an account but only one
+              can be active at any given time. Usernames come in two formats:
+              fnames and ENS names.
+            </div>
+            <div className="text-sm text-muted-foreground pt-2">
+              <b className="text-foreground">fnames</b> - These are unique
+              usernames issued off-chain by the Farcaster Name Registry.
+              Registering a username requires a signed message from the
+              Farcaster account&apos;s custody address. Fnames have a usage
+              policy to prevent squatting and impersonation and can be
+              reclaimed. For users who do not want to be subject to this policy,
+              you can use ENS.
+            </div>
+            <div className="text-sm text-muted-foreground pt-2">
+              <b className="text-foreground">ENS names</b> - For a purely
+              decentralized approach to usernames, ENS names can be used as an
+              alternative to fnames. You can use an ENS name from any of the
+              connected wallets to your Farcaster account.{" "}
+              <b className="text-foreground">
+                Currently, flink.fyi does not support ENS names.
+              </b>
+            </div>
+            <div className="text-sm font-semibold pt-4">
+              How do fnames work?
+            </div>
+            <div className="text-sm text-muted-foreground">
+              fnames are entirely off-chain. Thefore, they are managed via
+              signatures from the custody address of the Farcaster account. This
+              means that you can only change your fname if you have access to
+              the custody address of your Farcaster account. If you lose access
+              to your custody address, you will not be able to change your
+              fname. fnames can only be changed once every 28 days.
+            </div>
+            <div className="text-sm text-muted-foreground">
+              1. If you currently have an fname associated with your account,
+              you will be prompted to deregister it. This will make your
+              previous fname available for anyone to use.
+            </div>
+            <div className="text-sm text-muted-foreground">
+              2. You will be prompted to register your new fname.
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+      <ChangeUsername onSuccess={() => window.location.reload()} />
+    </div>
+  );
+};
+
+export const ChangeUsername = ({
+  onSuccess,
+}: {
+  onSuccess: (u: string) => void;
+}) => {
   const [open, setOpen] = useState(false);
   const { address } = useAccount();
   const [loading, setLoading] = useState(false);
-  const { user, custody, isLoading } = useUser();
+  const { user, custody } = useUser();
   const [input, setInput] = useState(custody?.fname || "");
   const { switchNetwork } = useSwitchNetwork();
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!user) {
-      setError("No signer available");
-    } else if (!custody || user.fid !== custody.fid) {
+    if (user && user?.fid !== custody?.fid) {
       setError(
         "You can only change the username with the wallet custodying the account."
       );
@@ -333,14 +413,16 @@ const ChangeUsername = () => {
         });
       }
 
-      await fetch(`/api/auth/${user?.fid}/settings`, {
+      await fetch(`/api/auth/${user?.fid || custody?.fid}/settings`, {
         method: "POST",
         body: JSON.stringify({
           username: input,
         }),
       });
+
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      window.location.reload();
+      onSuccess(input);
+      setOpen(false);
     } catch (e) {}
     setLoading(false);
   };
@@ -372,125 +454,64 @@ const ChangeUsername = () => {
     setOpen(true);
   };
 
-  if (!custody && !user && !isLoading) {
-    return <></>;
-  }
-
   return (
-    <div className="flex flex-col space-y-1">
-      <div className="font-semibold text-xl">Change Username</div>
-      <Accordion type="single" collapsible>
-        <AccordionItem value="item-1">
-          <AccordionTrigger>More info</AccordionTrigger>
-          <AccordionContent>
-            <div className="text-sm text-muted-foreground">
-              A username can be used to identify or mention an account on
-              Farcaster. Users can connect many names to an account but only one
-              can be active at any given time. Usernames come in two formats:
-              fnames and ENS names.
-            </div>
-            <div className="text-sm text-muted-foreground pt-2">
-              <b className="text-foreground">fnames</b> - These are unique
-              usernames issued off-chain by the Farcaster Name Registry.
-              Registering a username requires a signed message from the
-              Farcaster account&apos;s custody address. Fnames have a usage
-              policy to prevent squatting and impersonation and can be
-              reclaimed. For users who do not want to be subject to this policy,
-              you can use ENS.
-            </div>
-            <div className="text-sm text-muted-foreground pt-2">
-              <b className="text-foreground">ENS names</b> - For a purely
-              decentralized approach to usernames, ENS names can be used as an
-              alternative to fnames. You can use an ENS name from any of the
-              connected wallets to your Farcaster account.{" "}
-              <b className="text-foreground">
-                Currently, flink.fyi does not support ENS names.
-              </b>
-            </div>
-            <div className="text-sm font-semibold pt-4">
-              How do fnames work?
-            </div>
-            <div className="text-sm text-muted-foreground">
-              fnames are entirely off-chain. Thefore, they are managed via
-              signatures from the custody address of the Farcaster account. This
-              means that you can only change your fname if you have access to
-              the custody address of your Farcaster account. If you lose access
-              to your custody address, you will not be able to change your
-              fname. fnames can only be changed once every 28 days.
-            </div>
-            <div className="text-sm text-muted-foreground">
-              1. If you currently have an fname associated with your account,
-              you will be prompted to deregister it. This will make your
-              previous fname available for anyone to use.
-            </div>
-            <div className="text-sm text-muted-foreground">
-              2. You will be prompted to register your new fname.
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-      <div className="flex flex-col space-y-1 pt-2">
-        <div className="flex flex-row space-x-2">
-          <Input
-            placeholder="flink"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={loading || !user || !custody || custody.fid !== user.fid}
-          />
-          <AlertDialog open={open} onOpenChange={setOpen}>
-            <Button
-              size="sm"
-              onClick={handleChange}
-              disabled={
-                input === custody?.fname ||
-                loading ||
-                !user ||
-                !custody ||
-                custody.fid !== user.fid
-              }
-            >
-              Change
-            </Button>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <div className="text-sm text-muted-foreground">
-                  You are changing your username to{" "}
-                  <b className="text-foreground">{input}</b>. This will make
-                  your previous username available for anyone to claim and
-                  prevent you from changing your name for the next 28 days.
-                  <div className="font-semibold mt-2 text-foreground">
-                    Note: You will need to sign both messages to change your
-                    username
-                  </div>
+    <div className="flex flex-col space-y-1 pt-2">
+      <div className="flex flex-row space-x-2">
+        <Input
+          placeholder="flink"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          disabled={loading || (user && user?.fid !== custody?.fid)}
+        />
+        <AlertDialog open={open} onOpenChange={setOpen}>
+          <Button
+            onClick={handleChange}
+            disabled={
+              !input ||
+              input === custody?.fname ||
+              loading ||
+              (user && user?.fid !== custody?.fid)
+            }
+          >
+            Register
+          </Button>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <div className="text-sm text-muted-foreground">
+                You are changing your username to{" "}
+                <b className="text-foreground">{input}</b>. This will make your
+                previous username available for anyone to claim and prevent you
+                from changing your name for the next 28 days.
+                <div className="font-semibold mt-2 text-foreground">
+                  Note: You will need to sign both messages to change your
+                  username
                 </div>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <Button
-                  onClick={() => setOpen(false)}
-                  disabled={loading}
-                  variant="outline"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={
-                    input === custody?.fname ||
-                    loading ||
-                    !user ||
-                    !custody ||
-                    custody.fid !== user.fid
-                  }
-                >
-                  {loading ? <LoadingIcon /> : "Change"}
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-        <div className="text-sm text-red-500">{error}</div>
+              </div>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <Button
+                onClick={() => setOpen(false)}
+                disabled={loading}
+                variant="outline"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={
+                  input === custody?.fname ||
+                  loading ||
+                  (user && user?.fid !== custody?.fid)
+                }
+              >
+                {loading ? <LoadingIcon /> : "Register"}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
+      <div className="text-sm text-red-500">{error}</div>
     </div>
   );
 };

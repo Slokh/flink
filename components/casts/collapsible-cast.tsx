@@ -124,7 +124,7 @@ export const CollapsibleCast = ({
               )}
             </div>
             <div className="text-muted-foreground text-sm flex flex-row space-x-4">
-              <ReplyCastButton parent={cast} />
+              <ReplyCastButton parent={cast} inThread />
               <a
                 href={`https://warpcast.com/${user.fname}/${cast.hash.slice(
                   0,

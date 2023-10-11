@@ -27,8 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-
-const KEY_REGISTRY_ADDRESS = "0x00000000fC9e66f1c6d86D750B4af47fF0Cc343d";
+import { CONTRACTS } from "@/lib/contracts";
 
 type SignerData = {
   address: `0x${string}`;
@@ -154,7 +153,7 @@ const RemoveButton = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const { writeAsync, isSuccess } = useContractWrite({
-    address: KEY_REGISTRY_ADDRESS,
+    address: CONTRACTS.KEY_REGISTRY_ADDRESS,
     abi: [parseAbiItem("function remove(bytes calldata key) external")],
     functionName: "remove",
   });

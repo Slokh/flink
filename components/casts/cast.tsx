@@ -350,15 +350,12 @@ export const MobileCast = ({
         <div className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 visited:text-purple-600 visited:dark:text-purple-400 whitespace-pre-line break-words">
           <div
             dangerouslySetInnerHTML={{
-              __html: formattedText
-                ? formattedText
-                : isXpost
-                ? "x-post"
-                : "untitled",
+              __html: formattedText ? formattedText : isXpost ? "x-post" : "",
             }}
           />
         </div>
       )}
+      {cast.embeds.length > 0 && <EmbedPreview embed={cast.embeds[0]} />}
       <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-1 items-center">
         <Link href={`/${user.fname}/${cast.hash}`} className="hover:underline">
           {`${cast.replies} replies`}
@@ -366,7 +363,6 @@ export const MobileCast = ({
         <LikeCast hash={cast.hash} likes={cast.likes} mode="text" />
         <RecastCast hash={cast.hash} recasts={cast.recasts} mode="text" />
       </div>
-      {cast.embeds.length > 0 && <EmbedPreview embed={cast.embeds[0]} />}
       {channel && (
         <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-1 items-center justify-end">
           <div className="text-muted-foreground">in</div>

@@ -56,11 +56,13 @@ const NewCastContent = ({
   children,
   placeholder,
   disableEmbeds,
+  inThread,
 }: {
   parent?: string;
   children?: React.ReactNode;
   placeholder?: string;
   disableEmbeds?: boolean;
+  inThread?: boolean;
 }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -153,8 +155,13 @@ const NewCastContent = ({
     while (true) {
       const res2 = await fetch(`/api/casts/${hash}`);
       if (res2.ok) {
-        // @ts-ignore
-        window.location = `/${user?.fname}/${hash}`;
+        if (inThread) {
+          // @ts-ignore
+          window.location.reload();
+        } else {
+          // @ts-ignore
+          window.location = `/${user?.fname}/${hash}`;
+        }
         break;
       }
       await new Promise((resolve) => setTimeout(resolve, 200));
@@ -273,10 +280,12 @@ const NewCastDialog = ({
   parent,
   header,
   children,
+  inThread,
 }: {
   parent?: FarcasterCast;
   header?: React.ReactNode;
   children: React.ReactNode;
+  inThread?: boolean;
 }) => {
   const { user } = useUser();
   if (!user) return <></>;
@@ -286,7 +295,7 @@ const NewCastDialog = ({
       <DialogTrigger>{children}</DialogTrigger>
       <DialogContent>
         {header}
-        <NewCastContent parent={parent?.hash} />
+        <NewCastContent parent={parent?.hash} inThread={inThread} />
       </DialogContent>
     </Dialog>
   );
@@ -306,13 +315,13 @@ export const NewCastButton = () => (
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
-        stroke-width="2.25"
+        strokeWidth="2.25"
         stroke="currentColor"
         className="w-6 h-6"
       >
         <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           d="M12 4.5v15m7.5-7.5h-15"
         />
       </svg>
@@ -320,7 +329,13 @@ export const NewCastButton = () => (
   </NewCastDialog>
 );
 
-export const ReplyCastButton = ({ parent }: { parent: FarcasterCast }) => (
+export const ReplyCastButton = ({
+  parent,
+  inThread,
+}: {
+  parent: FarcasterCast;
+  inThread: boolean;
+}) => (
   <NewCastDialog
     header={
       <ScrollArea className="max-h-96">
@@ -328,6 +343,7 @@ export const ReplyCastButton = ({ parent }: { parent: FarcasterCast }) => (
       </ScrollArea>
     }
     parent={parent}
+    inThread={inThread}
   >
     <div className="hover:underline">reply</div>
   </NewCastDialog>

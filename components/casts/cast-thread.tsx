@@ -102,7 +102,7 @@ export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
       <div className="flex flex-col space-y-1 w-full">
         <CastContent cast={cast} />
         <div className="text-muted-foreground text-sm flex flex-row space-x-4">
-          <ReplyCastButton parent={cast} />
+          <ReplyCastButton parent={cast} inThread />
           <a
             href={`https://warpcast.com/${user.fname}/${cast.hash.slice(0, 8)}`}
             target="_blank"

@@ -1,3 +1,4 @@
+import { CONTRACTS } from "@/lib/contracts";
 import {
   RouteHandlerWithSession,
   ironSessionWrapper,
@@ -56,9 +57,8 @@ const signMessage = async (publicKey: `0x${string}`) => {
   const SIGNED_KEY_REQUEST_VALIDATOR_EIP_712_DOMAIN = {
     name: "Farcaster SignedKeyRequestValidator",
     version: "1",
-    chainId: 10,
-    verifyingContract:
-      "0x00000000fc700472606ed4fa22623acf62c60553" as `0x${string}`,
+    chainId: CONTRACTS.NETWORK,
+    verifyingContract: CONTRACTS.VALIDATOR_ADDRESS,
   };
 
   const SIGNED_KEY_REQUEST_TYPE = [

@@ -55,6 +55,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
           timestamp: {
             gt: new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000),
           },
+          deleted: false,
         },
       }),
       prisma.farcasterCastReaction.findMany({
@@ -64,6 +65,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
           timestamp: {
             gt: new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000),
           },
+          deleted: false,
         },
       }),
       prisma.farcasterLink.findMany({
@@ -73,6 +75,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
           timestamp: {
             gt: new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000),
           },
+          deleted: false,
         },
       }),
       prisma.farcasterCast.findMany({
@@ -81,6 +84,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
           timestamp: {
             gt: new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000),
           },
+          deleted: false,
         },
         include: {
           mentions: true,
@@ -92,6 +96,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
           timestamp: {
             gt: new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000),
           },
+          deleted: false,
         },
       }),
     ]);

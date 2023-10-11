@@ -1,3 +1,4 @@
+import { CONTRACTS } from "@/lib/contracts";
 import {
   RouteHandlerWithSession,
   ironSessionWrapper,
@@ -5,16 +6,14 @@ import {
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createPublicClient, http, parseAbiItem } from "viem";
-import { optimism } from "viem/chains";
-
-const FROM_BLOCK = BigInt(108869029);
-const KEY_REGISTRY_ADDRESS = "0x00000000fC9e66f1c6d86D750B4af47fF0Cc343d";
-
-const ID_REGISTRY_ADDRESS = "0x00000000FcAf86937e41bA038B4fA40BAA4B780A";
+import { optimism, optimismGoerli } from "viem/chains";
 
 const client = createPublicClient({
-  chain: optimism,
-  transport: http(process.env.OPTIMISM_RPC_URL as string),
+  chain: CONTRACTS.NETWORK === 10 ? optimism : optimismGoerli,
+  transport:
+    CONTRACTS.NETWORK === 10
+      ? http(process.env.OPTIMISM_RPC_URL as string)
+      : http(process.env.OPTIMISM_GOERLI_RPC_URL as string),
 });
 
 type Signer = {
@@ -66,7 +65,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
 
 export const getFidForAddress = async (address: `0x${string}`) => {
   return await client.readContract({
-    address: ID_REGISTRY_ADDRESS,
+    address: CONTRACTS.ID_REGISTRY_ADDRESS,
     abi: [
       parseAbiItem("function idOf(address account) view returns (uint256 fid)"),
     ],
@@ -77,11 +76,11 @@ export const getFidForAddress = async (address: `0x${string}`) => {
 
 const getAddressForFid = async (fid: bigint) => {
   const transferLogs = await client.getLogs({
-    address: ID_REGISTRY_ADDRESS,
+    address: CONTRACTS.ID_REGISTRY_ADDRESS,
     event: parseAbiItem(
       "event Transfer(address indexed from, address indexed to, uint256 indexed id)"
     ),
-    fromBlock: FROM_BLOCK,
+    fromBlock: CONTRACTS.FROM_BLOCK,
     toBlock: "latest",
     args: {
       id: fid,
@@ -92,11 +91,11 @@ const getAddressForFid = async (fid: bigint) => {
   }
 
   const registerLogs = await client.getLogs({
-    address: ID_REGISTRY_ADDRESS,
+    address: CONTRACTS.ID_REGISTRY_ADDRESS,
     event: parseAbiItem(
       "event Register(address indexed to, uint256 indexed id, address recovery)"
     ),
-    fromBlock: FROM_BLOCK,
+    fromBlock: CONTRACTS.FROM_BLOCK,
     toBlock: "latest",
     args: {
       id: fid,
@@ -124,11 +123,11 @@ export const getActiveSigners = async (fid: bigint) => {
 
 const getAddedKeys = async (fid: bigint) => {
   const logs = await client.getLogs({
-    address: KEY_REGISTRY_ADDRESS,
+    address: CONTRACTS.KEY_REGISTRY_ADDRESS,
     event: parseAbiItem(
       "event Add(uint256 indexed fid, uint32 indexed keyType, bytes indexed key, bytes keyBytes, uint8 metadataType, bytes metadata)"
     ),
-    fromBlock: FROM_BLOCK,
+    fromBlock: CONTRACTS.FROM_BLOCK,
     toBlock: "latest",
     args: {
       fid,
@@ -182,11 +181,11 @@ const getAddedKeys = async (fid: bigint) => {
 
 const getRemovedKeys = async (fid: bigint) => {
   const logs = await client.getLogs({
-    address: KEY_REGISTRY_ADDRESS,
+    address: CONTRACTS.KEY_REGISTRY_ADDRESS,
     event: parseAbiItem(
       "event Remove(uint256 indexed fid, bytes indexed key, bytes keyBytes)"
     ),
-    fromBlock: FROM_BLOCK,
+    fromBlock: CONTRACTS.FROM_BLOCK,
     toBlock: "latest",
     args: {
       fid,

@@ -14,8 +14,8 @@ type State = {
   users: AuthenticatedUser[];
   user?: AuthenticatedUser;
   custody?: AuthenticatedUser;
-  changeUser: (fid: string) => void;
-  addNewUser: (fid: number) => void;
+  changeUser: (fid?: string) => void;
+  addNewUser: (fid: number) => Promise<void>;
 
   channels: string[];
   addChannel: (url: string) => void;
@@ -79,6 +79,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     if (!user) {
       user = data.users[0];
     }
+
     setUser(user);
     setIsLoading(false);
   };
@@ -130,7 +131,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     router.push(`${pathname}${newQuery ? `?${newQuery}` : ""}`);
   };
 
-  const changeUser = (fid: string) => {
+  const changeUser = (fid?: string) => {
+    if (!fid) {
+      setUser(undefined);
+      return;
+    }
     localStorage.setItem("fid", fid);
     setUser(users.find((u) => u.fid === parseInt(fid)));
   };

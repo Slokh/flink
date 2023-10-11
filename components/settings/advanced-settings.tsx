@@ -22,15 +22,14 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Loading as LoadingIcon } from "@/components/loading";
-
-const ID_REGISTRY_ADDRESS = "0x00000000FcAf86937e41bA038B4fA40BAA4B780A";
+import { CONTRACTS } from "@/lib/contracts";
 
 // Define the EIP-712 domain
 const domain = {
   name: "Farcaster IdRegistry",
   version: "1",
-  chainId: 10,
-  verifyingContract: ID_REGISTRY_ADDRESS,
+  chainId: CONTRACTS.NETWORK,
+  verifyingContract: CONTRACTS.ID_REGISTRY_ADDRESS,
 } as const;
 
 // Create the EIP-712 typed data
@@ -160,7 +159,7 @@ const AcceptButton = ({ request }: { request: TransferRequest }) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { writeAsync, isSuccess } = useContractWrite({
-    address: ID_REGISTRY_ADDRESS,
+    address: CONTRACTS.ID_REGISTRY_ADDRESS,
     abi: [
       parseAbiItem(
         "function transfer(address to, uint256 deadline, bytes calldata sig) external"
@@ -236,7 +235,7 @@ const TransferOwnershipCreate = () => {
   const { address } = useAccount();
 
   const { data: nonce } = useContractRead({
-    address: ID_REGISTRY_ADDRESS,
+    address: CONTRACTS.ID_REGISTRY_ADDRESS,
     abi: [parseAbiItem("function nonces(address) view returns (uint256)")],
     functionName: "nonces",
     args: address ? [address] : undefined,
