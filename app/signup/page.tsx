@@ -139,7 +139,9 @@ export default function Home() {
       />
       <SetupProfile
         fname={username}
-        onSuccess={() => router.push("/")}
+        onSuccess={() => {
+          window.location.href = "/";
+        }}
         markDone={currentStep > 5}
       />
     </div>

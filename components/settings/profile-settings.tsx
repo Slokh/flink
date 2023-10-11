@@ -342,6 +342,7 @@ export const ChangeUsername = ({
 
   const handleSubmit = async () => {
     if (!address || input === custody?.fname || !switchNetwork) return;
+    setError("");
     setLoading(true);
     try {
       await switchNetwork(1);
