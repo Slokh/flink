@@ -1,7 +1,9 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export const revalidate = 0;
+
+export async function GET(request: Request) {
   const [postFids, reactFids] = await Promise.all([
     prisma.farcasterCast.findMany({
       where: {
