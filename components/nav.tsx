@@ -64,8 +64,8 @@ export const Nav = () => {
           <AuthButton />
         </div>
       </div>
-      <div className="flex lg:hidden flex-col border p-1 w-full">
-        <div className="flex flex-row justify-between items-center w-full">
+      <div className="flex lg:hidden flex-col border w-full">
+        <div className="flex flex-row justify-between items-center w-full p-1">
           <Link href="/" className="font-bold">
             flink
           </Link>
@@ -105,10 +105,15 @@ export const Nav = () => {
             >
               Links
             </Link>
-            <AuthButton />
-            <NewCastButton />
+            <div className="flex flex-row justify-between items-center w-full">
+              <AuthButton />
+              <NewCastButton />
+            </div>
           </div>
         )}
+        <div className="bg-foreground text-background p-1 w-full flex items-center justify-center text-xs font-semibold">
+          flink is better on desktop ❤️
+        </div>
       </div>
     </>
   );

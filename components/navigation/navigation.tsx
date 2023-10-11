@@ -19,7 +19,7 @@ export const NavigationSelect = ({
   onValueChange: (value: any) => void;
   options: { value: string; label: string }[];
 }) => (
-  <div>
+  <div className="mr-2">
     <Select defaultValue={defaultValue} onValueChange={onValueChange}>
       <SelectTrigger>
         <SelectValue placeholder={placeholder} />
@@ -46,10 +46,10 @@ export const NavigationButton = ({
 }) => (
   <Link
     href={href}
-    className={buttonVariants({
+    className={`mr-2 ${buttonVariants({
       variant: isSelected ? "default" : "secondary",
       size: "sm",
-    })}
+    })}`}
   >
     {children}
   </Link>
@@ -63,7 +63,7 @@ export const NavigationGroup = ({
   className?: string;
 }) => (
   <div
-    className={`flex flex-row space-x-2 overflow-auto overflow-x-scroll whitespace-nowrap sm:h-12 h-fit items-center px-2 ${
+    className={`flex flex-row overflow-auto overflow-x-scroll whitespace-nowrap sm:h-12 h-fit items-center py-2 sm:py-0 px-2 ${
       className ? ` ${className}` : ""
     }`}
   >
