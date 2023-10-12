@@ -101,10 +101,17 @@ export const formatText = (
 
   // Replace urls with anchor tags
   if (withLinks) {
-    text = text.replace(
-      /(https?:\/\/[^\s]+)/g,
-      `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="$1" target="_blank">$1</a>`
-    );
+    const matches = text.match(/(https?:\/\/[^\s]+)/g);
+    if (matches) {
+      matches.forEach((url) => {
+        text = text.replace(
+          url,
+          `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${url}" target="_blank">${
+            url.split("?")[0]
+          }</a>`
+        );
+      });
+    }
 
     // Then, handle the specific URLs
     const urls = embeds
