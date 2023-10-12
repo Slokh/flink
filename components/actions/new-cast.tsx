@@ -365,21 +365,21 @@ export const XPostButton = ({ cast }: { cast: FarcasterCast }) => {
         <NewCastContent placeholder="x-post" disableEmbeds>
           <div className="flex flex-col space-y-1 border rounded-lg p-2 my-2">
             <div className="flex flex-row space-x-2">
-              <Link href={`/${cast.user.fname}`}>
+              <Link href={`/${cast.user?.fname}`}>
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={cast.user.pfp} className="object-cover" />
+                  <AvatarImage src={cast.user?.pfp} className="object-cover" />
                   <AvatarFallback>?</AvatarFallback>
                 </Avatar>
               </Link>
               <div className="flex flex-col text-sm">
                 <Link
-                  href={`/${cast.user.fname}`}
+                  href={`/${cast.user?.fname}`}
                   className="flex flex-row space-x-1 cursor-pointer"
                 >
                   <div className="font-semibold">
-                    {cast.user.display || cast.user.fname}
+                    {cast.user?.display || cast.user?.fname}
                   </div>
-                  <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${cast.user.fname}`}</div>
+                  <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${cast.user?.fname}`}</div>
                 </Link>
                 <div className="flex flex-row space-x-1 text-sm">
                   <div className="text-muted-foreground">

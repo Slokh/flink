@@ -134,7 +134,7 @@ const Apps = () => {
           </div>
           <RemoveButton
             signerKey={key}
-            disabled={!(data.ok && authUser && user.fname !== "warpcast")}
+            disabled={!(data.ok && authUser && user?.fname !== "warpcast")}
           />
         </div>
       ))}

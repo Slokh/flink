@@ -72,16 +72,16 @@ export default function Home() {
                   )}
                 </div>
                 <div className="flex flex-col space-y-2 py-2">
-                  <Link href={`/${user.fname}`}>
+                  <Link href={`/${user?.fname}`}>
                     <Avatar className="h-6 w-6">
-                      <AvatarImage src={user.pfp} className="object-cover" />
+                      <AvatarImage src={user?.pfp} className="object-cover" />
                       <AvatarFallback>?</AvatarFallback>
                     </Avatar>
                   </Link>
                   <div className="flex flex-row space-x-1 items-center text-sm">
                     <span>
-                      <Link href={`/${user.fname}`} className="font-semibold">
-                        {user.display || user.fname || user.fid}
+                      <Link href={`/${user?.fname}`} className="font-semibold">
+                        {user?.display || user?.fname || user?.fid}
                       </Link>
                       {type === "like"
                         ? " liked your post"

@@ -96,7 +96,7 @@ export const MembersTable = ({ members }: { members: ChannelMember[] }) => {
         const user = row.original.user;
         return (
           <Link
-            href={`/${user.fname}`}
+            href={`/${user?.fname}`}
             className="flex flex-row space-x-2 group"
           >
             <Avatar className="h-10 w-10">
@@ -108,7 +108,7 @@ export const MembersTable = ({ members }: { members: ChannelMember[] }) => {
             </Avatar>
             <div className="flex flex-col text-sm">
               <div className="font-semibold group-hover:text-purple-600 group-hover:dark:text-purple-400 transition">
-                {user.display || user.fname}
+                {user?.display || user?.fname}
               </div>
               <div className="text-muted-foreground">{token.metadata.name}</div>
             </div>
@@ -174,7 +174,7 @@ export const MembersTable = ({ members }: { members: ChannelMember[] }) => {
         <div className="text-muted-foreground text-sm">
           {`${members.length} / ${members[0].collection.quantity} members on Farcaster`}
         </div>
-        <FollowUsers fids={members.map((m) => m.user.fid)} />
+        <FollowUsers fids={members.map((m) => m.user?.fid)} />
       </div>
       <ScrollArea>
         <ScrollBar orientation="horizontal" />

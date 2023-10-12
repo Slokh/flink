@@ -63,14 +63,14 @@ export const CollapsibleCast = ({
                   <PlusIcon />
                 </div>
                 <Avatar className="h-5 w-5">
-                  <AvatarImage src={user.pfp} className="object-cover" />
+                  <AvatarImage src={user?.pfp} className="object-cover" />
                   <AvatarFallback>?</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-row space-x-1 cursor-pointer">
                   <div className="font-semibold">
-                    {user.display || user.fname}
+                    {user?.display || user?.fname}
                   </div>
-                  <div className="text-purple-600 dark:text-purple-400">{`@${user.fname}`}</div>
+                  <div className="text-purple-600 dark:text-purple-400">{`@${user?.fname}`}</div>
                 </div>
                 <div className="text-muted-foreground">
                   {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
@@ -92,20 +92,20 @@ export const CollapsibleCast = ({
         >
           <div className="flex flex-col pt-1 w-full">
             <div className="flex flex-row space-x-2 text-sm">
-              <Link href={`/${user.fname}`}>
+              <Link href={`/${user?.fname}`}>
                 <Avatar className="h-5 w-5">
-                  <AvatarImage src={user.pfp} className="object-cover" />
+                  <AvatarImage src={user?.pfp} className="object-cover" />
                   <AvatarFallback>?</AvatarFallback>
                 </Avatar>
               </Link>
               <Link
-                href={`/${user.fname}`}
+                href={`/${user?.fname}`}
                 className="flex flex-row space-x-1 cursor-pointer"
               >
                 <div className="font-semibold">
-                  {user.display || user.fname}
+                  {user?.display || user?.fname}
                 </div>
-                <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${user.fname}`}</div>
+                <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${user?.fname}`}</div>
               </Link>
               <div className="text-muted-foreground">
                 {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
@@ -126,7 +126,7 @@ export const CollapsibleCast = ({
             <div className="text-muted-foreground text-sm flex flex-row space-x-4">
               <ReplyCastButton parent={cast} inThread />
               <a
-                href={`https://warpcast.com/${user.fname}/${cast.hash.slice(
+                href={`https://warpcast.com/${user?.fname}/${cast.hash.slice(
                   0,
                   8
                 )}`}
@@ -135,7 +135,9 @@ export const CollapsibleCast = ({
               >
                 warpcast
               </a>
-              <CopyLink link={`https://flink.fyi/${user.fname}/${cast.hash}`} />
+              <CopyLink
+                link={`https://flink.fyi/${user?.fname}/${cast.hash}`}
+              />
               <DeleteCast hash={cast.hash} isReply>
                 <div className="hover:underline">delete</div>
               </DeleteCast>

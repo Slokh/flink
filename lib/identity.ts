@@ -67,7 +67,7 @@ const getEntityId = async (
     if (username?.result?.user?.fid) {
       const entityId = await handleUserUpdate(
         await getHubClient(),
-        parseInt(username.result.user.fid, 10)
+        parseInt(username.result.user?.fid, 10)
       );
       if (entityId) {
         return { entityId: entityId };

@@ -150,14 +150,16 @@ export const UsersTable = ({
       cell: ({ row }) => {
         const user = row.original.user;
         return (
-          <Link href={`/${user.fname}`} className="flex flex-row space-x-2">
+          <Link href={`/${user?.fname}`} className="flex flex-row space-x-2">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={user.pfp} className="object-cover" />
+              <AvatarImage src={user?.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
             <div className="flex flex-col text-sm">
-              <div className="font-semibold">{user.display || user.fname}</div>
-              <div className="text-muted-foreground">{`@${user.fname}`}</div>
+              <div className="font-semibold">
+                {user?.display || user?.fname}
+              </div>
+              <div className="text-muted-foreground">{`@${user?.fname}`}</div>
             </div>
           </Link>
         );

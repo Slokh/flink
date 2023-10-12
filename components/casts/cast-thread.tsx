@@ -26,19 +26,19 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
   return (
     <div className="flex flex-col space-y-1">
       <div className="flex flex-row space-x-2">
-        <Link href={`/${user.fname}`}>
+        <Link href={`/${user?.fname}`}>
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user.pfp} className="object-cover" />
+            <AvatarImage src={user?.pfp} className="object-cover" />
             <AvatarFallback>?</AvatarFallback>
           </Avatar>
         </Link>
         <div className="flex flex-col text-sm">
           <Link
-            href={`/${user.fname}`}
+            href={`/${user?.fname}`}
             className="flex flex-row space-x-1 cursor-pointer"
           >
-            <div className="font-semibold">{user.display || user.fname}</div>
-            <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${user.fname}`}</div>
+            <div className="font-semibold">{user?.display || user?.fname}</div>
+            <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${user?.fname}`}</div>
           </Link>
           <div className="flex flex-row space-x-1 text-sm">
             <div className="text-muted-foreground">
@@ -104,7 +104,10 @@ export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
         <div className="text-muted-foreground text-sm flex flex-row space-x-4">
           <ReplyCastButton parent={cast} inThread />
           <a
-            href={`https://warpcast.com/${user.fname}/${cast.hash.slice(0, 8)}`}
+            href={`https://warpcast.com/${user?.fname}/${cast.hash.slice(
+              0,
+              8
+            )}`}
             target="_blank"
             className="hover:underline"
           >
@@ -112,7 +115,7 @@ export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
           </a>
           <CopyLink
             link={`https://flink.fyi/${
-              channel ? `channels/${channel.channelId}` : user.fname
+              channel ? `channels/${channel.channelId}` : user?.fname
             }/${cast.hash}`}
           />
           <DeleteCast hash={cast.hash}>

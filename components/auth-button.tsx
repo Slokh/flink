@@ -52,7 +52,7 @@ const AuthUser = ({
 }) => (
   <div className="flex flex-row items-center space-x-1">
     <Avatar className="h-6 w-6">
-      <AvatarImage src={user.pfp} className="object-cover" />
+      <AvatarImage src={user?.pfp} className="object-cover" />
       <AvatarFallback>?</AvatarFallback>
     </Avatar>
     <div className="font-semibold text-sm">{user?.fname}</div>
@@ -127,7 +127,7 @@ export const AuthButton = () => {
           {user ? (
             <>
               <Avatar className="h-6 w-6">
-                <AvatarImage src={user.pfp} className="object-cover" />
+                <AvatarImage src={user?.pfp} className="object-cover" />
                 <AvatarFallback>?</AvatarFallback>
               </Avatar>
               <div className="font-semibold text-sm">{user?.fname}</div>
@@ -165,13 +165,13 @@ export const AuthButton = () => {
             <DropdownMenuLabel>Switch account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
-              value={user.fid.toString()}
+              value={user.fid?.toString()}
               onValueChange={changeUser}
             >
               {users.map((u) => (
                 <DropdownMenuRadioItem
                   className="cursor-pointer"
-                  value={u.fid.toString()}
+                  value={u.fid?.toString()}
                   key={u.fid}
                 >
                   <AuthUser user={u} />

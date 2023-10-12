@@ -179,20 +179,20 @@ const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
   const formattedText = formatText(metadata.cast.text, [], embeds, true);
   return (
     <Link
-      href={`https://flink.fyi/${metadata.user.fname}/${metadata.cast.hash}`}
+      href={`https://flink.fyi/${metadata.user?.fname}/${metadata.cast.hash}`}
       className="max-w-lg w-full"
     >
       <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
         <div className="flex flex-col p-2 space-y-1">
           <div className="flex flex-row space-x-1 items-center text-sm">
             <Avatar className="h-4 w-4">
-              <AvatarImage src={metadata.user.pfp} className="object-cover" />
+              <AvatarImage src={metadata.user?.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
             <div className="font-semibold">
-              {metadata.user.display || metadata.user.fname}
+              {metadata.user?.display || metadata.user?.fname}
             </div>
-            <div className="text-purple-600 dark:text-purple-400">{`@${metadata.user.fname}`}</div>
+            <div className="text-purple-600 dark:text-purple-400">{`@${metadata.user?.fname}`}</div>
             <div className="text-muted-foreground">
               {formatDistanceStrict(
                 new Date(metadata.cast.timestamp),

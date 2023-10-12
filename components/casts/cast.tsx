@@ -188,7 +188,7 @@ const WebCast = ({
           </div>
         )}
         <Link
-          href={`/${channel ? `channels/${channel.channelId}` : user.fname}/${
+          href={`/${channel ? `channels/${channel.channelId}` : user?.fname}/${
             cast.hash
           }`}
           className="transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-2 visited:text-purple-600 visited:dark:text-purple-400"
@@ -209,14 +209,14 @@ const WebCast = ({
               })}
             </div>
             <div className="text-muted-foreground">by</div>
-            <Link href={`/${user.fname}`}>
+            <Link href={`/${user?.fname}`}>
               <Avatar className="h-4 w-4">
-                <AvatarImage src={user.pfp} className="object-cover" />
+                <AvatarImage src={user?.pfp} className="object-cover" />
                 <AvatarFallback>?</AvatarFallback>
               </Avatar>
             </Link>
-            <Link href={`/${user.fname}`} className="hover:underline">
-              <div>{user.fname}</div>
+            <Link href={`/${user?.fname}`} className="hover:underline">
+              <div>{user?.fname}</div>
             </Link>
             {channel && (
               <>
@@ -242,22 +242,25 @@ const WebCast = ({
         </div>
         <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-2">
           <Link
-            href={`/${channel ? `channels/${channel.channelId}` : user.fname}/${
-              cast.hash
-            }`}
+            href={`/${
+              channel ? `channels/${channel.channelId}` : user?.fname
+            }/${cast.hash}`}
             className="hover:underline"
           >
             {`${cast.replies} replies`}
           </Link>
           <ReplyCastButton parent={cast} />
           <a
-            href={`https://warpcast.com/${user.fname}/${cast.hash.slice(0, 8)}`}
+            href={`https://warpcast.com/${user?.fname}/${cast.hash.slice(
+              0,
+              8
+            )}`}
             target="_blank"
             className="hover:underline"
           >
             warpcast
           </a>
-          <CopyLink link={`https://flink.fyi/${user.fname}/${cast.hash}`} />
+          <CopyLink link={`https://flink.fyi/${user?.fname}/${cast.hash}`} />
           <XPostButton cast={cast} />
           <DeleteCast hash={cast.hash}>
             <div className="hover:underline">delete</div>
@@ -306,14 +309,14 @@ export const MobileCast = ({
           {rank && (
             <div className="flex text-muted-foreground font-semibold">{`${rank}.`}</div>
           )}
-          <Link href={`/${user.fname}`}>
+          <Link href={`/${user?.fname}`}>
             <Avatar className="h-4 w-4">
-              <AvatarImage src={user.pfp} className="object-cover" />
+              <AvatarImage src={user?.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
           </Link>
-          <Link href={`/${user.fname}`} className="hover:underline">
-            <div>{user.fname}</div>
+          <Link href={`/${user?.fname}`} className="hover:underline">
+            <div>{user?.fname}</div>
           </Link>
         </div>
         <div className="text-muted-foreground">
@@ -331,7 +334,7 @@ export const MobileCast = ({
       )}
       {isLink ? (
         <Link
-          href={`/${channel ? `channels/${channel.channelId}` : user.fname}/${
+          href={`/${channel ? `channels/${channel.channelId}` : user?.fname}/${
             cast.hash
           }`}
           className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 visited:text-purple-600 visited:dark:text-purple-400 whitespace-pre-line break-words"
@@ -357,7 +360,7 @@ export const MobileCast = ({
       )}
       {cast.embeds.length > 0 && <EmbedPreview embed={cast.embeds[0]} />}
       <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-1 items-center">
-        <Link href={`/${user.fname}/${cast.hash}`} className="hover:underline">
+        <Link href={`/${user?.fname}/${cast.hash}`} className="hover:underline">
           {`${cast.replies} replies`}
         </Link>
         <LikeCast hash={cast.hash} likes={cast.likes} mode="text" />

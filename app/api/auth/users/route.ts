@@ -1,3 +1,5 @@
+import { getHubClient } from "@/indexer/farcaster/hub";
+import { handleUserUpdate } from "@/indexer/farcaster/users";
 import { CONTRACTS } from "@/lib/contracts";
 import {
   RouteHandlerWithSession,
@@ -37,9 +39,10 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       },
     });
 
-    const mappedUsers = await Promise.all(
-      users.map(({ fid }) => getUserData(fid!))
-    );
+    const mappedUsers =
+      users?.length > 0
+        ? await Promise.all(users.map(({ fid }) => getUserData(fid!)))
+        : [];
     const primaryUser = await getPrimaryUser(address as `0x${string}`);
 
     return NextResponse.json({
@@ -64,10 +67,16 @@ const getPrimaryUser = async (address: `0x${string}`) => {
   });
   if (!fid) return;
 
-  const account = await prisma.farcaster.findFirst({
+  let account = await prisma.farcaster.findFirst({
     where: { fid: Number(fid) },
   });
-  if (!account) return;
+  if (!account) {
+    const client = await getHubClient();
+    await handleUserUpdate(client, Number(fid));
+    account = await prisma.farcaster.findFirst({
+      where: { fid: Number(fid) },
+    });
+  }
 
   return {
     fid: account?.fid,

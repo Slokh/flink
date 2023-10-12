@@ -15,8 +15,8 @@ export const Profile = ({ entity, id }: { entity: Entity; id: string }) => (
           <div className="text-lg md:text-2xl font-semibold leading-tight">
             {entity.display?.value || id}
           </div>
-          {entity.fname && (
-            <div className="text-muted-foreground">{`@${entity.fname}`}</div>
+          {entity?.fname && (
+            <div className="text-muted-foreground">{`@${entity?.fname}`}</div>
           )}
         </div>
         {entity.fid && <FollowUser fid={entity.fid} />}

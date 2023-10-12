@@ -24,7 +24,7 @@ export const ImageCast = ({ image }: { image: Image }) => {
   return (
     <Link
       href={`/${
-        image.channelId ? `channels/${image.channelId}` : image.user.fname
+        image.channelId ? `channels/${image.channelId}` : image.user?.fname
       }/${image.hash}`}
       className="relative group cursor-pointer"
     >
@@ -38,10 +38,10 @@ export const ImageCast = ({ image }: { image: Image }) => {
         <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col w-full">
           <div className="flex flex-row items-center space-x-1">
             <Avatar className="h-4 w-4">
-              <AvatarImage src={image.user.pfp} className="object-cover" />
+              <AvatarImage src={image.user?.pfp} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
-            <div>{image.user.fname}</div>
+            <div>{image.user?.fname}</div>
           </div>
           <div className="text-xs line-clamp-2 w-full">{image.text}</div>
         </div>
