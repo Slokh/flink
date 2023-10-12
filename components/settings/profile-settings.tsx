@@ -340,6 +340,25 @@ export const ChangeUsername = ({
     types,
   });
 
+  useEffect(() => {
+    const handle = async () => {
+      const current = await fetch(
+        `https://fnames.farcaster.xyz/transfers/current?fid=${custody?.fid}`
+      );
+      const { transfer } = await current.json();
+      if (transfer) {
+        setInput(transfer.username);
+        if (custody?.fname !== transfer.username) {
+          setError(
+            "Your username was not applied, please click Register again to save it."
+          );
+        }
+      }
+    };
+    handle();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSubmit = async () => {
     if (!address || input === custody?.fname || !switchNetwork) return;
     setError("");
