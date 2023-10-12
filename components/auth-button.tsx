@@ -199,7 +199,7 @@ export const AuthButton = () => {
         <AddAccount />
         {!primary && <TransferAccount />}
         <DropdownMenuSeparator />
-        {user && (
+        {user?.fname && (
           <Link
             href={`/${user?.fname}`}
             className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border"

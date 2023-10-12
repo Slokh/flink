@@ -429,6 +429,13 @@ export const ChangeUsername = ({
   };
 
   const handleChange = async () => {
+    if (!/^[a-z0-9_]+$/.test(input)) {
+      setError(
+        "Invalid username. Can only contain lowercase letters, numbers, and underscores."
+      );
+      return;
+    }
+
     const current = await fetch(
       `https://fnames.farcaster.xyz/transfers/current?name=${custody?.fname}`
     );

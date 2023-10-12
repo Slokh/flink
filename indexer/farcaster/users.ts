@@ -90,5 +90,9 @@ export const handleUserUpdate = async (client: Client, fid: number) => {
     `[user-update] [${fid}] processed for entity ${entityId} ${farcasterUser.fname}`
   );
 
+  for (const link of dedupedLinkResults) {
+    console.log(`[user-update] [${fid}] ${link.source} ${link.url}`);
+  }
+
   return entityId;
 };
