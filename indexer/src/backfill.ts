@@ -21,7 +21,7 @@ const END_TIMESTAMP = 16967871880000;
 
 const backfill = async () => {
   const client = await getHubClient();
-  let currentFid = 4500;
+  let currentFid = 4877;
   for (let fid = currentFid; fid <= 24000; fid++) {
     console.log(`[backfill] [${fid}]`);
     await handleUserUpdate(client, fid);
@@ -44,7 +44,7 @@ const backfill = async () => {
   }
 };
 
-const handleFidCasts = async (client: Client, fid: number) => {
+export const handleFidCasts = async (client: Client, fid: number) => {
   let pageToken: Uint8Array | undefined = undefined;
   do {
     const response = await client.client.getCastsByFid({
@@ -66,7 +66,7 @@ const handleFidCasts = async (client: Client, fid: number) => {
   } while (pageToken?.length);
 };
 
-const handleReactions = async (client: Client, fid: number) => {
+export const handleReactions = async (client: Client, fid: number) => {
   let pageToken: Uint8Array | undefined = undefined;
   do {
     const response = await client.client.getReactionsByFid({
@@ -105,7 +105,7 @@ const handleReactions = async (client: Client, fid: number) => {
   } while (pageToken?.length);
 };
 
-const handleLinks = async (client: Client, fid: number) => {
+export const handleLinks = async (client: Client, fid: number) => {
   let pageToken: Uint8Array | undefined = undefined;
   do {
     const response = await client.client.getLinksByFid({

@@ -55,13 +55,13 @@ const NewCastContent = ({
   parent,
   children,
   placeholder,
-  disableEmbeds,
+  xpost,
   inThread,
 }: {
   parent?: string;
   children?: React.ReactNode;
   placeholder?: string;
-  disableEmbeds?: boolean;
+  xpost?: FarcasterCast;
   inThread?: boolean;
 }) => {
   const [loading, setLoading] = useState(true);
@@ -98,51 +98,62 @@ const NewCastContent = ({
   useEffect(() => {
     form.trigger("text");
 
-    const fetchEmbed = async (url: string) => {
-      if (fetchedEmbeds[url]) return fetchedEmbeds[url];
-      const res = await fetch("/api/embeds", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url }),
-      });
-      const metadata = await res.json();
-      return metadata;
-    };
+    if (!xpost) {
+      const fetchEmbed = async (url: string) => {
+        if (fetchedEmbeds[url]) return fetchedEmbeds[url];
+        const res = await fetch("/api/embeds", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url }),
+        });
+        const metadata = await res.json();
+        return metadata;
+      };
 
-    const fetchEmbeds = async (urls: string[]) => {
-      const newFetchedEmbeds = (await Promise.all(urls.map(fetchEmbed)))
-        .filter(
-          ({ contentMetadata }) => Object.keys(contentMetadata).length > 0
-        )
-        .slice(0, 2 - files.length);
-      const newFetchedEmbedsMap = newFetchedEmbeds.reduce(
-        (acc, embed) => ({ ...acc, [embed.url]: embed }),
-        {}
-      );
-      setFetchedEmbeds({ ...fetchedEmbeds, ...newFetchedEmbedsMap });
-      setEmbeds(newFetchedEmbeds);
-    };
+      const fetchEmbeds = async (urls: string[]) => {
+        const newFetchedEmbeds = (await Promise.all(urls.map(fetchEmbed)))
+          .filter(
+            ({ contentMetadata }) => Object.keys(contentMetadata).length > 0
+          )
+          .slice(0, 2 - files.length);
+        const newFetchedEmbedsMap = newFetchedEmbeds.reduce(
+          (acc, embed) => ({ ...acc, [embed.url]: embed }),
+          {}
+        );
+        setFetchedEmbeds({ ...fetchedEmbeds, ...newFetchedEmbedsMap });
+        setEmbeds(newFetchedEmbeds);
+      };
 
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const urls = textValue.match(urlRegex);
-    if (urls && files.length < 2) {
-      fetchEmbeds(urls);
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const urls = textValue.match(urlRegex);
+      if (urls && files.length < 2) {
+        fetchEmbeds(urls);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textValue]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setSubmitting(true);
-    const urls = [
-      ...files.map((file) => ({
-        url: file.url,
-      })),
-      ...embeds.map((embed) => ({
-        url: embed.url,
-      })),
-    ];
+    const urls = xpost
+      ? [
+          {
+            url: `https://warpcast.com/${xpost.user.fname}/${xpost.hash.slice(
+              0,
+              8
+            )}`,
+          },
+        ]
+      : [
+          ...files.map((file) => ({
+            url: file.url,
+          })),
+          ...embeds.map((embed) => ({
+            url: embed.url,
+          })),
+        ];
     const res = await fetch(`/api/auth/${user?.fid}/casts`, {
       method: "POST",
       body: JSON.stringify({
@@ -230,7 +241,7 @@ const NewCastContent = ({
           {children}
         </ScrollArea>
         <div className="flex flex-row justify-between items-center mt-2 space-x-2">
-          {!disableEmbeds ? (
+          {!xpost ? (
             <FileUpload
               isDisabled={files.length + embeds.length >= 2}
               onFileUpload={(url) =>
@@ -362,7 +373,7 @@ export const XPostButton = ({ cast }: { cast: FarcasterCast }) => {
         <div className="hover:underline">x-post</div>
       </DialogTrigger>
       <DialogContent>
-        <NewCastContent placeholder="x-post" disableEmbeds>
+        <NewCastContent placeholder="x-post" xpost={cast}>
           <div className="flex flex-col space-y-1 border rounded-lg p-2 my-2">
             <div className="flex flex-row space-x-2">
               <Link href={`/${cast.user?.fname}`}>

@@ -85,7 +85,13 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
   );
 };
 
-export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
+export const CastParent = ({
+  cast,
+  isHighlighted,
+}: {
+  cast: FarcasterCast;
+  isHighlighted: boolean;
+}) => {
   const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
 
   const user = cast.user || {
@@ -102,6 +108,16 @@ export const CastParent = ({ cast }: { cast: FarcasterCast }) => {
       <div className="flex flex-col space-y-1 w-full">
         <CastContent cast={cast} />
         <div className="text-muted-foreground text-sm flex flex-row space-x-4">
+          {isHighlighted && (
+            <Link
+              href={`/${
+                channel ? `channels/${channel.channelId}` : user?.fname
+              }/${cast.hash}`}
+              className="hover:underline"
+            >
+              view thread
+            </Link>
+          )}
           <ReplyCastButton parent={cast} inThread />
           <a
             href={`https://warpcast.com/${user?.fname}/${cast.hash.slice(
@@ -139,7 +155,7 @@ export const CastThread = async ({
       <div className="hidden md:flex flex-col h-full">
         <ScrollArea className="h-full pl-2">
           <ScrollBar orientation="horizontal" />
-          <CastParent cast={cast} />
+          <CastParent cast={cast} isHighlighted={hash !== cast.hash} />
           <div className="flex flex-col space-y-4 m-2">
             {cast.children.map((child) => (
               <CollapsibleCast

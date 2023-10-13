@@ -42,6 +42,8 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 import { CONTRACTS } from "@/lib/contracts";
+import { MoonIcon, SunIcon, DesktopIcon } from "@radix-ui/react-icons";
+import { useTheme } from "next-themes";
 
 const AuthUser = ({
   user,
@@ -73,6 +75,7 @@ export const AuthButton = () => {
   const { openConnectModal } = useConnectModal();
   const [clickedConnect, setClickedConnect] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const { setTheme, theme } = useTheme();
 
   const handleConnect = () => {
     setClickedConnect(true);
@@ -219,6 +222,27 @@ export const AuthButton = () => {
           </span>
           Settings
         </Link>
+        <div
+          onClick={() =>
+            setTheme(
+              theme === "light" ? "dark" : theme === "dark" ? "system" : "light"
+            )
+          }
+          className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-border"
+        >
+          <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+            {theme === "light" ? (
+              <SunIcon className="h-4 w-4 fill-current" />
+            ) : theme === "dark" ? (
+              <MoonIcon className="h-4 w-4 fill-current" />
+            ) : theme === "system" ? (
+              <DesktopIcon className="h-4 w-4 fill-current" />
+            ) : (
+              <></>
+            )}
+          </span>
+          {`${theme?.charAt(0).toUpperCase()}${theme?.slice(1)}`}
+        </div>
         <DropdownMenuItem
           className="cursor-pointer text-red-500"
           onClick={logout}

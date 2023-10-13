@@ -26,7 +26,7 @@ const TwitterEmbed = ({
 
   return (
     <a href={url || "#"} target="_blank" className="max-w-lg w-full">
-      <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
+      <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all shadow-none">
         {image && (
           <div>
             <img
@@ -82,7 +82,7 @@ const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
 
   return (
     <a href={url || "#"} target="_blank" className="max-w-lg w-full">
-      <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
+      <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all shadow-none">
         <div className="flex flex-col p-2 space-y-1">
           <div className="flex flex-row space-x-2 items-center">
             {metadata.favicon && (
@@ -148,7 +148,7 @@ const ImageEmbed = ({ url }: { url: string }) => {
 
 const NftEmbed = ({ metadata }: { metadata: NftMetadata }) => (
   <a href={metadata.externalUrl || "#"} target="_blank">
-    <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
+    <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all shadow-none">
       <div>
         <img
           alt="embed_image"
@@ -182,7 +182,7 @@ const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
       href={`https://flink.fyi/${metadata.user?.fname}/${metadata.cast.hash}`}
       className="max-w-lg w-full"
     >
-      <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
+      <Card className="rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all shadow-none">
         <div className="flex flex-col p-2 space-y-1">
           <div className="flex flex-row space-x-1 items-center text-sm">
             <Avatar className="h-4 w-4">

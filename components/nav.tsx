@@ -19,7 +19,7 @@ export const Nav = () => {
   return (
     <>
       <div className="hidden lg:flex flex-row border p-1 justify-between items-center w-full">
-        <div className="flex flex-row space-x-8 items-center">
+        <div className="flex flex-row space-x-8 items-center pl-2">
           <Link href="/" className="font-bold">
             flink
           </Link>
