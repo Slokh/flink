@@ -19,6 +19,17 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
+    if (!params.fid) {
+      return NextResponse.json(
+        {
+          status: 400,
+          statusText: "Bad Request",
+          error: "Missing fid",
+        },
+        { status: 400 }
+      );
+    }
+
     const fid = parseInt(params.fid as string);
     const signer = await prisma.user.findFirst({
       where: { address: address.toLowerCase(), fid },
