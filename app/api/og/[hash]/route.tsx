@@ -1,5 +1,4 @@
 import { Embed, FarcasterCast, NftMetadata } from "@/lib/types";
-import { HeartFilledIcon } from "@radix-ui/react-icons";
 import { ImageResponse } from "next/server";
 import { Metadata } from "unfurl.js/dist/types";
 

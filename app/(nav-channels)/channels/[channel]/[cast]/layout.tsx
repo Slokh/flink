@@ -40,11 +40,35 @@ export const generateMetadata = async ({
     };
   }
 
+  let offset = 0;
+  let updatedMentionsPositions = []; // Array to store updated positions
+
   const title = `${cast.user?.display || cast.user?.fname || cast.user?.fid} ${
     cast.user?.fname ? `(@${cast.user?.fname})` : ""
   }`;
-  const description = formatText(cast.text, cast.mentions, cast.embeds, true);
-  const { previewImage } = getPreview(cast.embeds);
+
+  let textBuffer = Buffer.from(cast.text, "utf-8");
+
+  const sortedMentions = cast.mentions.sort((a, b) => b.position - a.position);
+
+  for (let i = 0; i < sortedMentions.length; i++) {
+    if (!sortedMentions[i].mention) continue;
+    const adjustedMentionPosition = sortedMentions[i].position;
+    const mentionUsername = sortedMentions[i].mention.fname;
+    const mentionLinkBuffer = Buffer.from(`@${mentionUsername}`, "utf-8");
+    const actualPosition = adjustedMentionPosition;
+    const beforeMention = textBuffer.slice(0, actualPosition);
+    const afterMention = textBuffer.slice(actualPosition);
+    textBuffer = Buffer.concat([
+      beforeMention,
+      mentionLinkBuffer,
+      afterMention,
+    ]);
+    offset += mentionLinkBuffer.length;
+    updatedMentionsPositions.push(actualPosition);
+  }
+
+  const description = textBuffer.toString("utf-8");
 
   return {
     title,
