@@ -21,7 +21,7 @@ const END_TIMESTAMP = 16967871880000;
 
 const backfill = async () => {
   const client = await getHubClient();
-  let currentFid = 4877;
+  let currentFid = 5250;
   for (let fid = currentFid; fid <= 24000; fid++) {
     console.log(`[backfill] [${fid}]`);
     await handleUserUpdate(client, fid);
