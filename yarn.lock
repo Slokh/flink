@@ -2124,13 +2124,13 @@
   resolved "https://registry.yarnpkg.com/@vercel/analytics/-/analytics-1.0.2.tgz#7af719a1bf33734840aee6f04eb548d2cedab9ec"
   integrity sha512-BZFxVrv24VbNNl5xMxqUojQIegEeXMI6rX3rg1uVLYUEXsuKNBSAEQf4BWEcjQDp/8aYJOj6m8V4PUA3x/cxgg==
 
-"@vercel/og@^0.5.13":
-  version "0.5.13"
-  resolved "https://registry.yarnpkg.com/@vercel/og/-/og-0.5.13.tgz#0c28794d5a3f1aa3c0e211c4c5ea7552cdbecc84"
-  integrity sha512-okWQ2Jt+155Hn518Y8Tt4Iqb7QdNFoPvH/n4sMpC4K4bcijjo2RAEwXwlhTYHAAkoiJ0AEEeWeknZj1aBgOOqw==
+"@vercel/og@^0.5.18":
+  version "0.5.18"
+  resolved "https://registry.yarnpkg.com/@vercel/og/-/og-0.5.18.tgz#a2ba7970357cf8473c2e39627b989644f2b91f85"
+  integrity sha512-l519y6hscj14VkORBKshExoWaXWB4MqGUCIhY3gcXYir4aJ3J+9BU1E/CQ9yKsNmkgY+1VXOgjnq9zUT4B49KQ==
   dependencies:
     "@resvg/resvg-wasm" "2.4.1"
-    satori "0.10.4"
+    satori "0.10.9"
     yoga-wasm-web "0.3.3"
 
 "@wagmi/chains@1.7.0":
@@ -5845,10 +5845,10 @@ safe-stable-stringify@^2.1.0:
   resolved "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-satori@0.10.4:
-  version "0.10.4"
-  resolved "https://registry.yarnpkg.com/satori/-/satori-0.10.4.tgz#ba2b050b5cd00757e02dede45710d8b0a58aac04"
-  integrity sha512-GJNIsuiXhiC9kWGLvz04Op5DZy2UFYZAWsuUtkTlQt3r15o0K96PeD+FMfGN4luMPUHc4uV9gXqAoPxOK0omSw==
+satori@0.10.9:
+  version "0.10.9"
+  resolved "https://registry.yarnpkg.com/satori/-/satori-0.10.9.tgz#efde2898ab4a5b09c072f0f4e112ac4a7d6a499c"
+  integrity sha512-XU9EELUEZuioT4acLIpCXxHcFzrsC8muvg0MY28d+TlqwxbkTzBmWbw+3+hnCzXT7YZ0Qm8k3eXktDaEu+qmEw==
   dependencies:
     "@shuding/opentype.js" "1.4.0-beta.0"
     css-background-parser "^0.1.0"

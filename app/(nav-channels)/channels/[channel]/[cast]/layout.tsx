@@ -58,7 +58,7 @@ export const generateMetadata = async ({
       url: `https://flink.fyi/channels/${params.channel}/${params.cast}`,
       title,
       description,
-      images: [previewImage || "/flink.png"],
+      images: [`/api/og/${params.cast}`],
       siteName: "flink",
     },
   };
