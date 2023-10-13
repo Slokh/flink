@@ -9,7 +9,7 @@ export async function GET(
   request: Request,
   { params }: { params: { hash: string } }
 ) {
-  const res = await fetch(`http://localhost:3000/api/cast/${params.hash}`);
+  const res = await fetch(`https://flink.fyi/api/cast/${params.hash}`);
   const { cast }: { cast: FarcasterCast } = await res.json();
   const displayName =
     cast.user?.display || cast.user?.fname || `fid:${cast.user?.fid}`;
