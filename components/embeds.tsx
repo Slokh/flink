@@ -32,7 +32,7 @@ const TwitterEmbed = ({
             <img
               alt="embed_image"
               src={image}
-              className="w-full rounded-t-lg h-56 object-cover"
+              className="w-full rounded-t-lg h-[295px] object-cover"
             />
           </div>
         )}
@@ -117,7 +117,7 @@ const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
               <img
                 alt="embed_image"
                 src={image}
-                className="w-full rounded-t-lg h-56 object-cover"
+                className="w-full rounded-t-lg h-[295px] object-cover"
               />
             </div>
           )}
