@@ -7,6 +7,7 @@ import Link from "next/link";
 import { formatText } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { formatDistanceStrict } from "date-fns";
+import { VideoPlayer } from "./video-player";
 
 const URL_REGEX =
   /\b(?:https?:\/\/|www\.|ftp:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?\b/gi;
@@ -117,7 +118,7 @@ const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
               <img
                 alt="embed_image"
                 src={image}
-                className="w-full rounded-t-lg h-[295px] object-cover"
+                className="w-full rounded-lg h-[295px] object-cover"
               />
             </div>
           )}
@@ -222,8 +223,12 @@ const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
 };
 
 export const EmbedPreview = ({ embed }: { embed: Embed }) => {
-  if (embed.url.includes("i.imgur.com")) {
+  if (embed.contentType?.startsWith("image")) {
     return <ImageEmbed url={embed.url} />;
+  }
+
+  if (embed.contentType?.startsWith("video")) {
+    return <VideoPlayer url={embed.url} />;
   }
 
   if (
@@ -233,7 +238,15 @@ export const EmbedPreview = ({ embed }: { embed: Embed }) => {
     if (embed.contentType?.startsWith("image")) {
       return <ImageEmbed url={embed.url} />;
     }
-    return <></>;
+    return (
+      <a
+        href={embed.url}
+        className="text-purple-600 dark:text-purple-400 hover:underline"
+        target="_blank"
+      >
+        {embed.url}
+      </a>
+    );
   }
 
   if (embed.url.startsWith("chain://")) {
@@ -241,7 +254,7 @@ export const EmbedPreview = ({ embed }: { embed: Embed }) => {
   }
 
   if (
-    embed.url.includes("warpcast.com") &&
+    (embed.url.includes("warpcast.com") || embed.url.includes("flink.fyi")) &&
     embed.url.match(/0x[0-9a-fA-F]+$/i)
   ) {
     return <FlinkEmbed metadata={embed.contentMetadata as CastMetadata} />;

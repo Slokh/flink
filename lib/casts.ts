@@ -473,7 +473,8 @@ const getEmbedsForCasts = async (casts: any) => {
           (Object.keys(contentMetadata).length === 0 &&
             url.startsWith("chain://"))) &&
         (!contentType || !contentType.includes("image"))) ||
-      (url.includes("warpcast.com") && !contentMetadata?.["user"])
+      (url.includes("warpcast.com") && !contentMetadata?.["user"]) ||
+      (url.includes("flink.fyi") && !contentMetadata?.["user"])
   );
 
   let fetchedEmbedsMap: Record<string, any> = {};

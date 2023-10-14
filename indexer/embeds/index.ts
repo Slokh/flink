@@ -57,7 +57,10 @@ const getHeadMetadata = async (url: string) => {
 const getMetadata = async (url: string) => {
   let contentMetadata = {};
   try {
-    if (url.includes("warpcast.com") && url.match(/0x[0-9a-fA-F]+$/i)) {
+    if (
+      (url.includes("warpcast.com") || url.includes("flink.fyi")) &&
+      url.match(/0x[0-9a-fA-F]+$/i)
+    ) {
       const split = url.split("/");
       const hash = split[split.length - 1];
       const fname = split[split.length - 2];

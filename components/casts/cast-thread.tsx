@@ -74,7 +74,7 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
         {cast.embeds.length > 0 && (
           <div className="flex flex-row flex-wrap">
             {cast.embeds.map((embed, i) => (
-              <div key={i} className="w-1/2 pr-2">
+              <div key={i} className="w-1/2 max-w-lg pr-2">
                 <EmbedPreview embed={embed} />
               </div>
             ))}
