@@ -7,6 +7,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const generateId = () => {
+  return Math.random().toString(36).substr(2, 9);
+};
+
 export const formatSiweMessage = (message: SiweMessage) => {
   const header = `${message.domain} wants you to sign in with your Ethereum account:`;
   const uriField = `URI: ${message.uri}`;

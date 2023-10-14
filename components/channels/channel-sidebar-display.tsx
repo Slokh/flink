@@ -35,11 +35,7 @@ export const ChannelSidebarDisplay = ({
 }: {
   channels: ChannelStats[];
 }) => {
-  const {
-    displayMode,
-    channels: followedChannels,
-    changeDisplayMode,
-  } = useUser();
+  const { channels: followedChannels } = useUser();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 

@@ -134,7 +134,7 @@ export const Profile = ({
               <FormControl>
                 <div className="flex flex-row space-x-8 items-center">
                   <FileUpload
-                    onFileUpload={(url) => {
+                    onFileUpload={({ url }) => {
                       form.setValue("pfp_url", url);
                     }}
                   >
@@ -149,7 +149,7 @@ export const Profile = ({
                   {user && (
                     <div className="flex flex-col space-y-4">
                       <FileUpload
-                        onFileUpload={(url) => {
+                        onFileUpload={({ url }) => {
                           form.setValue("pfp_url", url);
                         }}
                       >

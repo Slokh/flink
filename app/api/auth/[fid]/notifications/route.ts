@@ -228,7 +228,9 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       ...followNotifications,
       ...replyNotifications,
       ...mentionNotifications,
-    ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    ]
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .filter(({ user }) => user.fid !== fid);
 
     const notificationsViewedAt = preferences.notificationsViewedAt;
     let unreadNotifications = notifications.length;

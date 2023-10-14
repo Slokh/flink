@@ -34,31 +34,48 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
       );
     }
 
-    const data = await fetch("https://api.neynar.com/v2/farcaster/cast", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        api_key: process.env.NEYNAR_API_KEY as string,
-      },
-      body: JSON.stringify({
-        signer_uuid: signer.signerUuid,
-        ...(await request.json()),
-      }),
-    });
-
-    const res = await data.json();
-
-    if (!data.ok) {
-      return NextResponse.json({
-        status: data.status,
-        statusText: data.statusText,
-        error: res,
+    const body = await request.json();
+    const casts = [];
+    let parent = body.casts[0].parent;
+    for (const cast of body.casts) {
+      const data = await fetch("https://api.neynar.com/v2/farcaster/cast", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          api_key: process.env.NEYNAR_API_KEY as string,
+        },
+        body: JSON.stringify({
+          signer_uuid: signer.signerUuid,
+          ...cast,
+          parent,
+        }),
       });
+
+      const res = await data.json();
+
+      if (!data.ok) {
+        return NextResponse.json({
+          status: data.status,
+          statusText: data.statusText,
+          error: res,
+        });
+      }
+
+      casts.push(res);
+      parent = res.cast.hash;
+
+      while (true) {
+        const found = await prisma.farcasterCast.findFirst({
+          where: { hash: parent },
+        });
+        if (found) {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
     }
 
-    const { cast } = await res;
-
-    return NextResponse.json(cast);
+    return NextResponse.json({ casts });
   }
 );
 

@@ -167,7 +167,7 @@ const NftEmbed = ({ metadata }: { metadata: NftMetadata }) => (
   </a>
 );
 
-const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
+export const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
   // @ts-ignore
   const embeds: Embed[] = metadata.cast.urlEmbeds
     .filter(({ contentType }: any) => contentType?.startsWith("image/"))
@@ -227,7 +227,12 @@ export const EmbedPreview = ({ embed }: { embed: Embed }) => {
     return <ImageEmbed url={embed.url} />;
   }
 
-  if (embed.contentType?.startsWith("video")) {
+  if (
+    embed.contentType?.startsWith("video") ||
+    embed.url.includes("youtube") ||
+    embed.url.includes("youtu.be") ||
+    embed.url.endsWith(".mp4")
+  ) {
     return <VideoPlayer url={embed.url} />;
   }
 

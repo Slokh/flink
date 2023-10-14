@@ -13,6 +13,5 @@ export async function GET(
     },
   });
   const casts = await getCastsResponse([baseCast]);
-  console.log(casts[0]);
   return NextResponse.json({ cast: casts[0] });
 }
