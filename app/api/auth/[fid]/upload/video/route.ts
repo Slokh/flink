@@ -44,36 +44,26 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
     }
 
     const body = await request.formData();
-    const video = body.get("video") as unknown as File;
-    if (!video) {
-      return NextResponse.json(
-        {
-          status: 400,
-          statusText: "Bad Request",
-          error: "No video provided.",
-        },
-        { status: 400 }
-      );
-    }
+    const fileName = `${Date.now()}_${body.get("name")}`;
 
-    const buffer = Buffer.from(await video.arrayBuffer());
     const s3Params = {
       Bucket: "flinkfyi",
-      Key: `${Date.now()}_${body.get("name")}`,
-      Body: buffer,
-      ContentDisposition: "inline",
-      ContentType: video.type,
+      Key: fileName,
+      ContentType: body.get("type"),
+      Expires: 60 * 60, // URL expires in 1 hour
     };
 
     try {
-      const res = await s3.upload(s3Params).promise();
+      const url = await new Promise<string>((resolve, reject) => {
+        s3.getSignedUrl("putObject", s3Params, (err, url) => {
+          if (err) reject(err);
+          else resolve(url);
+        });
+      });
+
       return NextResponse.json({
-        data: {
-          link: res.Location.replace(
-            "flinkfyi.s3.amazonaws.com",
-            "files.flink.fyi"
-          ),
-        },
+        fileName,
+        url,
       });
     } catch (err) {
       console.log(err);
@@ -81,7 +71,7 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
         {
           status: 500,
           statusText: "Internal Server Error",
-          error: "Failed to upload video.",
+          error: "Failed to generate pre-signed URL.",
         },
         { status: 500 }
       );

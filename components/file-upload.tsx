@@ -37,18 +37,25 @@ export const FileUpload = ({
       reader.onloadend = async () => {
         if (fileType.startsWith("video")) {
           const formData = new FormData();
-          formData.append("video", file);
           formData.append("name", file.name);
           formData.append("type", file.type);
           const res = await fetch(`/api/auth/${user?.fid}/upload/video`, {
             method: "POST",
             body: formData,
           });
+          const { fileName, url } = await res.json();
 
-          if (res.status === 200) {
-            const { data } = await res.json();
+          const response = await fetch(url, {
+            method: "PUT",
+            body: file,
+            headers: {
+              "Content-Type": file.type,
+            },
+          });
+          console.log(`https://files.flink.fyi/${fileName}`);
+          if (response.status === 200) {
             onFileUpload({
-              url: data.link,
+              url: `https://files.flink.fyi/${fileName}`,
               urlHost: "flink.fyi",
               contentType: file.type,
             });
