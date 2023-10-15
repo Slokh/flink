@@ -36,6 +36,14 @@ export const FileUpload = ({
       reader.readAsDataURL(file);
       reader.onloadend = async () => {
         if (fileType.startsWith("video")) {
+          const fileSize = file.size / 1024 / 1024;
+          const maxFileSize = 200;
+          if (fileSize > maxFileSize) {
+            alert(`File size should not exceed ${maxFileSize} MB`);
+            setLoading(false);
+            return;
+          }
+
           const formData = new FormData();
           formData.append("name", file.name);
           formData.append("type", file.type);
