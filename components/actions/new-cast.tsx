@@ -24,7 +24,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { formatText, generateId } from "@/lib/utils";
 import { formatDistanceStrict } from "date-fns";
-import { ContentState, Editor, EditorState } from "draft-js";
+import { ContentState, Editor, EditorState, Modifier } from "draft-js";
 import "draft-js/dist/Draft.css";
 import { Card } from "../ui/card";
 import { VideoPlayer } from "../video-player";
@@ -140,6 +140,18 @@ const CastEditor = ({
     }
   }, [autoFocus]);
 
+  const appendVideo = (url: string) => {
+    const contentState = editorState.getCurrentContent();
+    const selectionToInsert = contentState.getSelectionAfter();
+    const newContentState = Modifier.insertText(
+      contentState,
+      selectionToInsert,
+      url
+    );
+
+    return EditorState.push(editorState, newContentState, "insert-characters");
+  };
+
   return (
     <div className="flex flex-col">
       <div className="relative border rounded-lg w-[270px] sm:w-[462px] p-1 overflow-wrap break-word">
@@ -171,6 +183,10 @@ const CastEditor = ({
             <FileUpload
               isDisabled={files.length + embeds.length >= 2}
               onFileUpload={({ url, contentType, urlHost }) => {
+                if (contentType.startsWith("video")) {
+                  setEditorState(appendVideo(url));
+                  return;
+                }
                 const newFiles = [
                   ...files,
                   {
