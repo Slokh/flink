@@ -295,8 +295,8 @@ const NewCastContent = ({
   useEffect(() => {
     if (!parent && pathname.includes("/channels/")) {
       setChannel(CHANNELS_BY_ID[pathname.split("/")[2]]);
-      setLoading(false);
     }
+    setLoading(false);
   }, [parent, pathname]);
 
   const handleSubmit = async () => {
