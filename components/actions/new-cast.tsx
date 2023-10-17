@@ -283,6 +283,7 @@ const NewCastContent = ({
   xpost?: FarcasterCast;
   inThread?: boolean;
 }) => {
+  const [loading, setLoading] = useState(true);
   const [casts, setCasts] = useState<Cast[]>([createNewCast(!!xpost)]);
   const [submitting, setSubmitting] = useState(false);
   const { user } = useUser();
@@ -294,8 +295,9 @@ const NewCastContent = ({
   useEffect(() => {
     if (!parent && pathname.includes("/channels/")) {
       setChannel(CHANNELS_BY_ID[pathname.split("/")[2]]);
+      setLoading(false);
     }
-  }, []);
+  }, [parent, pathname]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -353,7 +355,7 @@ const NewCastContent = ({
       </ScrollArea>
       <div className="flex flex-row justify-between items-center mt-2 space-x-2">
         <div>
-          {!parent && (
+          {!parent && !loading && (
             <CastChannelSelect
               channel={channel?.channelId}
               onChange={(value: string) => setChannel(CHANNELS_BY_ID[value])}
@@ -419,7 +421,7 @@ export const NewCastButton = () => (
   <NewCastDialog header={<DialogTitle>New cast</DialogTitle>}>
     <div className="p-2 rounded-none w-12 h-12 flex justify-center items-center hover:bg-muted-foreground transition-all bg-foreground text-background">
       <svg
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns="https://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth="2.25"
@@ -484,7 +486,10 @@ export const XPostButton = ({ cast }: { cast: FarcasterCast }) => {
                     {cast.user?.display || cast.user?.fname}
                   </div>
                   <div className="text-purple-600 dark:text-purple-400">{`@${cast.user?.fname}`}</div>
-                  <div className="text-muted-foreground">
+                  <div
+                    className="text-muted-foreground"
+                    title={new Date(cast.timestamp).toLocaleString()}
+                  >
                     {formatDistanceStrict(
                       new Date(cast.timestamp),
                       new Date(),

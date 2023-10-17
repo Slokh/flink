@@ -28,6 +28,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import Link from "next/link";
+import { WithUserTooltip } from "../user";
 
 export const UsersNavigation = ({ time }: { time: string }) => {
   const router = useRouter();
@@ -150,18 +151,20 @@ export const UsersTable = ({
       cell: ({ row }) => {
         const user = row.original.user;
         return (
-          <Link href={`/${user?.fname}`} className="flex flex-row space-x-2">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={user?.pfp} className="object-cover" />
-              <AvatarFallback>?</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col text-sm">
-              <div className="font-semibold">
-                {user?.display || user?.fname}
+          <WithUserTooltip user={user}>
+            <Link href={`/${user?.fname}`} className="flex flex-row space-x-2">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user?.pfp} className="object-cover" />
+                <AvatarFallback>?</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col text-sm">
+                <div className="font-semibold">
+                  {user?.display || user?.fname}
+                </div>
+                <div className="text-muted-foreground">{`@${user?.fname}`}</div>
               </div>
-              <div className="text-muted-foreground">{`@${user?.fname}`}</div>
-            </div>
-          </Link>
+            </Link>
+          </WithUserTooltip>
         );
       },
     },

@@ -11,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Link from "next/link";
 
 export const ChannelHeader = ({ channelId }: { channelId: string }) => {
   const [active, setActive] = useState(0);
@@ -34,7 +35,10 @@ export const ChannelHeader = ({ channelId }: { channelId: string }) => {
 
   return (
     <div className="flex flex-row items-center justify-between p-4">
-      <div className="flex flex-row items-center space-x-2">
+      <Link
+        href={`/channels/${channelId}`}
+        className="flex flex-row items-center space-x-2"
+      >
         <Avatar className="h-10 w-10">
           <AvatarImage src={channel.image} className="object-cover" />
           <AvatarFallback>?</AvatarFallback>
@@ -73,11 +77,8 @@ export const ChannelHeader = ({ channelId }: { channelId: string }) => {
               </TooltipProvider>
             </div>
           )}
-          {/* <div className="text-muted-foreground text-xs hidden lg:flex">
-            {channel.parentUrl}
-          </div> */}
         </div>
-      </div>
+      </Link>
       <FollowChannel />
     </div>
   );

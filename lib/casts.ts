@@ -17,6 +17,24 @@ export const getCast = async (hash: string) => {
         { topParentCast: hash, deleted: false },
         { parentCast: hash, deleted: false },
         { hash, deleted: false },
+        {
+          topParentCast: {
+            startsWith: hash,
+          },
+          deleted: false,
+        },
+        {
+          parentCast: {
+            startsWith: hash,
+          },
+          deleted: false,
+        },
+        {
+          hash: {
+            startsWith: hash,
+          },
+          deleted: false,
+        },
       ],
     },
     include: {
@@ -24,7 +42,7 @@ export const getCast = async (hash: string) => {
     },
   });
 
-  const cast = casts.find((cast) => cast.hash === hash);
+  const cast = casts.find((cast) => cast.hash.startsWith(hash));
   if (cast?.parentCast) {
     const parentCasts = await prisma.farcasterCast.findMany({
       where: { hash: cast.parentCast, deleted: false },
@@ -395,19 +413,56 @@ export const getCastsResponse = async (casts: any) => {
 };
 
 const getUsersByFids = async (fids: number[]) => {
-  const users = await prisma.farcaster.findMany({
-    where: {
-      fid: {
-        in: fids,
+  const [users, followers, following] = await Promise.all([
+    prisma.farcaster.findMany({
+      where: {
+        fid: {
+          in: fids,
+        },
       },
-    },
-  });
+    }),
+    prisma.farcasterLink.groupBy({
+      by: ["targetFid"],
+      where: {
+        linkType: "follow",
+        targetFid: {
+          in: fids,
+        },
+      },
+      _count: {
+        _all: true,
+      },
+    }),
+    prisma.farcasterLink.groupBy({
+      by: ["fid"],
+      where: {
+        linkType: "follow",
+        fid: {
+          in: fids,
+        },
+      },
+      _count: {
+        _all: true,
+      },
+    }),
+  ]);
+  const followingMap = following.reduce((acc, following) => {
+    acc[following.fid] = following._count._all;
+    return acc;
+  }, {} as Record<number, number>);
+  const followersMap = followers.reduce((acc, follower) => {
+    acc[follower.targetFid] = follower._count._all;
+    return acc;
+  }, {} as Record<number, number>);
   return users.reduce((acc, user) => {
     acc[user.fid] = {
       fid: user.fid,
       fname: user.fname || undefined,
       pfp: user.pfp || undefined,
       display: user.display || undefined,
+      bio: user.bio || undefined,
+      following: followingMap[user.fid] || 0,
+      followers: followersMap[user.fid] || 0,
     };
     return acc;
   }, {} as Record<number, FarcasterUser>);

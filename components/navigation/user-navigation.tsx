@@ -27,7 +27,9 @@ export const UserNavigation = () => {
     ? CastsSort.NewReplies
     : CastsSort.New;
   const time =
-    sort === CastsSort.Top ? searchParams.get("time") || "day" : undefined;
+    sort === CastsSort.Top
+      ? searchParams.get("time") || (params.id ? "all" : "day")
+      : undefined;
   const { displayMode, changeDisplayMode } = useUser();
 
   const mainNav = pathname.includes("stats") ? "stats" : "casts";
@@ -131,7 +133,11 @@ export const UserNavigation = () => {
           )}
           <NavigationButton
             href={`/${params.id}/stats`}
-            isSelected={!pathname.endsWith("channels")}
+            isSelected={
+              !pathname.endsWith("channels") &&
+              !pathname.endsWith("followers") &&
+              !pathname.endsWith("following")
+            }
           >
             Overview
           </NavigationButton>
@@ -140,6 +146,18 @@ export const UserNavigation = () => {
             isSelected={pathname.endsWith("channels")}
           >
             Channels
+          </NavigationButton>
+          <NavigationButton
+            href={`/${params.id}/stats/followers`}
+            isSelected={pathname.endsWith("followers")}
+          >
+            Followers
+          </NavigationButton>
+          <NavigationButton
+            href={`/${params.id}/stats/following`}
+            isSelected={pathname.endsWith("following")}
+          >
+            Following
           </NavigationButton>
         </NavigationGroup>
       )}

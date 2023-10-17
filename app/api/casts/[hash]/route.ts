@@ -11,8 +11,8 @@ export async function GET(
   if (!casts || !casts.length) {
     return NextResponse.json({}, { status: 404 });
   }
-  const cast = casts.find((cast: any) => cast.hash === hash);
-  const tree = buildTree(casts, cast.parentCast?.hash || hash);
+  const cast = casts.find((cast: any) => cast.hash.startsWith(hash));
+  const tree = buildTree(casts, cast.parentCast?.hash || cast.hash);
   if (!tree) {
     return NextResponse.json({}, { status: 404 });
   }

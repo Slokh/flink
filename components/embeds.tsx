@@ -74,9 +74,9 @@ const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
   if (["twitter.com", "x.com"].includes(urlHost)) {
     title = title.replace(" on X", "").replace(" on Twitter", "");
     if (url.startsWith("https://")) {
-      username = url.split("/")[3];
+      username = url.split("/")[3].split("?")[0];
     } else {
-      username = url.split("/")[1];
+      username = url.split("/")[1].split("?")[0];
     }
   }
   const image = metadata.open_graph?.images?.[0]?.url;
@@ -177,7 +177,12 @@ export const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
       contentMetadata,
     }));
 
-  const formattedText = formatText(metadata.cast.text, [], embeds, true);
+  const formattedText = formatText(
+    metadata.cast.text,
+    metadata.cast.mentions,
+    embeds,
+    true
+  );
   return (
     <Link
       href={`https://flink.fyi/${metadata.user?.fname}/${metadata.cast.hash}`}
@@ -194,7 +199,10 @@ export const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
               {metadata.user?.display || metadata.user?.fname}
             </div>
             <div className="text-purple-600 dark:text-purple-400">{`@${metadata.user?.fname}`}</div>
-            <div className="text-muted-foreground">
+            <div
+              className="text-muted-foreground"
+              title={new Date(metadata.cast.timestamp).toLocaleString()}
+            >
               {formatDistanceStrict(
                 new Date(metadata.cast.timestamp),
                 new Date(),
@@ -222,7 +230,13 @@ export const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
   );
 };
 
-export const EmbedPreview = ({ embed }: { embed: Embed }) => {
+export const EmbedPreview = ({
+  embed,
+  text,
+}: {
+  embed: Embed;
+  text?: string;
+}) => {
   if (embed.contentType?.startsWith("image")) {
     return <ImageEmbed url={embed.url} />;
   }
@@ -243,6 +257,10 @@ export const EmbedPreview = ({ embed }: { embed: Embed }) => {
     if (embed.contentType?.startsWith("image")) {
       return <ImageEmbed url={embed.url} />;
     }
+    if (text?.includes(embed.url)) {
+      return <></>;
+    }
+
     return (
       <a
         href={embed.url}

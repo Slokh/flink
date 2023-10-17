@@ -5,14 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { formatDistanceStrict } from "date-fns";
 import { CHANNELS_BY_URL } from "@/lib/channels";
 import { Metadata } from "unfurl.js/dist/types";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import {
   differenceInSeconds,
   differenceInMinutes,
@@ -27,6 +20,7 @@ import Link from "next/link";
 import { DeleteCast } from "../actions/delete-cast";
 import { LikeCast } from "../actions/like-cast";
 import { RecastCast } from "../actions/recast-cast";
+import { User } from "../user";
 
 const formatDistanceCustom = (date1: Date, date2: Date) => {
   const diffInSeconds = differenceInSeconds(date2, date1);
@@ -127,7 +121,7 @@ const CastPreview = ({
       height="30"
       viewBox="0 0 15 15"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://www.w3.org/2000/svg"
     >
       <path
         d="M11.8536 1.14645C11.6583 0.951184 11.3417 0.951184 11.1465 1.14645L3.71455 8.57836C3.62459 8.66832 3.55263 8.77461 3.50251 8.89155L2.04044 12.303C1.9599 12.491 2.00189 12.709 2.14646 12.8536C2.29103 12.9981 2.50905 13.0401 2.69697 12.9596L6.10847 11.4975C6.2254 11.4474 6.3317 11.3754 6.42166 11.2855L13.8536 3.85355C14.0488 3.65829 14.0488 3.34171 13.8536 3.14645L11.8536 1.14645ZM4.42166 9.28547L11.5 2.20711L12.7929 3.5L5.71455 10.5784L4.21924 11.2192L3.78081 10.7808L4.42166 9.28547Z"
@@ -170,7 +164,7 @@ const WebCast = ({
           {rank}
         </div>
       )}
-      <div className="flex flex-col items-end justify-start text-sm pr-1 pl-1">
+      <div className="flex flex-col items-end justify-start text-sm pr-1 pl-1 w-16">
         <LikeCast hash={cast.hash} likes={cast.likes} mode="icons" />
         <RecastCast hash={cast.hash} recasts={cast.recasts} mode="icons" />
       </div>
@@ -202,38 +196,28 @@ const WebCast = ({
           )}
         </Link>
         <div className="flex flex-row space-x-1">
-          <div className="flex flex-row space-x-1 items-center text-purple-600 dark:text-purple-400 text-sm">
-            <div className="text-muted-foreground">
+          <div className="flex flex-row space-x-1 items-center text-sm">
+            <div
+              className="text-muted-foreground"
+              title={new Date(cast.timestamp).toLocaleString()}
+            >
               {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
                 addSuffix: true,
               })}
             </div>
             <div className="text-muted-foreground">by</div>
-            <Link href={`/${user?.fname}`}>
-              <Avatar className="h-4 w-4">
-                <AvatarImage src={user?.pfp} className="object-cover" />
-                <AvatarFallback>?</AvatarFallback>
-              </Avatar>
-            </Link>
-            <Link href={`/${user?.fname}`} className="hover:underline">
-              <div>{user?.fname}</div>
-            </Link>
+            <User user={user} showAvatar showUsername />
             {channel && (
               <>
                 <div className="text-muted-foreground">in</div>
                 <Link
                   href={`/channels/${channel.channelId}`}
-                  className="hover:underline"
+                  className="hover:underline flex flex-row items-center space-x-1 text-purple-600 dark:text-purple-400"
                 >
                   <Avatar className="h-4 w-4">
                     <AvatarImage src={channel.image} className="object-cover" />
                     <AvatarFallback>?</AvatarFallback>
                   </Avatar>
-                </Link>
-                <Link
-                  href={`/channels/${channel.channelId}`}
-                  className="hover:underline"
-                >
                   <div>{channel.name}</div>
                 </Link>
               </>

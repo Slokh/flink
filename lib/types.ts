@@ -44,6 +44,8 @@ export type FarcasterUser = {
   pfp?: string;
   display?: string;
   bio?: string;
+  followers?: number;
+  following?: number;
 };
 
 export type FarcasterMention = {
@@ -228,4 +230,11 @@ export type Notification = {
   user: FarcasterUser;
   viewed: boolean;
   data?: FarcasterCast;
+};
+
+export type FollowersStats = {
+  fid: number;
+  timestamp: Date;
+  targetFid: number;
+  user: FarcasterUser;
 };

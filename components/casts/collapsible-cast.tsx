@@ -19,6 +19,7 @@ import { DeleteCast } from "../actions/delete-cast";
 import { CopyLink } from "../copy-link";
 import { useState } from "react";
 import { PlusIcon } from "@radix-ui/react-icons";
+import { User } from "../user";
 
 export const CollapsibleCast = ({
   cast,
@@ -62,17 +63,11 @@ export const CollapsibleCast = ({
                 <div className="p-1 rounded-full group-hover:bg-border transition-all duration-250">
                   <PlusIcon />
                 </div>
-                <Avatar className="h-5 w-5">
-                  <AvatarImage src={user?.pfp} className="object-cover" />
-                  <AvatarFallback>?</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-row space-x-1 cursor-pointer">
-                  <div className="font-semibold">
-                    {user?.display || user?.fname}
-                  </div>
-                  <div className="text-purple-600 dark:text-purple-400">{`@${user?.fname}`}</div>
-                </div>
-                <div className="text-muted-foreground">
+                <User user={user} showDisplay showUsername showAvatar />
+                <div
+                  className="text-muted-foreground"
+                  title={new Date(cast.timestamp).toLocaleString()}
+                >
                   {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
                     addSuffix: true,
                   })}
@@ -92,33 +87,24 @@ export const CollapsibleCast = ({
         >
           <div className="flex flex-col pt-1 w-full">
             <div className="flex flex-row space-x-2 text-sm">
-              <Link href={`/${user?.fname}`}>
-                <Avatar className="h-5 w-5">
-                  <AvatarImage src={user?.pfp} className="object-cover" />
-                  <AvatarFallback>?</AvatarFallback>
-                </Avatar>
-              </Link>
-              <Link
-                href={`/${user?.fname}`}
-                className="flex flex-row space-x-1 cursor-pointer"
+              <User user={user} showDisplay showAvatar showUsername />
+              <div
+                className="text-muted-foreground"
+                title={new Date(cast.timestamp).toLocaleString()}
               >
-                <div className="font-semibold">
-                  {user?.display || user?.fname}
-                </div>
-                <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${user?.fname}`}</div>
-              </Link>
-              <div className="text-muted-foreground">
                 {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
                   addSuffix: true,
                 })}
               </div>
             </div>
-            <div className="max-w-2xl flex flex-col whitespace-pre-wrap break-words text-md leading-6 tracking-normal w-full space-y-2 pt-2">
+            <div className="max-w-2xl flex flex-col whitespace-pre-wrap break-words text-md leading-6 tracking-normal w-full py-2">
               <div dangerouslySetInnerHTML={{ __html: formattedText }} />
               {cast.embeds.length > 0 && (
                 <div className="flex flex-col space-y-2">
                   {cast.embeds.map((embed, i) => (
-                    <EmbedPreview key={i} embed={embed} />
+                    <div key={i} className="w-full max-w-md mt-2">
+                      <EmbedPreview embed={embed} text={formattedText} />
+                    </div>
                   ))}
                 </div>
               )}

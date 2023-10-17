@@ -2,6 +2,7 @@
 import { Entity } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { FollowUser } from "./actions/follow-user";
+import Link from "next/link";
 
 export const Profile = ({ entity, id }: { entity: Entity; id: string }) => (
   <div className="flex flex-col md:flex-row justify-between p-4 w-full">
@@ -27,22 +28,28 @@ export const Profile = ({ entity, id }: { entity: Entity; id: string }) => (
       {entity.following !== undefined && entity.followers !== undefined && (
         <div className="flex flex-col">
           <div className="flex flex-row space-x-2">
-            <div className="flex flex-row space-x-1 items-center">
+            <Link
+              href={`/${id}/stats/following`}
+              className="flex flex-row space-x-1 items-center"
+            >
               <span className="font-semibold">
                 {entity.following > 9999
                   ? `${Math.floor(entity.following / 1000)}k`
                   : entity.following.toLocaleString("en-US")}
               </span>
               <span className="text-sm text-muted-foreground">following</span>
-            </div>
-            <div className="flex flex-row space-x-1 items-center">
+            </Link>
+            <Link
+              href={`/${id}/stats/followers`}
+              className="flex flex-row space-x-1 items-center"
+            >
               <span className="font-semibold">
                 {entity.followers > 9999
                   ? `${Math.floor(entity.followers / 1000)}k`
                   : entity.followers.toLocaleString("en-US")}
               </span>
               <span className="text-sm text-muted-foreground">followers</span>
-            </div>
+            </Link>
           </div>
         </div>
       )}

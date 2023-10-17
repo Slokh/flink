@@ -21,6 +21,7 @@ import { useState } from "react";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import Link from "next/link";
 import { FollowUsers } from "../actions/follow-users";
+import { WithUserTooltip } from "../user";
 
 const StatHeader = ({
   column,
@@ -95,24 +96,28 @@ export const MembersTable = ({ members }: { members: ChannelMember[] }) => {
         const token = row.original.token;
         const user = row.original.user;
         return (
-          <Link
-            href={`/${user?.fname}`}
-            className="flex flex-row space-x-2 group"
-          >
-            <Avatar className="h-10 w-10">
-              <AvatarImage
-                src={token.metadata.image}
-                className="object-cover"
-              />
-              <AvatarFallback>?</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col text-sm">
-              <div className="font-semibold group-hover:text-purple-600 group-hover:dark:text-purple-400 transition">
-                {user?.display || user?.fname}
+          <WithUserTooltip user={user}>
+            <Link
+              href={`/${user?.fname}`}
+              className="flex flex-row space-x-2 group"
+            >
+              <Avatar className="h-10 w-10">
+                <AvatarImage
+                  src={token.metadata.image}
+                  className="object-cover"
+                />
+                <AvatarFallback>?</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col text-sm">
+                <div className="font-semibold group-hover:text-purple-600 group-hover:dark:text-purple-400 transition">
+                  {user?.display || user?.fname}
+                </div>
+                <div className="text-muted-foreground">
+                  {token.metadata.name}
+                </div>
               </div>
-              <div className="text-muted-foreground">{token.metadata.name}</div>
-            </div>
-          </Link>
+            </Link>
+          </WithUserTooltip>
         );
       },
     },

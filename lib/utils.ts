@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { SiweMessage } from "siwe";
 import { twMerge } from "tailwind-merge";
 import { Embed, FarcasterMention } from "./types";
+import { eachDayOfInterval, startOfDay } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -108,6 +109,12 @@ export const formatText = (
     const matches = text.match(/(https?:\/\/[^\s]+)/g);
     if (matches) {
       matches.forEach((url) => {
+        if (
+          (url.includes("warpcast.com") || url.includes("flink.fyi")) &&
+          url.match(/0x[0-9a-fA-F]+$/i)
+        ) {
+          return;
+        }
         text = text.replace(
           url,
           `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${url}" target="_blank">${
@@ -140,7 +147,10 @@ export const formatText = (
 
       const urlRegex = new RegExp(`(?<!href=")${originalUrl}`, "g");
 
-      if (url.includes("warpcast.com") && url.match(/0x[0-9a-fA-F]+$/i)) {
+      if (
+        (url.includes("warpcast.com") || url.includes("flink.fyi")) &&
+        url.match(/0x[0-9a-fA-F]+$/i)
+      ) {
         text = text.replace(urlRegex, "");
         return;
       }
@@ -176,7 +186,7 @@ export const formatText = (
     text = text.replace(/(https?:\/\/[^\s]+)/g, "");
   }
 
-  return text;
+  return text.trim();
 };
 
 const normalizeLink = (link: string): string => {
@@ -199,4 +209,24 @@ const normalizeLink = (link: string): string => {
   }
 
   return normalized;
+};
+
+export const createDateRange = (start: Date, end: Date) => {
+  return eachDayOfInterval({
+    start: startOfDay(start),
+    end: startOfDay(end),
+  }).map((date) => ({
+    timestamp: date.getTime(),
+    followers: 0,
+    engagement: 0,
+  }));
+};
+
+export const mergeDataWithDateRange = (data: any[], dateRange: any[]) => {
+  const dataWithDate = data.reduce((acc: any, cur: any) => {
+    acc[cur.timestamp] = cur;
+    return acc;
+  }, {});
+
+  return dateRange.map((date) => dataWithDate[date.timestamp] || date);
 };

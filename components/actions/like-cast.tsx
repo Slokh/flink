@@ -18,6 +18,10 @@ export const LikeCast = ({
   const { user } = useUser();
 
   useEffect(() => {
+    setTotalLikes(likes);
+  }, [likes]);
+
+  useEffect(() => {
     setIsLiked(user?.likes[hash] ?? false);
   }, [hash, user?.likes]);
 

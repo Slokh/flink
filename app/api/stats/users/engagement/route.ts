@@ -131,13 +131,57 @@ export async function GET(
   const prevEngagement = getRank(prevData, "engagement");
 
   const slicedData = curData.slice(0, 100);
+  const fids = slicedData.map((cur: any) => cur.fid);
 
-  const users = await prisma.farcaster.findMany({
-    where: { fid: { in: slicedData.map((cur: any) => cur.fid) } },
-  });
+  const [users, followers, following] = await Promise.all([
+    prisma.farcaster.findMany({
+      where: {
+        fid: {
+          in: fids,
+        },
+      },
+    }),
+    prisma.farcasterLink.groupBy({
+      by: ["targetFid"],
+      where: {
+        linkType: "follow",
+        targetFid: {
+          in: fids,
+        },
+      },
+      _count: {
+        _all: true,
+      },
+    }),
+    prisma.farcasterLink.groupBy({
+      by: ["fid"],
+      where: {
+        linkType: "follow",
+        fid: {
+          in: fids,
+        },
+      },
+      _count: {
+        _all: true,
+      },
+    }),
+  ]);
+
+  const followingMap = following.reduce((acc, following) => {
+    acc[following.fid] = following._count._all;
+    return acc;
+  }, {} as Record<number, number>);
+  const followersMap = followers.reduce((acc, follower) => {
+    acc[follower.targetFid] = follower._count._all;
+    return acc;
+  }, {} as Record<number, number>);
 
   const userMap = users.reduce((map: any, obj: any) => {
-    map[obj.fid] = obj;
+    map[obj.fid] = {
+      ...obj,
+      following: followingMap[obj.fid] || 0,
+      followers: followersMap[obj.fid] || 0,
+    };
     return map;
   }, {});
 

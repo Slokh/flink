@@ -32,8 +32,9 @@ export const CastsTable = async ({
     : undefined;
   const time =
     sort === CastsSort.Top
-      ? searchParams.time || (url ? "all" : "day")
+      ? searchParams.time || (url || params.id ? "all" : "day")
       : undefined;
+  console.log(time);
   const query = params.query;
 
   let entity;

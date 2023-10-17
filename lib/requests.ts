@@ -5,6 +5,7 @@ import {
   Entity,
   FarcasterCast,
   FarcasterCastTree,
+  FollowersStats,
   LinkStats,
   UserStats,
 } from "./types";
@@ -119,5 +120,23 @@ export const getChannelMembers = async (url: string) => {
   const host = headers().get("host");
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(`${protocol}://${host}/api/channels/${url}/members`);
+  return await data.json();
+};
+
+export const getUserFollowers = async (
+  fid: number
+): Promise<{ followers: FollowersStats[] }> => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(`${protocol}://${host}/api/stats/followers/${fid}`);
+  return await data.json();
+};
+
+export const getUserFollowing = async (
+  fid: number
+): Promise<{ following: FollowersStats[] }> => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(`${protocol}://${host}/api/stats/following/${fid}`);
   return await data.json();
 };

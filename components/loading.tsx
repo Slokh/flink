@@ -3,7 +3,7 @@ export const Loading = ({ width }: { width?: string | number }) => (
     <svg
       style={{ height: width || 20, width: width || 20 }}
       className="animate-spin"
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
     >

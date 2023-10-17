@@ -65,25 +65,43 @@ const getMetadata = async (url: string) => {
       const hash = split[split.length - 1];
       const fname = split[split.length - 2];
 
-      const user = await prisma.farcaster.findFirst({
-        where: { fname },
-      });
-      const cast = await prisma.farcasterCast.findFirst({
-        where: {
-          fid: user?.fid,
-          hash: {
-            startsWith: hash,
+      const [user, cast] = await Promise.all([
+        prisma.farcaster.findFirst({
+          where: { fname },
+        }),
+        prisma.farcasterCast.findFirst({
+          where: {
+            hash: {
+              startsWith: hash,
+            },
           },
-        },
-        include: {
-          mentions: true,
-          urlEmbeds: true,
-        },
-      });
+          include: {
+            mentions: true,
+            urlEmbeds: true,
+          },
+        }),
+      ]);
       if (cast) {
+        const mentions = await prisma.farcaster.findMany({
+          where: {
+            fid: {
+              in: cast.mentions.map((m) => m.mention),
+            },
+          },
+        });
+        const mentionsMap = mentions.reduce((acc, m) => {
+          acc[m.fid] = m;
+          return acc;
+        }, {} as Record<number, any>);
         contentMetadata = {
           user,
-          cast,
+          cast: {
+            ...cast,
+            mentions: cast.mentions.map((m) => ({
+              mention: mentionsMap[m.mention],
+              position: m.mentionPosition,
+            })),
+          },
         };
       }
     } else if (!url.startsWith("chain://")) {

@@ -13,6 +13,7 @@ import { ReplyCastButton } from "../actions/new-cast";
 import { LikeCast } from "../actions/like-cast";
 import { RecastCast } from "../actions/recast-cast";
 import { CollapsibleCast } from "./collapsible-cast";
+import { User } from "../user";
 
 export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
   const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
@@ -33,15 +34,12 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
           </Avatar>
         </Link>
         <div className="flex flex-col text-sm">
-          <Link
-            href={`/${user?.fname}`}
-            className="flex flex-row space-x-1 cursor-pointer"
-          >
-            <div className="font-semibold">{user?.display || user?.fname}</div>
-            <div className="text-purple-600 dark:text-purple-400 hover:underline">{`@${user?.fname}`}</div>
-          </Link>
+          <User user={user} showDisplay showUsername />
           <div className="flex flex-row space-x-1 text-sm">
-            <div className="text-muted-foreground">
+            <div
+              className="text-muted-foreground"
+              title={new Date(cast.timestamp).toLocaleString()}
+            >
               {formatDistanceStrict(new Date(cast.timestamp), new Date(), {
                 addSuffix: true,
               })}
@@ -72,10 +70,10 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
       <div className="flex flex-col whitespace-pre-wrap break-words leading-6 tracking-normal w-full space-y-2 border rounded-lg p-2">
         <div dangerouslySetInnerHTML={{ __html: formattedText }} />
         {cast.embeds.length > 0 && (
-          <div className="flex flex-row flex-wrap">
+          <div className="flex flex-col space-y-2">
             {cast.embeds.map((embed, i) => (
-              <div key={i} className="w-1/2 max-w-lg pr-2">
-                <EmbedPreview embed={embed} />
+              <div key={i} className="w-full max-w-md mt-2">
+                <EmbedPreview embed={embed} text={formattedText} />
               </div>
             ))}
           </div>
@@ -111,8 +109,10 @@ export const CastParent = ({
           {isHighlighted && (
             <Link
               href={`/${
-                channel ? `channels/${channel.channelId}` : user?.fname
-              }/${cast.hash}`}
+                channel
+                  ? `channels/${channel.channelId}`
+                  : cast.topParentCast?.user?.fname
+              }/${cast.topParentCast?.hash}`}
               className="hover:underline"
             >
               view thread

@@ -18,6 +18,10 @@ export const RecastCast = ({
   const { user } = useUser();
 
   useEffect(() => {
+    setTotalRecasts(recasts);
+  }, [recasts]);
+
+  useEffect(() => {
     setIsRecastd(user?.recasts[hash] ?? false);
   }, [hash, user?.recasts]);
 
