@@ -531,7 +531,10 @@ const getEmbedsForCasts = async (casts: any) => {
       )
         return false;
       if (Object.keys(contentMetadata).length > 0) {
-        if (url.includes("warpcast.com") || url.includes("flink.fyi")) {
+        if (
+          (url.includes("warpcast.com") || url.includes("flink.fyi")) &&
+          url.match(/0x[0-9a-fA-F]+$/i)
+        ) {
           return !contentMetadata["user"];
         }
         return false;

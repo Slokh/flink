@@ -60,7 +60,6 @@ export const FileUpload = ({
               "Content-Type": file.type,
             },
           });
-          console.log(`https://files.flink.fyi/${fileName}`);
           if (response.status === 200) {
             onFileUpload({
               url: `https://files.flink.fyi/${fileName}`,

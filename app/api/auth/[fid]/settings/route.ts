@@ -61,13 +61,6 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
     const res = await data.json();
 
     if (!data.ok) {
-      console.log({
-        address,
-        fid,
-        body,
-        res,
-      });
-
       return NextResponse.json({
         status: data.status,
         statusText: data.statusText,

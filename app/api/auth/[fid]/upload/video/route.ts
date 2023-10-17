@@ -66,7 +66,6 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
         url,
       });
     } catch (err) {
-      console.log(err);
       return NextResponse.json(
         {
           status: 500,

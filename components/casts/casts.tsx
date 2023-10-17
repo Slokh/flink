@@ -34,7 +34,6 @@ export const CastsTable = async ({
     sort === CastsSort.Top
       ? searchParams.time || (url || params.id ? "all" : "day")
       : undefined;
-  console.log(time);
   const query = params.query;
 
   let entity;

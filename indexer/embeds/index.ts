@@ -63,25 +63,25 @@ const getMetadata = async (url: string) => {
     ) {
       const split = url.split("/");
       const hash = split[split.length - 1];
-      const fname = split[split.length - 2];
 
-      const [user, cast] = await Promise.all([
-        prisma.farcaster.findFirst({
-          where: { fname },
-        }),
-        prisma.farcasterCast.findFirst({
-          where: {
-            hash: {
-              startsWith: hash,
-            },
+      const cast = await prisma.farcasterCast.findFirst({
+        where: {
+          hash: {
+            startsWith: hash,
           },
-          include: {
-            mentions: true,
-            urlEmbeds: true,
-          },
-        }),
-      ]);
+        },
+        include: {
+          mentions: true,
+          urlEmbeds: true,
+        },
+      });
+
       if (cast) {
+        const user = await prisma.farcaster.findFirst({
+          where: {
+            fid: cast.fid,
+          },
+        });
         const mentions = await prisma.farcaster.findMany({
           where: {
             fid: {
