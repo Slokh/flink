@@ -24,9 +24,11 @@ import { User } from "../user";
 export const CollapsibleCast = ({
   cast,
   isHighlighted,
+  op,
 }: {
   cast: FarcasterCastTree;
   isHighlighted?: boolean;
+  op?: number;
 }) => {
   const [open, setOpen] = useState(true);
   const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
@@ -87,7 +89,13 @@ export const CollapsibleCast = ({
         >
           <div className="flex flex-col pt-1 w-full">
             <div className="flex flex-row space-x-2 text-sm">
-              <User user={user} showDisplay showAvatar showUsername />
+              <User
+                user={user}
+                showDisplay
+                showAvatar
+                showUsername
+                isHighlighted={op === user.fid}
+              />
               <div
                 className="text-muted-foreground"
                 title={new Date(cast.timestamp).toLocaleString()}
@@ -133,7 +141,7 @@ export const CollapsibleCast = ({
         {cast.children.length > 0 && (
           <div className="flex flex-col mt-4">
             {cast.children.map((child) => (
-              <CollapsibleCast key={child.hash} cast={child} />
+              <CollapsibleCast key={child.hash} cast={child} op={op} />
             ))}
           </div>
         )}

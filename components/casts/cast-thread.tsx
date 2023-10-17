@@ -168,6 +168,7 @@ export const CastThread = async ({
                 key={child.hash}
                 cast={child}
                 isHighlighted={hash === child.hash}
+                op={cast.user.fid}
               />
             ))}
           </div>

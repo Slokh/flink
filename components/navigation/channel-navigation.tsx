@@ -12,12 +12,10 @@ import {
   NavigationGroup,
   NavigationSelect,
 } from "./navigation";
-import { CHANNELS_BY_ID } from "@/lib/channels";
-import { useEffect, useState } from "react";
 import { useUser } from "@/context/user";
 
 export const ChannelNavigation = () => {
-  const [membersEnabled, setMembersEnabled] = useState(false);
+  // const [membersEnabled, setMembersEnabled] = useState(false);
   const { displayMode, changeDisplayMode } = useUser();
   const router = useRouter();
   const pathname = usePathname();
@@ -44,20 +42,20 @@ export const ChannelNavigation = () => {
     router.push(`${pathname}?${newQuery}`);
   };
 
-  const channelId = params.channel as string;
-  const channel =
-    CHANNELS_BY_ID[channelId]?.parentUrl || decodeURIComponent(channelId);
+  // const channelId = params.channel as string;
+  // const channel =
+  //   CHANNELS_BY_ID[channelId]?.parentUrl || decodeURIComponent(channelId);
 
-  useEffect(() => {
-    const handle = async () => {
-      const res = await fetch(`/api/channels/${encodeURIComponent(channel)}`);
-      const { collection } = await res.json();
-      if (collection.quantity > 500) {
-        setMembersEnabled(true);
-      }
-    };
-    handle();
-  }, [channel]);
+  // useEffect(() => {
+  //   const handle = async () => {
+  //     const res = await fetch(`/api/channels/${encodeURIComponent(channel)}`);
+  //     const { collection } = await res.json();
+  //     if (collection.quantity > 500) {
+  //       setMembersEnabled(true);
+  //     }
+  //   };
+  //   handle();
+  // }, [channel]);
 
   return (
     <Navigation>
@@ -74,14 +72,14 @@ export const ChannelNavigation = () => {
         >
           Stats
         </NavigationButton>
-        {membersEnabled && (
+        {/* {membersEnabled && (
           <NavigationButton
             href={`/channels/${params.channel}/members`}
             isSelected={mainNav === "members"}
           >
             Members
           </NavigationButton>
-        )}
+        )} */}
       </NavigationGroup>
       {mainNav === "casts" && (
         <NavigationGroup>

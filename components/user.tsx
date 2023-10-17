@@ -82,12 +82,14 @@ export const User = ({
   showAvatar,
   showUsername,
   avatarSize,
+  isHighlighted,
 }: {
   user?: FarcasterUser;
   showDisplay?: boolean;
   showAvatar?: boolean;
   showUsername?: boolean;
   avatarSize?: number;
+  isHighlighted?: boolean;
 }) => {
   const avatarClass = avatarSize
     ? `h-${avatarSize} w-${avatarSize}`
@@ -109,7 +111,11 @@ export const User = ({
     <WithUserTooltip user={user}>
       <Link
         href={`/${user?.fname}`}
-        className="flex flex-row items-center space-x-1 group"
+        className={`flex flex-row items-center space-x-1 group overflow-hidden ${
+          isHighlighted
+            ? "border border-purple-600 dark:border-purple-400 pl-1 rounded-lg"
+            : ""
+        }`}
       >
         {showAvatar && (
           <Avatar className={avatarClass}>
@@ -121,8 +127,17 @@ export const User = ({
           <div className="font-medium">{user.display || user.fname}</div>
         )}
         {showUsername && (
-          <div className="font-medium text-purple-600 dark:text-purple-400 hover:underline">
+          <div
+            className={`font-medium text-purple-600 dark:text-purple-400 hover:underline ${
+              isHighlighted ? "pr-[2px]" : ""
+            }`}
+          >
             {user.fname}
+          </div>
+        )}
+        {isHighlighted && (
+          <div className="px-[2px] font-bold bg-purple-600 dark:bg-purple-400 text-background">
+            <span className="text-xs">OP</span>
           </div>
         )}
       </Link>
