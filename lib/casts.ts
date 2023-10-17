@@ -13,29 +13,8 @@ interface FidHash {
 export const getCast = async (hash: string) => {
   const casts = await prisma.farcasterCast.findMany({
     where: {
-      OR: [
-        { topParentCast: hash, deleted: false },
-        { parentCast: hash, deleted: false },
-        { hash, deleted: false },
-        {
-          topParentCast: {
-            startsWith: hash,
-          },
-          deleted: false,
-        },
-        {
-          parentCast: {
-            startsWith: hash,
-          },
-          deleted: false,
-        },
-        {
-          hash: {
-            startsWith: hash,
-          },
-          deleted: false,
-        },
-      ],
+      topParentCast: hash,
+      deleted: false,
     },
     include: {
       mentions: true,

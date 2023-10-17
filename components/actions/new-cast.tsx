@@ -333,7 +333,7 @@ const NewCastContent = ({
   return (
     <div className="flex flex-col space-y-4">
       <ScrollArea style={{ maxHeight: "calc(100vh - 300px" }}>
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4 w-[270px] sm:w-[462px]">
           {!xpost ? children : <></>}
           {casts.map((cast, i) => (
             <CastEditor

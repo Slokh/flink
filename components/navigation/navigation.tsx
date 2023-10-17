@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export const NavigationSelect = ({
   defaultValue,
@@ -62,13 +63,16 @@ export const NavigationGroup = ({
   children?: React.ReactNode;
   className?: string;
 }) => (
-  <div
-    className={`flex flex-row overflow-auto overflow-x-scroll whitespace-nowrap sm:h-12 h-fit items-center py-2 sm:py-0 px-2 ${
-      className ? ` ${className}` : ""
-    }`}
-  >
-    {children}
-  </div>
+  <ScrollArea>
+    <ScrollBar orientation="horizontal" />
+    <div
+      className={`flex flex-row whitespace-nowrap sm:h-12 h-fit items-center py-2 sm:py-0 px-2 ${
+        className ? ` ${className}` : ""
+      }`}
+    >
+      {children}
+    </div>
+  </ScrollArea>
 );
 
 export const Navigation = ({ children }: { children: React.ReactNode }) => (

@@ -98,7 +98,10 @@ export const CastParent = ({
   };
 
   return (
-    <div className="flex flex-row space-x-2 pl-2 py-4 w-full pr-12">
+    <div
+      className="flex flex-row space-x-2 pl-2 py-4 w-full pr-12"
+      style={{ maxWidth: "calc(100vw - 96px)" }}
+    >
       <div className="flex flex-col items-end justify-start text-sm">
         <LikeCast hash={cast.hash} likes={cast.likes} mode="icons" />
         <RecastCast hash={cast.hash} recasts={cast.recasts} mode="icons" />
@@ -152,7 +155,10 @@ export const CastThread = async ({
 }) => {
   return (
     <>
-      <div className="hidden md:flex flex-col h-full">
+      <div
+        className="hidden md:flex flex-col h-full"
+        style={{ width: "calc(100vw - 48px)" }}
+      >
         <ScrollArea className="h-full pl-2">
           <ScrollBar orientation="horizontal" />
           <CastParent cast={cast} isHighlighted={hash !== cast.hash} />

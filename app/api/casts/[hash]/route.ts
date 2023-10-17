@@ -1,4 +1,5 @@
 import { getCast } from "@/lib/casts";
+import prisma from "@/lib/prisma";
 import { FarcasterCast, FarcasterCastTree } from "@/lib/types";
 import { NextResponse } from "next/server";
 
@@ -7,7 +8,20 @@ export async function GET(
   { params }: { params: { hash: string } }
 ) {
   const { hash } = params;
-  const casts = await getCast(hash);
+  const baseCast = await prisma.farcasterCast.findFirst({
+    where: {
+      OR: [
+        { hash, deleted: false },
+        {
+          hash: {
+            startsWith: hash,
+          },
+          deleted: false,
+        },
+      ],
+    },
+  });
+  const casts = await getCast(baseCast?.topParentCast || hash);
   if (!casts || !casts.length) {
     return NextResponse.json({}, { status: 404 });
   }

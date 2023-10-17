@@ -39,7 +39,7 @@ const TwitterEmbed = ({
         )}
         <div className="flex flex-col p-2 space-y-1">
           <div className="flex flex-row space-x-2 items-center">
-            {metadata.favicon && (
+            {metadata.favicon && !metadata.favicon.includes("discord.com") && (
               <img
                 alt="embed_icon"
                 src={metadata.favicon}

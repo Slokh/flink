@@ -66,7 +66,7 @@ export const formatText = (
   let updatedMentionsPositions = []; // Array to store updated positions
 
   // Convert text to a Buffer object to deal with bytes
-  let textBuffer = Buffer.from(text, "utf-8");
+  let textBuffer = Buffer.from(text.replaceAll(/\uFFFC/g, ""), "utf-8");
 
   const sortedMentions = mentions.sort((a, b) => b.position - a.position);
 
