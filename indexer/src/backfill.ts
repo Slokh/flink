@@ -16,27 +16,27 @@ import {
 } from "../db/reaction";
 import { handleUserUpdate } from "../farcaster/users";
 
-const START_TIMESTAMP = 1696862106;
-const END_TIMESTAMP = 16967871880000;
+const START_TIMESTAMP = 1696999839;
+const END_TIMESTAMP = 1697604639;
 
 const backfill = async () => {
   const client = await getHubClient();
-  let currentFid = 25000;
-  for (let fid = currentFid; fid <= 24000; fid++) {
+  let currentFid = 1;
+  for (let fid = currentFid; fid <= 25000; fid++) {
     console.log(`[backfill] [${fid}]`);
-    await handleUserUpdate(client, fid);
+    // await handleUserUpdate(client, fid);
 
-    // const farcasterUser = await client.getFarcasterUser(fid);
-    // if (!farcasterUser) {
-    //   return;
-    // }
-    // await upsertFarcaster(farcasterUser);
+    const farcasterUser = await client.getFarcasterUser(fid);
+    if (!farcasterUser) {
+      return;
+    }
+    await upsertFarcaster(farcasterUser);
 
-    // await Promise.all([
-    //   await handleFidCasts(client, fid),
-    //   await handleReactions(client, fid),
-    //   await handleLinks(client, fid),
-    // ]);
+    await Promise.all([
+      await handleFidCasts(client, fid),
+      await handleReactions(client, fid),
+      await handleLinks(client, fid),
+    ]);
 
     // await prisma.backfill.create({
     //   data: { fid },
