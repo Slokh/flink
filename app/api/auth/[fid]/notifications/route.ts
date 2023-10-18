@@ -127,6 +127,9 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       ...follows.map((follow) => follow.fid),
       ...replies.map((reply) => reply.fid),
       ...allCasts.flatMap((cast) =>
+        cast.mentions.map((mention) => mention.mention)
+      ),
+      ...allCasts.flatMap((cast) =>
         cast.mentions.map((mention) => mention.fid)
       ),
     ].filter((fid, index, self) => self.indexOf(fid) === index);
@@ -230,7 +233,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       ...mentionNotifications,
     ]
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .filter(({ user }) => user.fid !== fid);
+      .filter(({ user }) => user.fid !== fid && user.fname);
 
     const notificationsViewedAt = preferences.notificationsViewedAt;
     let unreadNotifications = notifications.length;
