@@ -93,5 +93,5 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div style={{ height: "calc(100vh - 171px)" }}>{children}</div>;
+  return <div>{children}</div>;
 }
