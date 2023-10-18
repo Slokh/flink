@@ -59,7 +59,6 @@ export const formatSiweMessage = (message: SiweMessage) => {
 export const formatText = (
   text: string,
   mentions: FarcasterMention[],
-  embeds: Embed[],
   withLinks: boolean
 ) => {
   let offset = 0;
@@ -105,67 +104,23 @@ export const formatText = (
   text = textBuffer.toString("utf-8");
 
   // Replace urls with anchor tags
-  if (withLinks) {
-    const matches = text.match(/(https?:\/\/[^\s]+)/g);
-    if (matches) {
-      matches.forEach((url) => {
-        if (
-          (url.includes("warpcast.com") || url.includes("flink.fyi")) &&
-          url.match(/0x[0-9a-fA-F]+$/i)
-        ) {
-          return;
-        }
-        text = text.replace(
-          url,
-          `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${url}" target="_blank">${
-            url.split("?")[0]
-          }</a>`
-        );
-      });
-    }
-
-    // Then, handle the specific URLs
-    const urls = embeds
-      .map(({ url }) => normalizeLink(url))
-      .filter((url, index, self) => self.indexOf(url) === index);
-
-    urls.forEach((url) => {
-      let originalUrl = url;
-      if (text.includes(`https://www.${url}`)) {
-        originalUrl = `https://www.${url}`;
-      } else if (text.includes(`https://${url}`)) {
-        originalUrl = `https://${url}`;
-      } else if (text.includes(`http://${url}`)) {
-        originalUrl = `http://${url}`;
-      } else if (text.includes(`www.${url}`)) {
-        originalUrl = `www.${url}`;
+  const matches = text.match(
+    /\b(?:https?:\/\/|www\.|ftp:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?\b/gi
+  );
+  if (matches) {
+    matches.forEach((url) => {
+      if (url.endsWith(".eth") || !isNaN(Number(url)) || url.length < 5) {
+        return;
       }
-
-      if (text.includes(`${originalUrl}/`)) {
-        originalUrl = `${originalUrl}/`;
-      }
-
-      const urlRegex = new RegExp(`(?<!href=")${originalUrl}`, "g");
 
       if (
         (url.includes("warpcast.com") || url.includes("flink.fyi")) &&
         url.match(/0x[0-9a-fA-F]+$/i)
       ) {
-        text = text.replace(urlRegex, "");
+        text = text.replace(url, "");
         return;
       }
 
-      text = text.replace(
-        urlRegex,
-        `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${
-          originalUrl.startsWith("http")
-            ? originalUrl
-            : `https://${originalUrl}`
-        }" target="_blank">${url}</a>`
-      );
-    });
-  } else {
-    embeds.forEach(({ url }) => {
       let originalUrl = url;
       if (text.includes(`https://www.${url}`)) {
         originalUrl = `https://www.${url}`;
@@ -180,10 +135,18 @@ export const formatText = (
       if (text.includes(`${originalUrl}/`)) {
         originalUrl = `${originalUrl}/`;
       }
-      text = text.replace(originalUrl, "");
-    });
 
-    text = text.replace(/(https?:\/\/[^\s]+)/g, "");
+      text = text.replace(
+        url,
+        withLinks
+          ? `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${
+              originalUrl.startsWith("http")
+                ? originalUrl
+                : `https://${originalUrl}`
+            }" target="_blank">${url.split("?")[0]}</a>`
+          : ""
+      );
+    });
   }
 
   return text.trim();

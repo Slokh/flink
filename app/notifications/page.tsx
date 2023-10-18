@@ -135,12 +135,7 @@ export default function Home() {
                       >
                         <div
                           dangerouslySetInnerHTML={{
-                            __html: formatText(
-                              data.text,
-                              data.mentions,
-                              [],
-                              false
-                            ),
+                            __html: formatText(data.text, data.mentions, false),
                           }}
                         />
                       </Link>

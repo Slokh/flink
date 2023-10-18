@@ -31,7 +31,7 @@ export const CollapsibleCast = ({
   op?: number;
 }) => {
   const [open, setOpen] = useState(true);
-  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
+  const formattedText = formatText(cast.text, cast.mentions, true);
 
   const user = cast.user || {
     fname: "unknown",

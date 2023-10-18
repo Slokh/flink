@@ -458,7 +458,7 @@ export const XPostButton = ({ cast }: { cast: FarcasterCast }) => {
   const { user } = useUser();
   if (!user) return <></>;
 
-  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
+  const formattedText = formatText(cast.text, cast.mentions, true);
 
   return (
     <Dialog>

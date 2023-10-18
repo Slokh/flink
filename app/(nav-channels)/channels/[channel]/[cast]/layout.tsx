@@ -1,8 +1,6 @@
 import { Metadata } from "next";
 
 import { getCast } from "@/lib/requests";
-import { formatText } from "@/lib/utils";
-import { getPreview } from "@/components/casts/cast";
 
 export const generateMetadata = async ({
   params,

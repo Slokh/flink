@@ -180,7 +180,6 @@ export const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
   const formattedText = formatText(
     metadata.cast.text,
     metadata.cast.mentions,
-    embeds,
     true
   );
   return (

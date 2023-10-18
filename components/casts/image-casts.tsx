@@ -115,7 +115,7 @@ export const ImageCasts = ({
                 : undefined,
               url: embed.url,
               user: cast.user,
-              text: formatText(cast.text, cast.mentions, cast.embeds, true),
+              text: formatText(cast.text, cast.mentions, true),
               hash: cast.hash,
             }))
         )

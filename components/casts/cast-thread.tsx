@@ -17,7 +17,7 @@ import { User } from "../user";
 
 export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
   const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
-  const formattedText = formatText(cast.text, cast.mentions, cast.embeds, true);
+  const formattedText = formatText(cast.text, cast.mentions, true);
 
   const user = cast.user || {
     fname: "unknown",
@@ -157,7 +157,7 @@ export const CastThread = async ({
     <>
       <div
         className="hidden md:flex flex-col h-full"
-        style={{ width: "calc(100vw - 48px)" }}
+        style={{ width: "calc(100vw - 50px)" }}
       >
         <ScrollArea className="h-full pl-2">
           <ScrollBar orientation="horizontal" />
