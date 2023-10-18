@@ -121,6 +121,8 @@ export const formatText = (
         return;
       }
 
+      url = url.split(/[\s\n]+/)[0];
+
       let originalUrl = url;
       if (text.includes(`https://www.${url}`)) {
         originalUrl = `https://www.${url}`;
@@ -133,6 +135,7 @@ export const formatText = (
       }
 
       if (text.includes(`${originalUrl}/`)) {
+        url = `${originalUrl}/`;
         originalUrl = `${originalUrl}/`;
       }
 
@@ -143,7 +146,7 @@ export const formatText = (
               originalUrl.startsWith("http")
                 ? originalUrl
                 : `https://${originalUrl}`
-            }" target="_blank">${url.split("?")[0]}</a>`
+            }" target="_blank">${url.length > 50 ? url.split("?")[0] : url}</a>`
           : ""
       );
     });
