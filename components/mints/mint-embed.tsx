@@ -7,7 +7,6 @@ import {
   TransactionToken,
   TransactionTransaction,
 } from "../../lib/types";
-import { EmbedPreviewContent } from "../embeds";
 import { Card } from "../ui/card";
 import { Metadata } from "unfurl.js/dist/types";
 import {
@@ -21,7 +20,6 @@ import {
 import {
   useAccount,
   useChainId,
-  useContractRead,
   useContractReads,
   useContractWrite,
   usePrepareContractWrite,
@@ -29,7 +27,7 @@ import {
   useSwitchNetwork,
   useWaitForTransaction,
 } from "wagmi";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Loading } from "../loading";
 
 const ManifoldMintButton = ({
@@ -121,7 +119,10 @@ const ManifoldMintButton = ({
 
   return erc1155Error && erc721Error && token?.chain === chainId ? (
     <div className="border-t bg-border rounded-b-lg text-muted-foreground font-semibold flex justify-center flex-row p-2 text-sm transition-all">
-      Visit link to mint
+      {erc1155Error.message.includes("insufficient funds") ||
+      erc721Error.message.includes("insufficient funds")
+        ? "Insufficient funds"
+        : "Visit link to mint"}
     </div>
   ) : (
     <div
@@ -317,7 +318,10 @@ const ZoraMintButton = ({
 
   return erc1155Error && erc721Error && token?.chain === chainId ? (
     <div className="border-t bg-border rounded-b-lg text-muted-foreground font-semibold flex justify-center flex-row p-2 text-sm transition-all">
-      Visit link to mint
+      {erc1155Error.message.includes("insufficient funds") ||
+      erc721Error.message.includes("insufficient funds")
+        ? "Insufficient funds"
+        : "Visit link to mint"}
     </div>
   ) : (
     <div
@@ -411,7 +415,9 @@ const MintFunMintButton = ({
 
   return error && token?.chain === chainId ? (
     <div className="border-t bg-border rounded-b-lg text-muted-foreground font-semibold flex justify-center flex-row p-2 text-sm transition-all">
-      Visit link to mint
+      {error.message.includes("insufficient funds")
+        ? "Insufficient funds"
+        : "Visit link to mint"}
     </div>
   ) : (
     <div
