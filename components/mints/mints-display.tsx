@@ -92,9 +92,6 @@ export const MintsDisplay = ({
   page: number;
   onlyFollowing?: boolean;
 }) => {
-  const [selection, setSelection] = useState<string>(
-    onlyFollowing ? "following" : ""
-  );
   const [mints, setMints] = useState<FarcasterCast[]>([]);
   const [firstLoad, setFirstLoad] = useState(true);
   const [done, setDone] = useState(false);
@@ -114,7 +111,7 @@ export const MintsDisplay = ({
       currentPage++;
       const data = await fetch(
         `/api/mints?page=${currentPage}${
-          selection === "following" ? `&viewer=${user?.fid}` : ""
+          onlyFollowing ? `&viewer=${user?.fid}` : ""
         }`
       );
       const { mints } = await data.json();
@@ -132,19 +129,11 @@ export const MintsDisplay = ({
   };
 
   useEffect(() => {
-    if (visible && !done) {
+    if (visible && !done && (!onlyFollowing || (onlyFollowing && user?.fid))) {
       handle();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, mints, done]);
-
-  useEffect(() => {
-    setMints([]);
-    setDone(false);
-    handle();
-    router.push(`/mints${selection ? `?${selection}=true` : ""}`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selection]);
+  }, [visible, mints, done, user]);
 
   const breakpointColumnsObj = {
     default: 4,
@@ -172,7 +161,14 @@ export const MintsDisplay = ({
         </div>
         {user && (
           <div>
-            <Select value={selection} onValueChange={(v) => setSelection(v)}>
+            <Select
+              value={onlyFollowing ? "following" : ""}
+              onValueChange={(v) =>
+                v === "following"
+                  ? router.push(`/mints/following`)
+                  : router.push(`/mints`)
+              }
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="All mints" />
               </SelectTrigger>
