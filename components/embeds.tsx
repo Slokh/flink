@@ -2,7 +2,7 @@
 import { Metadata } from "unfurl.js/dist/types";
 import { Card } from "./ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { CastMetadata, Embed, NftMetadata } from "@/lib/types";
+import { CastMetadata, Embed, FarcasterUser, NftMetadata } from "@/lib/types";
 import Link from "next/link";
 import { formatText } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -218,7 +218,7 @@ export const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
               <div className="flex flex-row flex-wrap">
                 {embeds.map((embed, i) => (
                   <div key={i} className="w-1/2 pr-2">
-                    <EmbedPreview embed={embed} />
+                    <EmbedPreview embed={embed} user={metadata.user} />
                   </div>
                 ))}
               </div>
@@ -233,12 +233,14 @@ export const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
 export const EmbedPreview = ({
   embed,
   text,
+  user,
 }: {
   embed: Embed;
   text?: string;
+  user?: FarcasterUser;
 }) => {
-  if (embed.transactionMetadata) {
-    return <MintEmbed embed={embed} text={text} />;
+  if (user && embed.transactionMetadata) {
+    return <MintEmbed embed={embed} user={user} />;
   }
 
   return <EmbedPreviewContent embed={embed} text={text} />;

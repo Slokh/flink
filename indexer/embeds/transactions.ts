@@ -236,7 +236,8 @@ export const getTransactionMetadata = async (url: string) => {
     token.tokenId || "1"
   );
 
-  if (!metadata || Object.keys(metadata).length === 0) return { token };
+  if (!metadata || Object.keys(metadata).length === 0)
+    return { token, transaction };
 
   return {
     token,

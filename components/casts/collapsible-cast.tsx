@@ -111,7 +111,11 @@ export const CollapsibleCast = ({
                 <div className="flex flex-col space-y-2">
                   {cast.embeds.map((embed, i) => (
                     <div key={i} className="w-full max-w-md mt-2">
-                      <EmbedPreview embed={embed} text={formattedText} />
+                      <EmbedPreview
+                        embed={embed}
+                        text={formattedText}
+                        user={cast.user}
+                      />
                     </div>
                   ))}
                 </div>

@@ -80,7 +80,7 @@ export const MintDisplayCast = ({ cast }: { cast: FarcasterCast }) => {
           />
         </div>
       </div>
-      <MintEmbed embed={tx} withoutBorder />
+      <MintEmbed embed={tx} user={cast.user} withoutBorder />
     </div>
   );
 };
@@ -144,19 +144,27 @@ export const MintsDisplay = ({
   };
 
   return (
-    <div>
+    <ScrollArea className="flex h-full p-1">
       <div className="mx-2 mt-2 flex justify-between">
-        <div className="flex flex-row space-x-2 items-center text-sm">
-          <div>
-            <ExclamationTriangleIcon className="text-yellow-500" />
-          </div>
-          <div className="max-w-2xl">
-            This is a raw feed of all shared mint links, please be cautious and
-            only mint using links from people you trust. This is also an
-            experimental feature so please report bugs to{" "}
-            <a href="/slokh" className="hover:underline">
-              @slokh
-            </a>
+        <div className="flex flex-row space-x-2 items-start text-sm">
+          <div className="max-w-2xl flex flex-col">
+            <div>
+              Discover and mint NFTs. Users who share Zora or mint.fun links
+              will earn referral fees for any mints that occur through flink.
+              This is an experimental feature, so please report all bugs /
+              feedback to{" "}
+              <a href="/slokh" className="hover:underline font-semibold">
+                @slokh
+              </a>
+              . Currently supports Manifold, Zora, and mint.fun.
+            </div>
+            <div className="font-bold flex flex-row space-x-1 items-center mt-2">
+              <ExclamationTriangleIcon className="text-yellow-500" />
+              <div>
+                This is a raw feed of shared links, so be cautious and only mint
+                from users you trust.
+              </div>
+            </div>
           </div>
         </div>
         {user && (
@@ -180,28 +188,26 @@ export const MintsDisplay = ({
           </div>
         )}
       </div>
-      <ScrollArea className="flex h-full p-1">
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="my-masonry-grid"
-          columnClassName="my-masonry-grid_column"
-        >
-          {mints
-            .filter((m) =>
-              m.embeds.find((embed) => embed.transactionMetadata?.token)
-            )
-            .map((mint, i) => (
-              <div key={mint.hash} className="p-1">
-                <MintDisplayCast cast={mint} />
-              </div>
-            ))}
-        </Masonry>
-        {!done && (
-          <div className="p-4" ref={container}>
-            <Loading />
-          </div>
-        )}
-      </ScrollArea>
-    </div>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="my-masonry-grid"
+        columnClassName="my-masonry-grid_column"
+      >
+        {mints
+          .filter((m) =>
+            m.embeds.find((embed) => embed.transactionMetadata?.token)
+          )
+          .map((mint, i) => (
+            <div key={mint.hash} className="p-1">
+              <MintDisplayCast cast={mint} />
+            </div>
+          ))}
+      </Masonry>
+      {!done && (
+        <div className="p-4" ref={container}>
+          <Loading />
+        </div>
+      )}
+    </ScrollArea>
   );
 };

@@ -501,9 +501,19 @@ const getEmbedsForCasts = async (casts: any) => {
   });
 
   const embedsToFetch = urlEmbeds.filter(
-    ({ url, contentMetadata, contentType }: any) => {
+    ({ url, contentMetadata, transactionMetadata, contentType }: any) => {
       if (!url) return false;
       if (!contentMetadata) return true;
+      // transaction metadata
+      if (
+        (url.includes("app.manifold.xyz/c/") ||
+          url.includes("zora.co/collect/") ||
+          url.includes("mint.fun")) &&
+        !transactionMetadata?.transaction
+      ) {
+        return true;
+      }
+
       if (
         contentType &&
         (contentType.includes("image") || contentType.includes("video"))

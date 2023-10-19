@@ -505,7 +505,7 @@ export const XPostButton = ({ cast }: { cast: FarcasterCast }) => {
                     <div className="flex flex-row flex-wrap">
                       {cast.embeds.map((embed, i) => (
                         <div key={i} className="w-1/2 pr-2">
-                          <EmbedPreview embed={embed} />
+                          <EmbedPreview embed={embed} user={cast.user} />
                         </div>
                       ))}
                     </div>

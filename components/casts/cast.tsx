@@ -337,7 +337,9 @@ export const MobileCast = ({
           />
         </div>
       )}
-      {cast.embeds.length > 0 && <EmbedPreview embed={cast.embeds[0]} />}
+      {cast.embeds.length > 0 && (
+        <EmbedPreview embed={cast.embeds[0]} user={cast.user} />
+      )}
       <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-1 items-center">
         <Link href={`/${user?.fname}/${cast.hash}`} className="hover:underline">
           {`${cast.replies} replies`}
