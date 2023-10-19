@@ -109,7 +109,12 @@ export const formatText = (
   );
   if (matches) {
     matches.forEach((url) => {
-      if (url.endsWith(".eth") || !isNaN(Number(url)) || url.length < 5) {
+      if (
+        url.endsWith(".eth") ||
+        !isNaN(Number(url)) ||
+        url.length < 5 ||
+        url === "mint.fun"
+      ) {
         return;
       }
 

@@ -499,6 +499,7 @@ const getEmbedsForCasts = async (casts: any) => {
       })),
     },
   });
+  console.log(urlEmbeds);
 
   const embedsToFetch = urlEmbeds.filter(
     ({ url, contentMetadata, contentType }: any) => {

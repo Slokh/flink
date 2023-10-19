@@ -58,3 +58,7 @@ export const CHAIN_ID_TO_NAME: Record<string, string> = {
   "eip155:7777777": "zora",
   "eip155:999": "zora-testnet",
 };
+
+export const NAME_TO_CHAIN_ID: Record<string, string> = Object.fromEntries(
+  Object.entries(CHAIN_ID_TO_NAME).map(([k, v]) => [v, k])
+);

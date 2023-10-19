@@ -78,11 +78,63 @@ export type CastMetadata = {
   cast: FarcasterCast;
 };
 
+export type TransactionToken = {
+  chain: number;
+  contractAddress: string;
+  tokenId: string;
+  referrer: string;
+  platform: string;
+};
+
+export type TransactionTransaction = {
+  callData: string;
+  tokenId: string;
+  nftCount: string;
+  ethValue: string;
+  to: string;
+};
+
+export type TransactionMetadata = {
+  token: TransactionToken;
+  metadata: {
+    name: string;
+    description: string;
+    image_url: string;
+    preview_image_url: string;
+    video_url: string;
+    audio_url: string;
+    model_url: string;
+    other_url: string;
+    external_url: string;
+    contract: {
+      name: string;
+      symbol: string;
+      type: string;
+      owned_by: string;
+      deployed_by: string;
+    };
+    collection: {
+      name: string;
+      description: string;
+      image_url: string;
+    };
+    openseaUrl: string | undefined;
+  };
+  transaction: {
+    callData: string;
+    tokenId: string;
+    nftCount: string;
+    ethValue: string;
+    to: string;
+  };
+};
+
 export type Embed = {
   url: string;
   urlHost: string;
   contentType: string;
   contentMetadata?: NftMetadata | Metadata | CastMetadata | {};
+  transactionMetadata?: TransactionMetadata;
   parsed: boolean;
 };
 

@@ -14,6 +14,7 @@ export const Nav = () => {
   const isChannels = pathname.startsWith("/channels");
   const isUsers = pathname.startsWith("/users");
   const isLinks = pathname.startsWith("/links");
+  const isMints = pathname.startsWith("/mints");
   const [open, setOpen] = useState(false);
 
   return (
@@ -55,6 +56,14 @@ export const Nav = () => {
               }`}
             >
               Links
+            </Link>
+            <Link
+              href="/mints"
+              className={`hover:text-foreground transition ${
+                isMints ? "font-semibold text-foreground" : ""
+              }`}
+            >
+              Mints
             </Link>
           </div>
         </div>
@@ -104,6 +113,14 @@ export const Nav = () => {
               }`}
             >
               Links
+            </Link>
+            <Link
+              href="/mints"
+              className={`hover:text-foreground transition ${
+                isMints ? "font-semibold text-foreground" : ""
+              }`}
+            >
+              Mints
             </Link>
             <div className="flex flex-row justify-between items-center w-full">
               <AuthButton />

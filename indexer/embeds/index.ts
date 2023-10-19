@@ -1,6 +1,8 @@
 import prisma from "../lib/prisma";
 import { CHAIN_ID_TO_NAME, fetchWithRetry } from "../util";
 import { unfurl } from "unfurl.js";
+import { getTransactionMetadata } from "./transactions";
+import { getNftMetadata } from "./nft";
 
 export const getEmbedMetadata = async (url: string) => {
   let formattedUrl =
@@ -11,14 +13,16 @@ export const getEmbedMetadata = async (url: string) => {
       : url;
 
   console.log(`[embed] fetching embed metadata for ${formattedUrl}`);
-  const [metadata, headMetadata] = await Promise.all([
+  const [metadata, headMetadata, transactionMetadata] = await Promise.all([
     getMetadata(formattedUrl),
     getHeadMetadata(formattedUrl),
+    getTransactionMetadata(formattedUrl),
   ]);
 
   return {
     ...metadata,
     ...headMetadata,
+    transactionMetadata,
   };
 };
 
@@ -107,8 +111,13 @@ const getMetadata = async (url: string) => {
     } else if (!url.startsWith("chain://")) {
       contentMetadata = await Promise.race<any>([unfurl(url), timeout(10000)]);
     } else {
+      const [, , chainId, contractAddress, tokenId] = url.split("/");
       contentMetadata = await Promise.race<any>([
-        getNftMetadata(url),
+        getNftMetadata(
+          CHAIN_ID_TO_NAME[chainId],
+          contractAddress.split(":")[1],
+          tokenId
+        ),
         timeout(10000),
       ]);
     }
@@ -117,21 +126,6 @@ const getMetadata = async (url: string) => {
   return {
     contentMetadata,
   };
-};
-
-const getNftMetadata = async (url: string) => {
-  const [, , chainId, contractAddress, tokenId] = url.split("/");
-  const response = await fetchWithRetry(
-    `https://api.simplehash.com/api/v0/nfts/${CHAIN_ID_TO_NAME[chainId]}/${
-      contractAddress.split(":")[1]
-    }/${tokenId}`,
-    {
-      headers: {
-        "X-API-KEY": process.env.SIMPLEHASH_API_KEY as string,
-      },
-    }
-  );
-  return await response;
 };
 
 const timeout = (ms: number): Promise<Response> => {

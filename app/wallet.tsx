@@ -24,13 +24,17 @@ import {
   optimismGoerli,
 } from "viem/chains";
 import { publicProvider } from "wagmi/providers/public";
+import { alchemyProvider } from "wagmi/providers/alchemy";
 import { useTheme } from "next-themes";
 import { AuthProvider } from "@/context/auth";
 import { UserProvider } from "@/context/user";
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygon, optimism, arbitrum, base, zora, optimismGoerli],
-  [publicProvider()]
+  [
+    publicProvider(),
+    alchemyProvider({ apiKey: "yG87D42RhqjjNl0dw7uHQX2X-jZNPMt4" }),
+  ]
 );
 
 const connectors = connectorsForWallets([

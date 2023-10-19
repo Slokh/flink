@@ -8,6 +8,7 @@ import { formatText } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { formatDistanceStrict } from "date-fns";
 import { VideoPlayer } from "./video-player";
+import { MintEmbed } from "./mints/mint-embed";
 
 const URL_REGEX =
   /\b(?:https?:\/\/|www\.|ftp:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?\b/gi;
@@ -230,6 +231,20 @@ export const FlinkEmbed = ({ metadata }: { metadata: CastMetadata }) => {
 };
 
 export const EmbedPreview = ({
+  embed,
+  text,
+}: {
+  embed: Embed;
+  text?: string;
+}) => {
+  if (embed.transactionMetadata) {
+    return <MintEmbed embed={embed} text={text} />;
+  }
+
+  return <EmbedPreviewContent embed={embed} text={text} />;
+};
+
+export const EmbedPreviewContent = ({
   embed,
   text,
 }: {
