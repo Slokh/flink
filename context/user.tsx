@@ -107,6 +107,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   useEffect(() => {
     if (!user) return;
+    fetchNotifications();
     const intervalId = setInterval(fetchNotifications, 30000);
     return () => clearInterval(intervalId); // Clear interval on unmount
     // eslint-disable-next-line react-hooks/exhaustive-deps
