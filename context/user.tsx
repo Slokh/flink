@@ -86,7 +86,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const fetchNotifications = async () => {
     const notificationsRes = await fetch(
-      `/api/auth/${user?.fid}/notifications`
+      `/api/auth/${user?.fid}/user-notifications`
     );
     const { notifications, unreadNotifications } =
       await notificationsRes.json();
@@ -167,7 +167,9 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   const markNotificationsAsRead = async () => {
-    await fetch(`/api/auth/${user?.fid}/notifications`, { method: "POST" });
+    await fetch(`/api/auth/${user?.fid}/user-notifications`, {
+      method: "POST",
+    });
     setUnreadNotifications(0);
   };
 
