@@ -10,30 +10,25 @@ const run = async () => {
           url: {
             contains: "app.manifold.xyz/c/",
           },
-          timestamp: {
-            gte: new Date(new Date().getTime() - 6 * 60 * 60 * 1000),
-          },
         },
         {
           url: {
             contains: "zora.co/collect/",
-          },
-          timestamp: {
-            gte: new Date(new Date().getTime() - 6 * 60 * 60 * 1000),
           },
         },
         {
           url: {
             contains: "mint.fun",
           },
-          timestamp: {
-            gte: new Date(new Date().getTime() - 6 * 60 * 60 * 1000),
-          },
         },
       ],
     },
   });
-  for (const url of urls) {
+  const filteredUrls = urls.filter(
+    // @ts-ignore
+    (url) => !url.transactionMetadata?.token
+  );
+  for (const url of filteredUrls) {
     const transactionMetadata = await getTransactionMetadata(url.url);
     console.log(
       url.url,

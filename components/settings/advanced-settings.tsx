@@ -4,9 +4,11 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import {
   useAccount,
+  useChainId,
   useContractRead,
   useContractWrite,
   useSignTypedData,
+  useSwitchNetwork,
 } from "wagmi";
 import { Loading } from "../loading";
 import { TransferRequest } from "@/lib/types";
@@ -158,6 +160,8 @@ const TransferOwnershipAccept = () => {
 const AcceptButton = ({ request }: { request: TransferRequest }) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { switchNetworkAsync } = useSwitchNetwork();
+  const chainId = useChainId();
   const { writeAsync, isSuccess } = useContractWrite({
     address: CONTRACTS.ID_REGISTRY_ADDRESS,
     abi: [
@@ -171,6 +175,8 @@ const AcceptButton = ({ request }: { request: TransferRequest }) => {
   const handleAccept = async () => {
     setIsLoading(true);
     try {
+      if (switchNetworkAsync && chainId !== 10) await switchNetworkAsync(10);
+
       await writeAsync({
         args: [request.to, BigInt(request.deadline), request.signature],
       });
@@ -233,6 +239,8 @@ const TransferOwnershipCreate = () => {
     undefined
   );
   const { address } = useAccount();
+  const { switchNetworkAsync } = useSwitchNetwork();
+  const chainId = useChainId();
 
   const { data: nonce } = useContractRead({
     address: CONTRACTS.ID_REGISTRY_ADDRESS,
@@ -270,6 +278,8 @@ const TransferOwnershipCreate = () => {
         setLoading(false);
         return;
       }
+
+      if (switchNetworkAsync && chainId !== 10) await switchNetworkAsync(10);
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
       const signature = await signTypedDataAsync({

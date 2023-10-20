@@ -150,15 +150,14 @@ const extractTokenFromZora = async (url: string) => {
     const [chainName, address] = chainAndContract.split(":");
     if (!isNaN(parseInt(chainName))) {
       chain = parseInt(chainName);
+    } else if (chainName === "eth") {
+      chain = 1;
+    } else if (chainName === "oeth") {
+      chain = 10;
     } else {
       const chainId = NAME_TO_CHAIN_ID[chainName];
       if (!chainId) return;
-      chain =
-        chainName === "eth"
-          ? 1
-          : chainName === "oeth"
-          ? 10
-          : parseInt(chainId.split(":")[1]);
+      chain = parseInt(chainId.split(":")[1]);
     }
     contractAddress = address;
   } else {
@@ -222,7 +221,6 @@ export const getTransactionMetadata = async (url: string) => {
   } else {
     return;
   }
-
   if (!token || !isAddress(token.contractAddress)) return;
 
   const transaction = await getTransactionFromMintFun(token);
