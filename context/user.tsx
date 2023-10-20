@@ -5,6 +5,7 @@ import {
   createContext,
   ReactNode,
   useContext,
+  useRef,
 } from "react";
 import { UserAuthState, useAuth } from "./auth";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -57,6 +58,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNotificationsLoading, setNotificationsLoading] = useState(true);
   const { disconnect } = useDisconnect();
+  const [notificationRequests, setNotificationRequests] = useState(0);
 
   const initialize = async (fid?: number) => {
     const res = await fetch(`/api/auth/users`);
@@ -84,7 +86,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     setIsLoading(false);
   };
 
+  const notificationRequestsRef = useRef(notificationRequests);
+
+  useEffect(() => {
+    notificationRequestsRef.current = notificationRequests;
+  }, [notificationRequests]);
+
   const fetchNotifications = async () => {
+    if (notificationRequestsRef.current > 5) return;
     const notificationsRes = await fetch(
       `/api/auth/${user?.fid}/user-notifications`
     );
@@ -93,24 +102,13 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     setNotifications(notifications);
     setUnreadNotifications(unreadNotifications);
     setNotificationsLoading(false);
+    setNotificationRequests(notificationRequestsRef.current + 1);
   };
 
   useEffect(() => {
     if (!user) return;
-    let refreshCount = 0;
-    const maxRefreshes = 10; // Set your maximum number of refreshes here
-
-    const intervalId = setInterval(() => {
-      if (refreshCount >= maxRefreshes) {
-        clearInterval(intervalId);
-      } else {
-        fetchNotifications();
-        refreshCount++;
-      }
-    }, 30000);
-
-    // Clear interval on component unmount
-    return () => clearInterval(intervalId);
+    const intervalId = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(intervalId); // Clear interval on unmount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
