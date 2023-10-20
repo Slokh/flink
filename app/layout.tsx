@@ -2,7 +2,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
 import "@rainbow-me/rainbowkit/styles.css";
 import WalletProvider from "./wallet";
 import { Nav } from "@/components/nav";
@@ -67,6 +66,11 @@ export default function RootLayout({
           <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
           <meta name="msapplication-TileColor" content="#000000" />
           <meta name="theme-color" content="#000000" />
+          <script
+            defer
+            data-domain="flink.fyi"
+            src="https://plausible.io/js/script.js"
+          ></script>
         </head>
         <body className={inter.className}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -86,7 +90,6 @@ export default function RootLayout({
               <Toaster />
             </WalletProvider>
           </ThemeProvider>
-          <Analytics />
         </body>
       </html>
     </StrictMode>
