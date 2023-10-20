@@ -97,8 +97,20 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   useEffect(() => {
     if (!user) return;
-    fetchNotifications();
-    setInterval(fetchNotifications, 30000);
+    let refreshCount = 0;
+    const maxRefreshes = 10; // Set your maximum number of refreshes here
+
+    const intervalId = setInterval(() => {
+      if (refreshCount >= maxRefreshes) {
+        clearInterval(intervalId);
+      } else {
+        fetchNotifications();
+        refreshCount++;
+      }
+    }, 30000);
+
+    // Clear interval on component unmount
+    return () => clearInterval(intervalId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
