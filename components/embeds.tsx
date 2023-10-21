@@ -32,26 +32,24 @@ const TwitterEmbed = ({
         {image && (
           <div>
             <img
-              alt="embed_image"
               src={image}
-              className="w-full rounded-t-lg h-[295px] object-cover"
+              className="w-full rounded-t-lg h-[295px] object-cover bg-border"
             />
           </div>
         )}
         <div className="flex flex-col p-2 space-y-1">
           <div className="flex flex-row space-x-2 items-center">
             {metadata.favicon && !metadata.favicon.includes("discord.com") && (
-              <img
-                alt="embed_icon"
-                src={metadata.favicon}
-                className="h-4 w-4"
-              />
+              <Avatar className="w-4 h-4">
+                <AvatarImage src={metadata.favicon} />
+                <AvatarFallback></AvatarFallback>
+              </Avatar>
             )}
-            <div className="font-semibold text-sm">
+            <div className="font-semibold text-sm line-clamp-1">
               {metadata.open_graph?.title?.replace(
                 /0x([a-fA-F0-9]{4}).*/,
                 "0x$1..."
-              )}
+              ) || urlHost}
             </div>
           </div>
           <div className="text-muted-foreground text-xs">{urlHost}</div>
@@ -88,15 +86,14 @@ const UrlEmbed = ({ metadata, url }: { metadata: Metadata; url: string }) => {
         <div className="flex flex-col p-2 space-y-1">
           <div className="flex flex-row space-x-2 items-center">
             {metadata.favicon && (
-              <img
-                alt="embed_icon"
-                src={metadata.favicon}
-                className="h-4 w-4"
-              />
+              <Avatar className="w-4 h-4">
+                <AvatarImage src={metadata.favicon} />
+                <AvatarFallback></AvatarFallback>
+              </Avatar>
             )}
-            <div className="flex flex-row space-x-1 items-center">
+            <div className="flex flex-row space-x-1 items-center line-clamp-1">
               <div className="font-semibold text-sm">
-                {title?.replace(/0x([a-fA-F0-9]{4}).*/, "0x$1...")}
+                {title?.replace(/0x([a-fA-F0-9]{4}).*/, "0x$1...") || urlHost}
               </div>
               {username && (
                 <div className="font-normal text-sm text-muted-foreground">{`@${username}`}</div>

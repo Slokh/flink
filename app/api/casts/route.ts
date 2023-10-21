@@ -20,7 +20,9 @@ export async function GET(
     ? decodeURI(url.searchParams.get("url") as string)
     : undefined;
   const query = url.searchParams.get("query")
-    ? ` ${decodeURIComponent(url.searchParams.get("query") as string)} `
+    ? (url.searchParams.get("query") as string).length > 5
+      ? decodeURIComponent(url.searchParams.get("query") as string)
+      : ` ${decodeURIComponent(url.searchParams.get("query") as string)} `
     : "";
 
   let response = [];
