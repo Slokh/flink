@@ -30,12 +30,6 @@
     "channelId": "farcaster"
   },
   {
-    "name": "dev",
-    "parentUrl": "chain://eip155:1/erc721:0x7dd4e31f1530ac682c8ea4d8016e95773e08d8b0",
-    "image": "https://ipfs.decentralized-content.com/ipfs/bafkreigbei45ni5zsliszzeivotgee5auj2ykkh6zrzjwvm4izviidusny",
-    "channelId": "farcaster-dev"
-  },
-  {
     "name": "Warpcast",
     "parentUrl": "chain://eip155:7777777/erc721:0x10a77f29a6bbeae936f3f27cd60546072dae4e41",
     "image": "https://ipfs.decentralized-content.com/ipfs/bafkreifezhnp5wzgabkdbkb6d65oix4r5axibupv45r7ifxphl4d6qqnry",
@@ -336,12 +330,6 @@
     "channelId": "orange-dao"
   },
   {
-    "name": "Zora",
-    "parentUrl": "chain://eip155:1/erc721:0xca21d4228cdcc68d4e23807e5e370c07577dd152",
-    "image": "https://warpcast.com/~/channel-images/zora.png",
-    "channelId": "zorbs"
-  },
-  {
     "name": "Kiwi News",
     "parentUrl": "chain://eip155:1/erc721:0xebb15487787cbf8ae2ffe1a6cca5a50e63003786",
     "image": "https://i.seadn.io/gcs/files/0b7457dd591cf6ac298d4bd62a68cdd4.png?auto=format&dpr=1&w=512",
@@ -616,5 +604,257 @@
     "parentUrl": "https://www.curta.wtf",
     "image": "https://warpcast.com/~/channel-images/curta.jpg",
     "channelId": "curta"
+  },
+  {
+    "name": "dev",
+    "parentUrl": "chain://eip155:1/erc721:0x7dd4e31f1530ac682c8ea4d8016e95773e08d8b0",
+    "image": "https://ipfs.decentralized-content.com/ipfs/bafkreigbei45ni5zsliszzeivotgee5auj2ykkh6zrzjwvm4izviidusny",
+    "channelId": "dev"
+  },
+  {
+    "name": "Creators",
+    "parentUrl": "https://farcaster.group/creators",
+    "image": "https://warpcast.com/~/channel-images/creators.png",
+    "channelId": "creators"
+  },
+  {
+    "name": "Obsidian",
+    "parentUrl": "https://obsidian.md",
+    "image": "https://warpcast.com/~/channel-images/obsidian.jpg",
+    "channelId": "obsidian"
+  },
+  {
+    "name": "Base",
+    "parentUrl": "https://onchainsummer.xyz",
+    "image": "https://warpcast.com/~/channel-images/base.png",
+    "channelId": "base"
+  },
+  {
+    "name": "Green Pill",
+    "parentUrl": "https://farcaster.group/green-pill",
+    "image": "https://warpcast.com/~/channel-images/green-pill.png",
+    "channelId": "green-pill"
+  },
+  {
+    "name": "Zora",
+    "parentUrl": "chain://eip155:1/erc721:0xca21d4228cdcc68d4e23807e5e370c07577dd152",
+    "image": "https://warpcast.com/~/channel-images/zora.png",
+    "channelId": "zora"
+  },
+  {
+    "name": "Spanish",
+    "parentUrl": "https://farcaster.group/spanish",
+    "image": "https://warpcast.com/~/channel-images/spanish.png",
+    "channelId": "spanish"
+  },
+  {
+    "name": "Rainbow",
+    "parentUrl": "https://rainbow.me",
+    "image": "https://warpcast.com/~/channel-images/rainbow.png",
+    "channelId": "rainbow"
+  },
+  {
+    "name": "Chinese",
+    "parentUrl": "https://farcaster.group/chinese",
+    "image": "https://warpcast.com/~/channel-images/chinese.png",
+    "channelId": "chinese"
+  },
+  {
+    "name": "Aburra",
+    "parentUrl": "https://farcaster.group/aburra",
+    "image": "https://warpcast.com/~/channel-images/aburra.jpg",
+    "channelId": "aburra"
+  },
+  {
+    "name": "Crypto News",
+    "parentUrl": "https://farcaster.group/crypto-news",
+    "image": "https://warpcast.com/~/channel-images/crypto-news.png",
+    "channelId": "crypto-news"
+  },
+  {
+    "name": "Party",
+    "parentUrl": "https://www.party.app",
+    "image": "https://warpcast.com/~/channel-images/party.jpg",
+    "channelId": "party"
+  },
+  {
+    "name": "College Football",
+    "parentUrl": "https://farcaster.group/college-football",
+    "image": "https://warpcast.com/~/channel-images/college-football.png",
+    "channelId": "college-football"
+  },
+  {
+    "name": "German",
+    "parentUrl": "https://farcaster.group/german",
+    "image": "https://warpcast.com/~/channel-images/german.png",
+    "channelId": "german"
+  },
+  {
+    "name": "Japanese",
+    "parentUrl": "https://farcaster.group/japanese",
+    "image": "https://warpcast.com/~/channel-images/japanese.png",
+    "channelId": "japanese"
+  },
+  {
+    "name": "Snow",
+    "parentUrl": "https://farcaster.group/snow",
+    "image": "https://warpcast.com/~/channel-images/snow.png",
+    "channelId": "snow"
+  },
+  {
+    "name": "Gadgets",
+    "parentUrl": "https://farcaster.group/gadgets",
+    "image": "https://warpcast.com/~/channel-images/gadgets.png",
+    "channelId": "gadgets"
+  },
+  {
+    "name": "Lisbon",
+    "parentUrl": "https://farcaster.group/lisbon",
+    "image": "https://warpcast.com/~/channel-images/lisbon.png",
+    "channelId": "lisbon"
+  },
+  {
+    "name": "Paris",
+    "parentUrl": "https://farcaster.group/paris",
+    "image": "https://warpcast.com/~/channel-images/paris.png",
+    "channelId": "paris"
+  },
+  {
+    "name": "Trading",
+    "parentUrl": "https://farcaster.group/trading",
+    "image": "https://warpcast.com/~/channel-images/trading.png",
+    "channelId": "trading"
+  },
+  {
+    "name": "Berlin",
+    "parentUrl": "https://farcaster.group/berlin",
+    "image": "https://warpcast.com/~/channel-images/berlin.png",
+    "channelId": "berlin"
+  },
+  {
+    "name": "Chicago",
+    "parentUrl": "https://farcaster.group/chicago",
+    "image": "https://warpcast.com/~/channel-images/chicago.png",
+    "channelId": "chicago"
+  },
+  {
+    "name": "Shower Thoughts",
+    "parentUrl": "https://farcaster.group/shower-thoughts",
+    "image": "https://warpcast.com/~/channel-images/shower-thoughts.png",
+    "channelId": "shower-thoughts"
+  },
+  {
+    "name": "MMA",
+    "parentUrl": "https://farcaster.group/mma",
+    "image": "https://warpcast.com/~/channel-images/mma.png",
+    "channelId": "mma"
+  },
+  {
+    "name": "Economics",
+    "parentUrl": "https://farcaster.group/economics",
+    "image": "https://warpcast.com/~/channel-images/economics.png",
+    "channelId": "economics"
+  },
+  {
+    "name": "DeFi",
+    "parentUrl": "https://farcaster.group/defi",
+    "image": "https://warpcast.com/~/channel-images/defi.png",
+    "channelId": "defi"
+  },
+  {
+    "name": "Wellness",
+    "parentUrl": "https://farcaster.group/wellness",
+    "image": "https://warpcast.com/~/channel-images/wellness.png",
+    "channelId": "wellness"
+  },
+  {
+    "name": "Poetry",
+    "parentUrl": "https://farcaster.group/poetry",
+    "image": "https://warpcast.com/~/channel-images/poetry.png",
+    "channelId": "poetry"
+  },
+  {
+    "name": "Aussie",
+    "parentUrl": "https://farcaster.group/aussie",
+    "image": "https://warpcast.com/~/channel-images/aussie.png",
+    "channelId": "aussie"
+  },
+  {
+    "name": "Writers",
+    "parentUrl": "https://farcaster.group/writers",
+    "image": "https://warpcast.com/~/channel-images/writers.png",
+    "channelId": "writers"
+  },
+  {
+    "name": "Gardening",
+    "parentUrl": "https://farcaster.group/gardening",
+    "image": "https://warpcast.com/~/channel-images/gardening.png",
+    "channelId": "gardening"
+  },
+  {
+    "name": "Engineering",
+    "parentUrl": "https://farcaster.group/engineering",
+    "image": "https://warpcast.com/~/channel-images/engineering.png",
+    "channelId": "engineering"
+  },
+  {
+    "name": "Korean",
+    "parentUrl": "https://farcaster.group/korean",
+    "image": "https://warpcast.com/~/channel-images/korean.png",
+    "channelId": "korean"
+  },
+  {
+    "name": "Surfing",
+    "parentUrl": "https://farcaster.group/surfing",
+    "image": "https://warpcast.com/~/channel-images/surfing.png",
+    "channelId": "surfing"
+  },
+  {
+    "name": "MechKey",
+    "parentUrl": "https://farcaster.group/mech-kb",
+    "image": "https://warpcast.com/~/channel-images/mech-kb.png",
+    "channelId": "mech-kb"
+  },
+  {
+    "name": "Random",
+    "parentUrl": "https://farcaster.group/random",
+    "image": "https://warpcast.com/~/channel-images/random.png",
+    "channelId": "random"
+  },
+  {
+    "name": "MLB",
+    "parentUrl": "https://farcaster.group/mlb",
+    "image": "https://warpcast.com/~/channel-images/mlb.jpg",
+    "channelId": "mlb"
+  },
+  {
+    "name": "Uniswap",
+    "parentUrl": "https://uniswap.org",
+    "image": "https://warpcast.com/~/channel-images/uniswap.jpg",
+    "channelId": "uniswap"
+  },
+  {
+    "name": "Turkish",
+    "parentUrl": "https://farcaster.group/turkish",
+    "image": "https://warpcast.com/~/channel-images/turkish.png",
+    "channelId": "turkish"
+  },
+  {
+    "name": "RWA",
+    "parentUrl": "https://farcaster.group/rwa",
+    "image": "https://warpcast.com/~/channel-images/rwa.png",
+    "channelId": "rwa"
+  },
+  {
+    "name": "London",
+    "parentUrl": "https://farcaster.group/london",
+    "image": "https://warpcast.com/~/channel-images/london.png",
+    "channelId": "london"
+  },
+  {
+    "name": "Daily Fantasy",
+    "parentUrl": "https://farcaster.group/daily-fantasy",
+    "image": "https://warpcast.com/~/channel-images/daily-fantasy.png",
+    "channelId": "daily-fantasy"
   }
 ]
