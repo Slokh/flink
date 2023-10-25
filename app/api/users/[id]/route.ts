@@ -79,9 +79,53 @@ export async function GET(
 }
 
 const tryFarcaster = async (input: string) => {
-  const farcaster = await prisma.farcaster.findFirst({
-    where: { fname: input },
-  });
+  const res = await fetch(
+    `https://fnames.farcaster.xyz/transfers/current?name=${input}`
+  );
+  const { transfer } = await res.json();
+
+  let farcasterFromFid;
+  if (transfer) {
+    farcasterFromFid = await prisma.farcaster.findFirst({
+      where: { fid: transfer.to },
+    });
+  }
+
+  let farcasterFromFname;
+  if (!farcasterFromFid || farcasterFromFid.fname !== input) {
+    farcasterFromFname = await prisma.farcaster.findFirst({
+      where: { fname: input },
+    });
+  }
+
+  if (!farcasterFromFname && farcasterFromFid) {
+    await prisma.farcaster.update({
+      where: { fid: farcasterFromFid.fid },
+      data: {
+        fname: input,
+      },
+    });
+  } else if (
+    farcasterFromFname &&
+    farcasterFromFid &&
+    farcasterFromFname.fname !== farcasterFromFid.fname
+  ) {
+    await prisma.farcaster.update({
+      where: { fid: farcasterFromFid.fid },
+      data: {
+        fname: input,
+      },
+    });
+    await prisma.farcaster.update({
+      where: { fid: farcasterFromFname.fid },
+      data: {
+        fname: undefined,
+      },
+    });
+  }
+
+  const farcaster = farcasterFromFid || farcasterFromFname;
+
   if (!farcaster) {
     return undefined;
   }
