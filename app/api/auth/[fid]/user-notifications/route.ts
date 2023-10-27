@@ -1,4 +1,4 @@
-import { getCastsByFidHashes } from "@/lib/casts";
+import { getCastsByFidHashes, getCastsResponse } from "@/lib/casts";
 import {
   RouteHandlerWithSession,
   ironSessionWrapper,
@@ -114,7 +114,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
     ];
 
     const casts = await getCastsByFidHashes(fidHashes);
-    const allCasts = casts.concat(replies);
+    const allCasts: any[] = await getCastsResponse(casts.concat(replies));
 
     const castMap = allCasts.reduce((map, cast) => {
       map[cast.hash] = cast;
@@ -127,11 +127,9 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
       ...follows.map((follow) => follow.fid),
       ...replies.map((reply) => reply.fid),
       ...allCasts.flatMap((cast) =>
-        cast.mentions.map((mention) => mention.mention)
+        cast.mentions.map((mention: any) => mention.fid)
       ),
-      ...allCasts.flatMap((cast) =>
-        cast.mentions.map((mention) => mention.fid)
-      ),
+      ...allCasts.flatMap((cast) => cast.user.fid),
     ].filter((fid, index, self) => self.indexOf(fid) === index);
 
     const users = await prisma.farcaster.findMany({

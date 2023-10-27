@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { EmbedPreview } from "@/components/embeds";
 
 export default function Home() {
   const [selection, setSelection] = useState<string>();
@@ -138,6 +139,13 @@ export default function Home() {
                             __html: formatText(data.text, data.mentions, false),
                           }}
                         />
+                        {data.embeds.map((e) => (
+                          <EmbedPreview
+                            key={e.url}
+                            embed={e}
+                            user={data.user}
+                          />
+                        ))}
                       </Link>
                     )}
                   </div>
