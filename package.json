@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@draft-js-plugins/drag-n-drop": "^4.2.3",
+    "@draft-js-plugins/editor": "^4.1.4",
+    "@draft-js-plugins/image": "^4.1.4",
     "@farcaster/hub-nodejs": "^0.10.5",
     "@hookform/resolvers": "^3.3.1",
     "@next/bundle-analyzer": "^13.5.2",
@@ -44,6 +47,8 @@
     "eslint": "8.48.0",
     "eslint-config-next": "13.5.1",
     "ethers": "v5.7.2",
+    "html-to-image": "^1.11.11",
+    "html2canvas": "^1.4.1",
     "iron-session": "^6.3.1",
     "next": "13.5.5",
     "next-themes": "^0.2.1",

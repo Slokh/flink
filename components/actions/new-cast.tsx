@@ -28,8 +28,9 @@ import { ContentState, Editor, EditorState, Modifier } from "draft-js";
 import "draft-js/dist/Draft.css";
 import { Card } from "../ui/card";
 import { VideoPlayer } from "../video-player";
+import { LongCast } from "./new-long-cast";
 
-type Cast = {
+export type Cast = {
   id: string;
   text: string;
   embeds: { url: string }[];
@@ -291,6 +292,7 @@ const NewCastContent = ({
   const pathname = usePathname();
   const [channel, setChannel] = useState<Channel | undefined>();
   const [isValid, setIsValid] = useState(false);
+  const [option, setOption] = useState("cast");
 
   useEffect(() => {
     if (!parent && pathname.includes("/channels/")) {
@@ -299,7 +301,47 @@ const NewCastContent = ({
     setLoading(false);
   }, [parent, pathname]);
 
+  const handleLongSubmit = async () => {
+    setSubmitting(true);
+    const base64string = casts[0].text.split(",")[1];
+
+    const res = await fetch(`/api/auth/${user?.fid}/upload/image`, {
+      method: "POST",
+      body: JSON.stringify({
+        image: base64string,
+      }),
+    });
+
+    if (res.status === 200) {
+      const { data } = await res.json();
+      const res2 = await fetch(`/api/auth/${user?.fid}/casts`, {
+        method: "POST",
+        body: JSON.stringify({
+          casts: [
+            {
+              text: "",
+              embeds: [{ url: data.link }],
+              parent: parent || channel?.parentUrl,
+            },
+          ],
+        }),
+      });
+      const data2 = await res2.json();
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (inThread) {
+        // @ts-ignore
+        window.location.reload();
+      } else {
+        // @ts-ignore
+        window.location = `/${user?.fname}/${data2.casts[0].cast.hash}`;
+      }
+    }
+    setSubmitting(false);
+  };
+
   const handleSubmit = async () => {
+    if (option === "long-cast") await handleLongSubmit();
+
     setSubmitting(true);
     const castsWithParent = casts.map((cast) => ({
       text: cast.text,
@@ -335,21 +377,49 @@ const NewCastContent = ({
       <ScrollArea style={{ maxHeight: "calc(100vh - 300px" }}>
         <div className="flex flex-col space-y-4 w-[270px] sm:w-[462px]">
           {!xpost ? children : <></>}
-          {casts.map((cast, i) => (
-            <CastEditor
-              key={cast.id}
-              cast={cast}
-              onChange={(c) => handleCastChange(i, c)}
-              onRemove={
-                i === 0
-                  ? undefined
-                  : () => {
-                      setCasts(casts.filter((_, j) => j !== i));
-                    }
-              }
-              autoFocus={i === casts.length - 1}
-            />
-          ))}
+          <div className="flex flex-col space-y-2">
+            <div className="flex flex-row space-x-2">
+              <div
+                className={
+                  option === "cast"
+                    ? "cursor-pointer text-sm text-background bg-foreground rounded-xl px-2 py-0.5 font-semibold"
+                    : "cursor-pointer text-sm text-muted-foreground rounded-xl px-2 py-0.5 hover:text-foreground"
+                }
+                onClick={() => setOption("cast")}
+              >
+                Cast
+              </div>
+              <div
+                className={
+                  option === "long-cast"
+                    ? "cursor-pointer text-sm text-background bg-foreground rounded-xl px-2 py-0.5 font-semibold"
+                    : "cursor-pointer text-sm text-muted-foreground rounded-xl px-2 py-0.5 hover:text-foreground"
+                }
+                onClick={() => setOption("long-cast")}
+              >
+                Long Cast
+              </div>
+            </div>
+            {option === "cast" ? (
+              casts.map((cast, i) => (
+                <CastEditor
+                  key={cast.id}
+                  cast={cast}
+                  onChange={(c) => handleCastChange(i, c)}
+                  onRemove={
+                    i === 0
+                      ? undefined
+                      : () => {
+                          setCasts(casts.filter((_, j) => j !== i));
+                        }
+                  }
+                  autoFocus={i === casts.length - 1}
+                />
+              ))
+            ) : (
+              <LongCast onChange={(c) => handleCastChange(0, c)} />
+            )}
+          </div>
           {xpost ? children : <></>}
         </div>
       </ScrollArea>
@@ -363,7 +433,7 @@ const NewCastContent = ({
           )}
         </div>
         <div className="flex flex-row space-x-2 items-center">
-          {!xpost && (
+          {!xpost && option === "cast" && (
             <Button
               variant="outline"
               size="icon"
