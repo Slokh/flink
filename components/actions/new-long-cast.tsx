@@ -139,7 +139,6 @@ export const LongCast = ({
           />
         </div>
       </div>
-      <div className="font-semibold text-sm">Preview</div>
     </div>
   );
 };
