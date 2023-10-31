@@ -73,10 +73,12 @@ export async function GET(
       return { image: (embed.contentMetadata as NftMetadata).image_url };
     }
     const metadata = embed.contentMetadata as Metadata;
+    if (!metadata?.open_graph && !metadata?.twitter_card) return;
+
     return {
       image:
-        metadata.open_graph?.images?.[0]?.url ||
-        metadata.twitter_card.images?.[0]?.url,
+        metadata?.open_graph?.images?.[0]?.url ||
+        metadata?.twitter_card.images?.[0]?.url,
     };
   };
 
@@ -120,7 +122,7 @@ export async function GET(
                 </div>
               ))}
             </div>
-            <div tw="flex flex-row item-start justify-start">
+            <div tw="flex flex-row items-start justify-start">
               {firstEmbed && (
                 <img
                   src={firstEmbed?.image}

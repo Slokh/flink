@@ -12,6 +12,7 @@ import { StrictMode } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://flink.fyi"),
   title: "flink",
   description:
     "A Reddit-like interface for Farcaster to see hot & trending conversations",
