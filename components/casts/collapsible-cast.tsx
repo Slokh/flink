@@ -14,7 +14,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { formatDistanceStrict } from "date-fns";
 import { EmbedPreview } from "../embeds";
-import { ReplyCastButton } from "../actions/new-cast";
+import { ReplyCastButton, XPostButton } from "../actions/new-cast";
 import { DeleteCast } from "../actions/delete-cast";
 import { CopyLink } from "../copy-link";
 import { useState } from "react";
@@ -136,6 +136,7 @@ export const CollapsibleCast = ({
               <CopyLink
                 link={`https://flink.fyi/${user?.fname}/${cast.hash}`}
               />
+              <XPostButton cast={cast} />
               <DeleteCast hash={cast.hash} isReply>
                 <div className="hover:underline">delete</div>
               </DeleteCast>

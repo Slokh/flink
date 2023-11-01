@@ -9,7 +9,7 @@ import { CopyLink } from "../copy-link";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import Link from "next/link";
 import { DeleteCast } from "../actions/delete-cast";
-import { ReplyCastButton } from "../actions/new-cast";
+import { ReplyCastButton, XPostButton } from "../actions/new-cast";
 import { LikeCast } from "../actions/like-cast";
 import { RecastCast } from "../actions/recast-cast";
 import { CollapsibleCast } from "./collapsible-cast";
@@ -141,6 +141,7 @@ export const CastParent = ({
               channel ? `f/${channel.channelId}` : user?.fname
             }/${cast.hash}`}
           />
+          <XPostButton cast={cast} />
           <DeleteCast hash={cast.hash}>
             <div className="hover:underline">delete</div>
           </DeleteCast>
