@@ -36,7 +36,7 @@ export const ChannelHeader = ({ channelId }: { channelId: string }) => {
   return (
     <div className="flex flex-row items-center justify-between p-4">
       <Link
-        href={`/channels/${channelId}`}
+        href={`/f/${channelId}`}
         className="flex flex-row items-center space-x-2"
       >
         <Avatar className="h-10 w-10">

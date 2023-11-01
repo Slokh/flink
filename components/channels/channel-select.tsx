@@ -29,7 +29,7 @@ export const ChannelSelect = ({
         onValueChange={(value) =>
           onChange
             ? onChange(value)
-            : router.push(value ? `/channels/${value}${suffix}` : "/")
+            : router.push(value ? `/f/${value}${suffix}` : "/")
         }
       >
         <SelectTrigger className="border-0 text-sm md:text-md font-semibold shadow-none p-0 h-6">
@@ -79,9 +79,7 @@ export const CastChannelSelect = ({
       <Select
         defaultValue={channel}
         onValueChange={(value) =>
-          onChange
-            ? onChange(value)
-            : router.push(value ? `/channels/${value}` : "/")
+          onChange ? onChange(value) : router.push(value ? `/f/${value}` : "/")
         }
       >
         <SelectTrigger className="border-0 text-sm md:text-md font-semibold shadow-none p-0 h-6">

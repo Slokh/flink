@@ -23,9 +23,9 @@ type Image = {
 export const ImageCast = ({ image }: { image: Image }) => {
   return (
     <Link
-      href={`/${
-        image.channelId ? `channels/${image.channelId}` : image.user?.fname
-      }/${image.hash}`}
+      href={`/${image.channelId ? `f/${image.channelId}` : image.user?.fname}/${
+        image.hash
+      }`}
       className="relative group cursor-pointer"
     >
       <img

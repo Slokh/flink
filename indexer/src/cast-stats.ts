@@ -135,7 +135,7 @@ const getReactions = async () => {
     FROM "public"."FarcasterCast"
       JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
     WHERE NOT "FarcasterCastReaction"."deleted"
-      AND "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '6 hour'
+      AND "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '3 day'
     GROUP BY
       "topParentUrl", date
   `;
@@ -162,7 +162,7 @@ const getCounts = async () => {
       SUM(CASE WHEN "FarcasterCast"."parentCast" IS NOT NULL THEN 1 ELSE 0 END) as replies
     FROM "public"."FarcasterCast"
     WHERE NOT "FarcasterCast"."deleted"
-      AND "FarcasterCast"."timestamp" > NOW() - INTERVAL '6 hour'
+      AND "FarcasterCast"."timestamp" > NOW() - INTERVAL '3 day'
     GROUP BY
       "topParentUrl", date
   `;
@@ -220,7 +220,7 @@ const getUserReactions = async () => {
     FROM "public"."FarcasterCast"
       JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
     WHERE NOT "FarcasterCastReaction"."deleted"
-      AND "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '6 hour'
+      AND "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '3 day'
     GROUP BY
       "FarcasterCastReaction"."targetFid", "topParentUrl", date
   `;
@@ -250,7 +250,7 @@ const getUserReacted = async () => {
     FROM "public"."FarcasterCast"
       JOIN "public"."FarcasterCastReaction" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
     WHERE NOT "FarcasterCastReaction"."deleted"
-      AND "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '6 hour'
+      AND "FarcasterCastReaction"."timestamp" > NOW() - INTERVAL '3 day'
     GROUP BY
       "FarcasterCastReaction"."fid", "topParentUrl", date
   `;
@@ -279,7 +279,7 @@ const getUserCounts = async () => {
       SUM(CASE WHEN "FarcasterCast"."parentCast" IS NOT NULL THEN 1 ELSE 0 END) as replies
     FROM "public"."FarcasterCast"
     WHERE NOT "FarcasterCast"."deleted"
-      AND "FarcasterCast"."timestamp" > NOW() - INTERVAL '6 hour'
+      AND "FarcasterCast"."timestamp" > NOW() - INTERVAL '3 day'
     GROUP BY
       "FarcasterCast"."fid", "topParentUrl", date
   `;
@@ -308,7 +308,7 @@ const getUserMentions = async () => {
     FROM "public"."FarcasterCast"
       JOIN "public"."FarcasterCastMention" ON "FarcasterCast"."fid" = "FarcasterCastMention"."fid" AND "FarcasterCast"."hash" = "FarcasterCastMention"."hash"
     WHERE NOT "FarcasterCastMention"."deleted"
-      AND "FarcasterCastMention"."timestamp" > NOW() - INTERVAL '6 hour'
+      AND "FarcasterCastMention"."timestamp" > NOW() - INTERVAL '3 day'
     GROUP BY
       "FarcasterCastMention"."mention", "topParentUrl", date
   `;

@@ -48,7 +48,7 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
               <>
                 <div className="text-muted-foreground">in</div>
                 <Link
-                  href={`/channels/${channel.channelId}`}
+                  href={`/f/${channel.channelId}`}
                   className="hover:underline"
                 >
                   <Avatar className="h-4 w-4">
@@ -57,7 +57,7 @@ export const CastContent = ({ cast }: { cast: FarcasterCast }) => {
                   </Avatar>
                 </Link>
                 <Link
-                  href={`/channels/${channel.channelId}`}
+                  href={`/f/${channel.channelId}`}
                   className="hover:underline"
                 >
                   <div>{channel.name}</div>
@@ -117,7 +117,7 @@ export const CastParent = ({
             <Link
               href={`/${
                 channel
-                  ? `channels/${channel.channelId}`
+                  ? `f/${channel.channelId}`
                   : cast.topParentCast?.user?.fname
               }/${cast.topParentCast?.hash}`}
               className="hover:underline"
@@ -138,7 +138,7 @@ export const CastParent = ({
           </a>
           <CopyLink
             link={`https://flink.fyi/${
-              channel ? `channels/${channel.channelId}` : user?.fname
+              channel ? `f/${channel.channelId}` : user?.fname
             }/${cast.hash}`}
           />
           <DeleteCast hash={cast.hash}>

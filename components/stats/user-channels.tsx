@@ -117,7 +117,7 @@ export const UserChannels = ({ data }: { data: UserChannelStats[] }) => {
             <Tooltip>
               <TooltipTrigger>
                 <a
-                  href={`/channels/${encodeURIComponent(channel.channelId)}`}
+                  href={`/f/${encodeURIComponent(channel.channelId)}`}
                   className="flex flex-row space-x-2 items-center transition cursor-pointer p-1"
                 >
                   <Avatar className="h-6 w-6">
@@ -141,7 +141,7 @@ export const UserChannels = ({ data }: { data: UserChannelStats[] }) => {
           </TooltipProvider>
         ) : (
           <a
-            href={`/channels/${channel.channelId}`}
+            href={`/f/${channel.channelId}`}
             className="flex flex-row space-x-2 items-center hover:text-purple-600 hover:dark:text-purple-400 transition p-1"
           >
             <Avatar className="h-6 w-6">

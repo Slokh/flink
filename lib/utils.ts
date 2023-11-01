@@ -157,29 +157,21 @@ export const formatText = (
     });
   }
 
+  const fLinkPattern = /(^|\s)(f\/\w+|\/f\/\w+)/g;
+  text = text.replace(fLinkPattern, (match, p1, p2) => {
+    const cleanedFlink = p2.startsWith("/") ? p2.slice(1) : p2;
+    const linkedFLink = `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${`/${cleanedFlink}`}" target="_blank">${cleanedFlink}</a>`;
+    return p1 + linkedFLink;
+  });
+
+  const ethPattern = /(\b\w+\.eth\b)/g;
+  text = text.replace(ethPattern, (match) => {
+    if (mentions.some(({ mention }) => mention?.fname === match)) return match;
+    const linkedEth = `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${`https://rainbow.me/${match}`}" target="_blank">${match}</a>`;
+    return linkedEth;
+  });
+
   return text.trim();
-};
-
-const normalizeLink = (link: string): string => {
-  let normalized = link.trim();
-  if (normalized.includes(" ")) {
-    normalized = normalized.split(" ")[0];
-  }
-
-  const startsWiths = ["http://", "https://", "www."];
-  const endsWiths = ["/"];
-  for (const startsWith of startsWiths) {
-    if (normalized.startsWith(startsWith)) {
-      normalized = normalized.replace(startsWith, "");
-    }
-  }
-  for (const endsWith of endsWiths) {
-    if (normalized.endsWith(endsWith)) {
-      normalized = normalized.slice(0, -endsWith.length);
-    }
-  }
-
-  return normalized;
 };
 
 export const createDateRange = (start: Date, end: Date) => {

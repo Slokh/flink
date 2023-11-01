@@ -146,12 +146,6 @@ const WebCast = ({
   const formattedText = formatText(cast.text, cast.mentions, true);
   const { previewImage, externalUrl } = getPreview(cast.embeds);
 
-  const isXpost = [
-    externalUrl?.includes("warpcast.com") ||
-      externalUrl?.includes("twitter.com") ||
-      externalUrl?.includes("x.com"),
-  ];
-
   const user = cast.user || {
     fname: "unknown",
     pfp: "",
@@ -182,17 +176,15 @@ const WebCast = ({
           </div>
         )}
         <Link
-          href={`/${channel ? `channels/${channel.channelId}` : user?.fname}/${
+          href={`/${channel ? `f/${channel.channelId}` : user?.fname}/${
             cast.hash
           }`}
           className="transition-all hover:text-purple-600 hover:dark:text-purple-400 line-clamp-2 visited:text-purple-600 visited:dark:text-purple-400"
         >
           {formattedText ? (
             <div dangerouslySetInnerHTML={{ __html: formattedText }} />
-          ) : isXpost ? (
-            "x-post"
           ) : (
-            "untitled"
+            ""
           )}
         </Link>
         <div className="flex flex-row space-x-1">
@@ -211,7 +203,7 @@ const WebCast = ({
               <>
                 <div className="text-muted-foreground">in</div>
                 <Link
-                  href={`/channels/${channel.channelId}`}
+                  href={`/f/${channel.channelId}`}
                   className="hover:underline flex flex-row items-center space-x-1 text-purple-600 dark:text-purple-400"
                 >
                   <Avatar className="h-4 w-4">
@@ -226,9 +218,9 @@ const WebCast = ({
         </div>
         <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-2">
           <Link
-            href={`/${
-              channel ? `channels/${channel.channelId}` : user?.fname
-            }/${cast.hash}`}
+            href={`/${channel ? `f/${channel.channelId}` : user?.fname}/${
+              cast.hash
+            }`}
             className="hover:underline"
           >
             {`${cast.replies} replies`}
@@ -269,13 +261,6 @@ export const MobileCast = ({
   const channel = cast.parentUrl ? CHANNELS_BY_URL[cast.parentUrl] : undefined;
   const formattedText = formatText(cast.text, cast.mentions, false);
 
-  const { externalUrl } = getPreview(cast.embeds);
-
-  const isXpost =
-    externalUrl?.includes("warpcast.com") ||
-    externalUrl?.includes("twitter.com") ||
-    externalUrl?.includes("x.com");
-
   const user = cast.user || {
     fname: "unknown",
     pfp: "",
@@ -313,18 +298,14 @@ export const MobileCast = ({
       )}
       {isLink ? (
         <Link
-          href={`/${channel ? `channels/${channel.channelId}` : user?.fname}/${
+          href={`/${channel ? `f/${channel.channelId}` : user?.fname}/${
             cast.hash
           }`}
           className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 visited:text-purple-600 visited:dark:text-purple-400 whitespace-pre-line break-words"
         >
           <div
             dangerouslySetInnerHTML={{
-              __html: formattedText
-                ? formattedText
-                : isXpost
-                ? "x-post"
-                : "untitled",
+              __html: formattedText ? formattedText : "",
             }}
           />
         </Link>
@@ -332,7 +313,7 @@ export const MobileCast = ({
         <div className="text-sm transition-all hover:text-purple-600 hover:dark:text-purple-400 visited:text-purple-600 visited:dark:text-purple-400 whitespace-pre-line break-words">
           <div
             dangerouslySetInnerHTML={{
-              __html: formattedText ? formattedText : isXpost ? "x-post" : "",
+              __html: formattedText ? formattedText : "",
             }}
           />
         </div>
@@ -350,19 +331,13 @@ export const MobileCast = ({
       {channel && (
         <div className="text-muted-foreground text-sm font-medium flex flex-row space-x-1 items-center justify-end">
           <div className="text-muted-foreground">in</div>
-          <Link
-            href={`/channels/${channel.channelId}`}
-            className="hover:underline"
-          >
+          <Link href={`/f/${channel.channelId}`} className="hover:underline">
             <Avatar className="h-4 w-4">
               <AvatarImage src={channel.image} className="object-cover" />
               <AvatarFallback>?</AvatarFallback>
             </Avatar>
           </Link>
-          <Link
-            href={`/channels/${channel.channelId}`}
-            className="hover:underline"
-          >
+          <Link href={`/f/${channel.channelId}`} className="hover:underline">
             <div>{channel.name}</div>
           </Link>
         </div>

@@ -123,7 +123,7 @@ export const ChannelSidebarDisplay = ({
                             <Tooltip>
                               <TooltipTrigger>
                                 <a
-                                  href={`/channels/${encodeURIComponent(
+                                  href={`/f/${encodeURIComponent(
                                     channel.channel.channelId
                                   )}`}
                                   className="flex flex-row space-x-2 items-center transition cursor-pointer p-1"
@@ -154,7 +154,7 @@ export const ChannelSidebarDisplay = ({
                           </TooltipProvider>
                         ) : (
                           <Link
-                            href={`/channels/${channel.channel.channelId}${
+                            href={`/f/${channel.channel.channelId}${
                               /channels\/.*\/stats/.test(pathname)
                                 ? `/stats${
                                     pathname.endsWith("users") ? "/users" : ""
@@ -226,7 +226,7 @@ export const ChannelSidebarDisplay = ({
                 <SidebarButton
                   key={url}
                   label={channel.name}
-                  href={`/channels/${channel.channelId}`}
+                  href={`/f/${channel.channelId}`}
                 >
                   {channel.image ? (
                     <img

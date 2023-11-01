@@ -77,7 +77,7 @@ export const generateMetadata = async ({
     openGraph: {
       type: "website",
       locale: "en_US",
-      url: `https://flink.fyi/channels/${params.channel}/${params.cast}`,
+      url: `https://flink.fyi/f/${params.channel}/${params.cast}`,
       title,
       description,
       images: [`/api/og/${params.cast}`],

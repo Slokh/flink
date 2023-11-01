@@ -48,7 +48,7 @@ export const ChannelNavigation = () => {
 
   // useEffect(() => {
   //   const handle = async () => {
-  //     const res = await fetch(`/api/channels/${encodeURIComponent(channel)}`);
+  //     const res = await fetch(`/api/f/${encodeURIComponent(channel)}`);
   //     const { collection } = await res.json();
   //     if (collection.quantity > 500) {
   //       setMembersEnabled(true);
@@ -61,20 +61,20 @@ export const ChannelNavigation = () => {
     <Navigation>
       <NavigationGroup>
         <NavigationButton
-          href={`/channels/${params.channel}`}
+          href={`/f/${params.channel}`}
           isSelected={mainNav === "casts"}
         >
           Casts
         </NavigationButton>
         <NavigationButton
-          href={`/channels/${params.channel}/stats`}
+          href={`/f/${params.channel}/stats`}
           isSelected={mainNav === "stats"}
         >
           Stats
         </NavigationButton>
         {/* {membersEnabled && (
           <NavigationButton
-            href={`/channels/${params.channel}/members`}
+            href={`/f/${params.channel}/members`}
             isSelected={mainNav === "members"}
           >
             Members
@@ -116,19 +116,25 @@ export const ChannelNavigation = () => {
             />
           )}
           <NavigationButton
-            href={`/channels/${params.channel}`}
+            href={`/f/${params.channel}${
+              displayMode === DisplayMode.Images ? "?display=images" : ""
+            }`}
             isSelected={sort === CastsSort.Hot}
           >
             Hot
           </NavigationButton>
           <NavigationButton
-            href={`/channels/${params.channel}/new`}
+            href={`/f/${params.channel}/new${
+              displayMode === DisplayMode.Images ? "?display=images" : ""
+            }`}
             isSelected={sort === CastsSort.New}
           >
             New
           </NavigationButton>
           <NavigationButton
-            href={`/channels/${params.channel}/top`}
+            href={`/f/${params.channel}/top${
+              displayMode === DisplayMode.Images ? "?display=images" : ""
+            }`}
             isSelected={sort === CastsSort.Top}
           >
             Top
@@ -155,13 +161,13 @@ export const ChannelNavigation = () => {
             />
           )}
           <NavigationButton
-            href={`/channels/${params.channel}/stats`}
+            href={`/f/${params.channel}/stats`}
             isSelected={!pathname.endsWith("users")}
           >
             Overview
           </NavigationButton>
           <NavigationButton
-            href={`/channels/${params.channel}/stats/users`}
+            href={`/f/${params.channel}/stats/users`}
             isSelected={pathname.endsWith("users")}
           >
             Users

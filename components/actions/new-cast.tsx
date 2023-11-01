@@ -37,10 +37,10 @@ export type Cast = {
   isValid: boolean;
 };
 
-const createNewCast = (xpost?: boolean): Cast => {
+const createNewCast = (): Cast => {
   return {
     id: generateId(),
-    text: xpost ? "x-post" : "",
+    text: "",
     embeds: [],
     isValid: false,
   };
@@ -280,12 +280,11 @@ const NewCastContent = ({
 }: {
   parent?: string;
   children?: React.ReactNode;
-  placeholder?: string;
   xpost?: FarcasterCast;
   inThread?: boolean;
 }) => {
   const [loading, setLoading] = useState(true);
-  const [casts, setCasts] = useState<Cast[]>([createNewCast(!!xpost)]);
+  const [casts, setCasts] = useState<Cast[]>([createNewCast()]);
   const [submitting, setSubmitting] = useState(false);
   const { user } = useUser();
 
@@ -295,7 +294,7 @@ const NewCastContent = ({
   const [option, setOption] = useState("cast");
 
   useEffect(() => {
-    if (!parent && pathname.includes("/channels/")) {
+    if (!parent && pathname.includes("/f/")) {
       setChannel(CHANNELS_BY_ID[pathname.split("/")[2]]);
     }
     setLoading(false);
@@ -533,11 +532,11 @@ export const XPostButton = ({ cast }: { cast: FarcasterCast }) => {
   return (
     <Dialog>
       <DialogTrigger>
-        <div className="hover:underline">x-post</div>
+        <div className="hover:underline">quote</div>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader></DialogHeader>
-        <NewCastContent placeholder="x-post" xpost={cast}>
+        <NewCastContent xpost={cast}>
           <Link
             href={`https://flink.fyi/${cast.user?.fname}/${cast.hash}`}
             className="max-w-lg w-full"

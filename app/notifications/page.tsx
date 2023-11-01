@@ -128,9 +128,7 @@ export default function Home() {
                     {data && (
                       <Link
                         href={`/${
-                          channel
-                            ? `channels/${channel.channelId}`
-                            : authUser?.fname
+                          channel ? `f/${channel.channelId}` : authUser?.fname
                         }/${data.hash}`}
                         className="max-w-lg w-full border rounded-lg flex flex-col text-sm text-muted-foreground whitespace-pre-wrap break-words tracking-normal space-y-2 p-2 hover:text-foreground transition"
                       >

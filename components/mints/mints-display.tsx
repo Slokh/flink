@@ -42,7 +42,7 @@ export const MintDisplayCast = ({ cast }: { cast: FarcasterCast }) => {
         className="p-2"
         onClick={() =>
           router.push(
-            `/${channel ? `channels/${channel.channelId}` : cast.user?.fname}/${
+            `/${channel ? `f/${channel.channelId}` : cast.user?.fname}/${
               cast.hash
             }`
           )
@@ -62,7 +62,7 @@ export const MintDisplayCast = ({ cast }: { cast: FarcasterCast }) => {
           </div>
           {channel && (
             <Link
-              href={`/channels/${channel.channelId}`}
+              href={`/f/${channel.channelId}`}
               className="hover:underline flex flex-row items-center space-x-1 text-purple-600 dark:text-purple-400"
             >
               <Avatar className="h-4 w-4">
