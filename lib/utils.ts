@@ -3,6 +3,7 @@ import { SiweMessage } from "siwe";
 import { twMerge } from "tailwind-merge";
 import { Embed, FarcasterMention } from "./types";
 import { eachDayOfInterval, startOfDay } from "date-fns";
+import { CHANNELS_BY_ID } from "./channels";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -159,8 +160,10 @@ export const formatText = (
 
   const fLinkPattern = /(^|\s)(f\/\w+|\/f\/\w+)/g;
   text = text.replace(fLinkPattern, (match, p1, p2) => {
-    const cleanedFlink = p2.startsWith("/") ? p2.slice(1) : p2;
-    const linkedFLink = `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${`/${cleanedFlink}`}" target="_blank">${cleanedFlink}</a>`;
+    const cleanedFlink = p2.startsWith("/") ? p2.slice(3) : p2.slice(2);
+    const channel = CHANNELS_BY_ID[cleanedFlink];
+    if (!channel) return p1 + p2;
+    const linkedFLink = `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${`/f/${cleanedFlink}`}" target="_blank">f/${cleanedFlink}</a>`;
     return p1 + linkedFLink;
   });
 
