@@ -158,13 +158,16 @@ export const formatText = (
     });
   }
 
-  const fLinkPattern = /(^|\s)(f\/\w+|\/f\/\w+)/g;
+  const fLinkPattern = /(^|\s)(f\/\w+|\/f\/\w+|\(f\/\w+)/g;
   text = text.replace(fLinkPattern, (match, p1, p2) => {
-    const cleanedFlink = p2.startsWith("/") ? p2.slice(3) : p2.slice(2);
+    const startingCharacter =
+      p2.startsWith("/") || p2.startsWith("(") ? p2[0] : "";
+    const cleanedFlink =
+      p2.startsWith("/") || p2.startsWith("(") ? p2.slice(3) : p2.slice(2);
     const channel = CHANNELS_BY_ID[cleanedFlink];
     if (!channel) return p1 + p2;
     const linkedFLink = `<a class="current relative hover:underline text-purple-600 dark:text-purple-400" href="${`/f/${cleanedFlink}`}" target="_blank">f/${cleanedFlink}</a>`;
-    return p1 + linkedFLink;
+    return startingCharacter + p1 + linkedFLink;
   });
 
   const ethPattern = /(\b\w+\.eth\b)/g;
