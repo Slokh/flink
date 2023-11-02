@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { formatDistanceStrict } from "date-fns";
 import { VideoPlayer } from "./video-player";
 import { MintEmbed } from "./mints/mint-embed";
+import { PollEmbed } from "./polls/poll-embed";
 
 const URL_REGEX =
   /\b(?:https?:\/\/|www\.|ftp:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?\b/gi;
@@ -250,6 +251,10 @@ export const EmbedPreviewContent = ({
   embed: Embed;
   text?: string;
 }) => {
+  if (embed.url.includes("flink.fyi/polls")) {
+    return <PollEmbed url={embed.url} />;
+  }
+
   if (embed.contentType?.startsWith("image")) {
     return <ImageEmbed url={embed.url} />;
   }

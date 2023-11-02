@@ -29,12 +29,17 @@ import "draft-js/dist/Draft.css";
 import { Card } from "../ui/card";
 import { VideoPlayer } from "../video-player";
 import { LongCast } from "./new-long-cast";
+import { Poll } from "./new-poll";
 
 export type Cast = {
   id: string;
   text: string;
   embeds: { url: string }[];
   isValid: boolean;
+  pollData?: {
+    prompt: string;
+    options: string[];
+  };
 };
 
 const createNewCast = (): Cast => {
@@ -51,16 +56,18 @@ const CastEditor = ({
   onChange,
   onRemove,
   autoFocus,
+  prefix,
 }: {
   cast: Cast;
   onChange: (c: Partial<Cast>) => void;
   onRemove?: () => void;
   autoFocus?: boolean;
+  prefix?: string;
 }) => {
   const editorRef = useRef(null);
   const [editorState, setEditorState] = useState(() =>
-    cast.text
-      ? EditorState.createWithContent(ContentState.createFromText(cast.text))
+    prefix
+      ? EditorState.createWithContent(ContentState.createFromText(prefix))
       : EditorState.createEmpty()
   );
   const [embeds, setEmbeds] = useState<Embed[]>([]);
@@ -72,8 +79,24 @@ const CastEditor = ({
     new TextEncoder().encode(e.getCurrentContent().getPlainText()).length;
 
   const handleChange = (newState: EditorState) => {
-    const content = newState.getCurrentContent().getPlainText();
-    const isValid = content.length > 0 && getLength(newState) <= 320;
+    const maxLength = 320 - (prefix?.length || 0);
+    let content = newState.getCurrentContent().getPlainText();
+
+    // Get the current selection
+    const selection = newState.getSelection();
+    const key = selection.getAnchorKey();
+    const block = newState.getCurrentContent().getBlockForKey(key);
+    const start = selection.getStartOffset();
+    const end = selection.getEndOffset();
+    const lastCharacter = block.getText().slice(start - 1, end);
+
+    // Ensure prefix is always at the start
+    if (prefix && !content.startsWith(prefix) && lastCharacter !== prefix) {
+      content = prefix + content;
+      const contentState = ContentState.createFromText(content);
+      newState = EditorState.createWithContent(contentState);
+    }
+    const isValid = content.length > 0 && getLength(newState) <= maxLength;
 
     const fetchEmbed = async (url: string) => {
       if (fetchedEmbeds[url]) return fetchedEmbeds[url];
@@ -277,11 +300,13 @@ const NewCastContent = ({
   children,
   xpost,
   inThread,
+  pollOption,
 }: {
   parent?: string;
   children?: React.ReactNode;
   xpost?: FarcasterCast;
   inThread?: boolean;
+  pollOption?: number;
 }) => {
   const [loading, setLoading] = useState(true);
   const [casts, setCasts] = useState<Cast[]>([createNewCast()]);
@@ -299,6 +324,52 @@ const NewCastContent = ({
     }
     setLoading(false);
   }, [parent, pathname]);
+
+  const handlePollSubmit = async () => {
+    setSubmitting(true);
+
+    const res = await fetch(`/api/auth/${user?.fid}/polls`, {
+      method: "POST",
+      body: JSON.stringify({
+        prompt: casts[0].pollData?.prompt,
+        options: casts[0].pollData?.options,
+      }),
+    });
+
+    if (res.status === 200) {
+      const { poll } = await res.json();
+      const res2 = await fetch(`/api/auth/${user?.fid}/casts`, {
+        method: "POST",
+        body: JSON.stringify({
+          casts: [
+            {
+              text: casts[0].text,
+              embeds: [{ url: `https://flink.fyi/polls/${poll}` }],
+              parent: parent || channel?.parentUrl,
+            },
+          ],
+        }),
+      });
+      const data2 = await res2.json();
+      const hash = data2.casts[0].cast.hash;
+
+      await fetch(`/api/auth/${user?.fid}/polls/${poll}`, {
+        method: "POST",
+        body: JSON.stringify({
+          hash,
+        }),
+      });
+
+      if (inThread) {
+        // @ts-ignore
+        window.location.reload();
+      } else {
+        // @ts-ignore
+        window.location = `/${user?.fname}/${hash}`;
+      }
+    }
+    setSubmitting(false);
+  };
 
   const handleLongSubmit = async () => {
     setSubmitting(true);
@@ -340,6 +411,7 @@ const NewCastContent = ({
 
   const handleSubmit = async () => {
     if (option === "long-cast") await handleLongSubmit();
+    if (option === "poll") await handlePollSubmit();
 
     setSubmitting(true);
     const castsWithParent = casts.map((cast) => ({
@@ -388,18 +460,32 @@ const NewCastContent = ({
               >
                 Cast
               </div>
-              <div
-                className={
-                  option === "long-cast"
-                    ? "cursor-pointer text-sm text-background bg-foreground rounded-xl px-2 py-0.5 font-semibold"
-                    : "cursor-pointer text-sm text-muted-foreground rounded-xl px-2 py-0.5 hover:text-foreground"
-                }
-                onClick={() => setOption("long-cast")}
-              >
-                Long Cast
-              </div>
+              {!pollOption && (
+                <div
+                  className={
+                    option === "long-cast"
+                      ? "cursor-pointer text-sm text-background bg-foreground rounded-xl px-2 py-0.5 font-semibold"
+                      : "cursor-pointer text-sm text-muted-foreground rounded-xl px-2 py-0.5 hover:text-foreground"
+                  }
+                  onClick={() => setOption("long-cast")}
+                >
+                  Long Cast
+                </div>
+              )}
+              {(!parent || channel) && !pollOption && (
+                <div
+                  className={
+                    option === "poll"
+                      ? "cursor-pointer text-sm text-background bg-foreground rounded-xl px-2 py-0.5 font-semibold"
+                      : "cursor-pointer text-sm text-muted-foreground rounded-xl px-2 py-0.5 hover:text-foreground"
+                  }
+                  onClick={() => setOption("poll")}
+                >
+                  Poll
+                </div>
+              )}
             </div>
-            {option === "cast" ? (
+            {option === "cast" &&
               casts.map((cast, i) => (
                 <CastEditor
                   key={cast.id}
@@ -413,10 +499,14 @@ const NewCastContent = ({
                         }
                   }
                   autoFocus={i === casts.length - 1}
+                  prefix={pollOption ? `${pollOption}` : undefined}
                 />
-              ))
-            ) : (
+              ))}
+            {option === "long-cast" && (
               <LongCast onChange={(c) => handleCastChange(0, c)} />
+            )}
+            {option === "poll" && (
+              <Poll onChange={(c) => handleCastChange(0, c)} />
             )}
           </div>
           {xpost ? children : <></>}
@@ -430,9 +520,15 @@ const NewCastContent = ({
               onChange={(value: string) => setChannel(CHANNELS_BY_ID[value])}
             />
           )}
+          {pollOption && (
+            <div className="text-xs">
+              Note: Your vote selection ({pollOption}) will be prefixed at the
+              start of your cast.
+            </div>
+          )}
         </div>
         <div className="flex flex-row space-x-2 items-center">
-          {!xpost && option === "cast" && (
+          {!xpost && option === "cast" && !pollOption && (
             <Button
               variant="outline"
               size="icon"
@@ -454,17 +550,19 @@ const NewCastContent = ({
 };
 
 const NewCastDialog = ({
-  parent,
   header,
   children,
   inThread,
   content,
+  hash,
+  pollOption,
 }: {
-  parent?: FarcasterCast;
   header?: React.ReactNode;
   children: React.ReactNode;
   inThread?: boolean;
   content?: React.ReactNode;
+  hash?: string;
+  pollOption?: number;
 }) => {
   const [open, setOpen] = useState(false);
   const { user } = useUser();
@@ -478,7 +576,11 @@ const NewCastDialog = ({
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>{header}</DialogHeader>
-        <NewCastContent parent={parent?.hash} inThread={inThread}>
+        <NewCastContent
+          parent={hash}
+          inThread={inThread}
+          pollOption={pollOption}
+        >
           {content}
         </NewCastContent>
       </DialogContent>
@@ -516,10 +618,24 @@ export const ReplyCastButton = ({
 }) => (
   <NewCastDialog
     content={<CastContent cast={parent} />}
-    parent={parent}
+    hash={parent.hash}
     inThread={inThread}
   >
     <div className="hover:underline">reply</div>
+  </NewCastDialog>
+);
+
+export const PollVoteButton = ({
+  hash,
+  option,
+}: {
+  hash: string;
+  option: number;
+}) => (
+  <NewCastDialog hash={hash} pollOption={option}>
+    <Button size="sm" className="mr-2 mt-2">
+      {option}
+    </Button>
   </NewCastDialog>
 );
 

@@ -320,3 +320,12 @@ model EthereumNftOwner {
 
     @@id([chainId, contractAddress, tokenId, ownerAddress])
 }
+
+model Poll {
+    id      Int     @id @default(autoincrement())
+    fid     Int
+    prompt  String
+    options Json
+    results Json
+    hash    String?
+}

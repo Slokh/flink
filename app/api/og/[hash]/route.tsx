@@ -56,6 +56,14 @@ export async function GET(
   const getEmbed = (embed?: Embed) => {
     if (!embed) return;
 
+    if (embed.url.includes("flink.fyi/polls")) {
+      return {
+        image: `http://localhost:3000/api/polls/${embed.url
+          .split("/")
+          .pop()}/og`,
+      };
+    }
+
     if (embed.url.includes("i.imgur.com")) {
       return { image: embed.url };
     }
@@ -102,11 +110,13 @@ export async function GET(
         <div tw="flex flex-col p-4">
           <div tw="flex flex-row items-start justify-between h-28">
             <div tw="flex flex-row items-center">
-              <img
-                tw="rounded-full w-24 h-24 flex"
-                src={cast.user?.pfp}
-                alt={displayName}
-              />
+              {cast.user?.pfp && (
+                <img
+                  tw="rounded-full w-24 h-24 flex"
+                  src={cast.user?.pfp}
+                  alt={displayName}
+                />
+              )}
               <div tw="flex flex-col ml-4">
                 <div tw="text-4xl font-semibold">{displayName}</div>
                 <div tw="text-2xl text-zinc-300">{userName}</div>
@@ -114,37 +124,49 @@ export async function GET(
             </div>
             <div tw="flex font-bold text-2xl">flink</div>
           </div>
-          <div tw="flex flex-col items-start justify-start h-[28rem]">
-            <div tw="flex flex-col leading-6 w-full border rounded-lg text-4xl">
-              {texts.map((text, i) => (
-                <div key={i} tw="flex">
-                  {text}
-                </div>
-              ))}
+          {cast.embeds[0]?.url?.includes("flink.fyi/polls") ? (
+            <div tw="flex">
+              <img
+                src={firstEmbed?.image}
+                style={{
+                  objectFit: "contain",
+                  maxHeight: "85%",
+                }}
+              />
             </div>
-            <div tw="flex flex-row items-start justify-start">
-              {firstEmbed && (
-                <img
-                  src={firstEmbed?.image}
-                  style={{
-                    objectFit: "contain",
-                    maxHeight: "80%",
-                    maxWidth: secondEmbed?.image ? "50%" : "100%",
-                  }}
-                />
-              )}
-              {secondEmbed && (
-                <img
-                  src={secondEmbed?.image}
-                  style={{
-                    objectFit: "contain",
-                    maxHeight: "80%",
-                    maxWidth: "50%",
-                  }}
-                />
-              )}
+          ) : (
+            <div tw="flex flex-col items-start justify-start h-[28rem]">
+              <div tw="flex flex-col leading-6 w-full border rounded-lg text-4xl">
+                {texts.map((text, i) => (
+                  <div key={i} tw="flex">
+                    {text}
+                  </div>
+                ))}
+              </div>
+              <div tw="flex flex-row items-start justify-start">
+                {firstEmbed && (
+                  <img
+                    src={firstEmbed?.image}
+                    style={{
+                      objectFit: "contain",
+                      maxHeight: "80%",
+                      maxWidth: secondEmbed?.image ? "50%" : "100%",
+                    }}
+                  />
+                )}
+                {secondEmbed && (
+                  <img
+                    src={secondEmbed?.image}
+                    style={{
+                      objectFit: "contain",
+                      maxHeight: "80%",
+                      maxWidth: "50%",
+                    }}
+                  />
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <div tw="bg-black h-8 flex justify-end items-center font-semibold text-xl px-2">
           <div tw="flex flex-row items-center text-red-500">

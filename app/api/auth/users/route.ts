@@ -88,7 +88,7 @@ const getPrimaryUser = async (address: `0x${string}`) => {
 };
 
 const getUserData = async (fid: number) => {
-  const [account, likes, recasts, casts, follows, preferences, savedCasts] =
+  const [account, likes, recasts, casts, follows, preferences] =
     await Promise.all([
       prisma.farcaster.findFirst({
         where: { fid },
@@ -123,11 +123,11 @@ const getUserData = async (fid: number) => {
       prisma.userPreferences.findFirst({
         where: { fid },
       }),
-      prisma.userSavedCasts.findMany({
-        where: {
-          fid,
-        },
-      }),
+      // prisma.userSavedCasts.findMany({
+      //   where: {
+      //     fid,
+      //   },
+      // }),
     ]);
 
   return {
@@ -153,9 +153,10 @@ const getUserData = async (fid: number) => {
       return acc;
     }, {} as Record<string, boolean>),
     preferences: preferences?.preferences || { channels: [] },
-    bookmarks: savedCasts.reduce((acc, cur) => {
-      acc[cur.targetHash] = true;
-      return acc;
-    }, {} as Record<string, boolean>),
+    // bookmarks: savedCasts.reduce((acc, cur) => {
+    //   acc[cur.targetHash] = true;
+    //   return acc;
+    // }, {} as Record<string, boolean>),
+    bookmarks: {},
   };
 };
