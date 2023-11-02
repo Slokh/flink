@@ -87,6 +87,8 @@ model FarcasterCast {
     @@index([parentCast, timestamp])
     @@index([fid, hash, parentCast])
     @@index([parentFid, timestamp])
+    @@index([timestamp, deleted])
+    @@index([topParentFid, topParentCast])
 }
 
 model FarcasterCastEmbedUrl {
@@ -162,6 +164,7 @@ model FarcasterCastReaction {
     @@index([fid, targetHash, timestamp])
     @@index([targetFid, targetHash, reactionType, timestamp])
     @@index([reactionType, targetFid, timestamp])
+    @@index([targetFid, targetHash, timestamp])
 }
 
 model FarcasterUrlReaction {
@@ -257,6 +260,19 @@ model UserPreferences {
     notificationsViewedAt DateTime?
 
     @@id([address, fid])
+}
+
+model UserSavedCasts {
+    address      String
+    fid          Int
+    targetFid    Int
+    targetHash   String
+    topParentUrl String?
+    tag          String?
+
+    @@id([address, fid, targetFid, targetHash])
+    @@index([address, fid, topParentUrl])
+    @@index([address, fid, tag])
 }
 
 model FarcasterTransferRequests {

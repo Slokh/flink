@@ -130,7 +130,7 @@ export const GET: RouteHandlerWithSession = ironSessionWrapper(
         cast.mentions.map((mention: any) => mention.fid)
       ),
       ...allCasts.flatMap((cast) => cast.user.fid),
-    ].filter((fid, index, self) => self.indexOf(fid) === index);
+    ].filter((fid, index, self) => fid && self.indexOf(fid) === index);
 
     const users = await prisma.farcaster.findMany({
       where: { fid: { in: fids } },

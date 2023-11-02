@@ -21,6 +21,7 @@ import { DeleteCast } from "../actions/delete-cast";
 import { LikeCast } from "../actions/like-cast";
 import { RecastCast } from "../actions/recast-cast";
 import { User } from "../user";
+import { BookmarkCast } from "../actions/bookmark-cast";
 
 const formatDistanceCustom = (date1: Date, date2: Date) => {
   const diffInSeconds = differenceInSeconds(date2, date1);
@@ -238,6 +239,7 @@ const WebCast = ({
           </a>
           <CopyLink link={`https://flink.fyi/${user?.fname}/${cast.hash}`} />
           <XPostButton cast={cast} />
+          <BookmarkCast cast={cast} />
           <DeleteCast hash={cast.hash}>
             <div className="hover:underline">delete</div>
           </DeleteCast>

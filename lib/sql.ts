@@ -124,7 +124,7 @@ export const HotCasts = (
             EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCastReaction"."timestamp"))) AS age_in_seconds
         FROM "public"."FarcasterCastReaction"
           JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
-        WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '7 days'::interval
+        WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '2 days'::interval
           AND "FarcasterCast"."parentCast" IS NULL
           AND NOT "FarcasterCastReaction"."deleted"
           AND NOT "FarcasterCast"."deleted"
@@ -138,7 +138,7 @@ export const HotCasts = (
         COUNT(DISTINCT "fid"),
         EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCast"."timestamp"))) AS age_in_seconds
       FROM "public"."FarcasterCast"
-      WHERE "FarcasterCast"."timestamp" >= NOW() - '7 days'::interval
+      WHERE "FarcasterCast"."timestamp" >= NOW() - '2 days'::interval
           AND NOT "FarcasterCast"."deleted"
       GROUP BY "topParentFid", "topParentCast"
     )    
@@ -169,7 +169,7 @@ export const HotCasts = (
             EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCastReaction"."timestamp"))) AS age_in_seconds
         FROM "public"."FarcasterCastReaction"
           JOIN "public"."FarcasterCast" ON "FarcasterCast"."fid" = "FarcasterCastReaction"."targetFid" AND "FarcasterCast"."hash" = "FarcasterCastReaction"."targetHash"
-        WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '7 days'::interval
+        WHERE "FarcasterCastReaction"."timestamp" >= NOW() - '2 days'::interval
           AND NOT "FarcasterCastReaction"."deleted"
           AND NOT "FarcasterCast"."deleted"
         GROUP BY "targetFid", "targetHash"
@@ -182,7 +182,7 @@ export const HotCasts = (
         COUNT(DISTINCT "fid"),
         EXTRACT(EPOCH FROM (NOW() - MIN("FarcasterCast"."timestamp"))) AS age_in_seconds
       FROM "public"."FarcasterCast"
-      WHERE "FarcasterCast"."timestamp" >= NOW() - '7 days'::interval
+      WHERE "FarcasterCast"."timestamp" >= NOW() - '2 days'::interval
           AND NOT "FarcasterCast"."deleted"
       GROUP BY "topParentFid", "topParentCast"
     )    

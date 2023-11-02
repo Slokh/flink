@@ -20,6 +20,7 @@ import { CopyLink } from "../copy-link";
 import { useState } from "react";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { User } from "../user";
+import { BookmarkCast } from "../actions/bookmark-cast";
 
 export const CollapsibleCast = ({
   cast,
@@ -137,13 +138,14 @@ export const CollapsibleCast = ({
                 link={`https://flink.fyi/${user?.fname}/${cast.hash}`}
               />
               <XPostButton cast={cast} />
+              <BookmarkCast cast={cast} />
               <DeleteCast hash={cast.hash} isReply>
                 <div className="hover:underline">delete</div>
               </DeleteCast>
             </div>
           </div>
         </div>
-        {cast.children.length > 0 && (
+        {cast.children?.length > 0 && (
           <div className="flex flex-col mt-4">
             {cast.children.map((child) => (
               <CollapsibleCast key={child.hash} cast={child} op={op} />

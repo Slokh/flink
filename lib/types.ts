@@ -186,6 +186,7 @@ export type AuthenticatedUser = {
   casts: { [key: string]: boolean };
   follows: { [key: string]: boolean };
   preferences: AuthenticatedUserPreferences;
+  bookmarks: { [key: string]: boolean };
 };
 
 export type ChannelStatsEntries = {
