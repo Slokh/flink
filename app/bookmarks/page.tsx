@@ -21,7 +21,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CHANNELS, CHANNELS_BY_URL } from "@/lib/channels";
+import { CHANNELS_BY_URL } from "@/lib/channels";
 
 const BookmarksDisplay = ({
   bookmarks,
@@ -101,7 +101,7 @@ const ChannelDisplay = ({ bookmarks }: { bookmarks: FarcasterCast[] }) => {
                 />
                 <AvatarFallback>?</AvatarFallback>
               </Avatar>
-              <div>{CHANNELS_BY_URL[url].name}</div>
+              <div>{CHANNELS_BY_URL[url]?.name || "No channel"}</div>
               <div>{`(${casts.length})`}</div>
             </div>
           </AccordionTrigger>
@@ -134,7 +134,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!user) return;
-    fetchBookmarks(3887);
+    fetchBookmarks(user.fid);
   }, [user]);
 
   if (!user) return <div className="w-full"></div>;
