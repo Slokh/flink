@@ -17,7 +17,7 @@ export async function GET(
   request: Request,
   { params }: { params: { poll: string } }
 ) {
-  const res = await fetch(`http://localhost:3000/api/polls/${params.poll}`);
+  const res = await fetch(`https://flink.fyi/api/polls/${params.poll}`);
   const { prompt, results }: Poll = await res.json();
   const inter = await fetch(
     new URL("../../../../../assets/Inter-Regular.ttf", import.meta.url)

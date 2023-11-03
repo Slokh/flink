@@ -58,9 +58,7 @@ export async function GET(
 
     if (embed.url.includes("flink.fyi/polls")) {
       return {
-        image: `http://localhost:3000/api/polls/${embed.url
-          .split("/")
-          .pop()}/og`,
+        image: `https://flink.fyi/api/polls/${embed.url.split("/").pop()}/og`,
       };
     }
 
