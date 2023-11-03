@@ -3,16 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { useUser } from "@/context/user";
 import { PollVoteButton } from "../actions/new-cast";
-
-type Poll = {
-  hash: string;
-  prompt: string;
-  results: {
-    option: string;
-    votes: number;
-  }[];
-};
-
+import { Poll } from "@/lib/types";
 export const PollEmbed = ({ url }: { url: string }) => {
   const [poll, setPoll] = useState<Poll | null>(null);
   const pollId = url.split("/").pop();

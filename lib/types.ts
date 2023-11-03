@@ -291,3 +291,12 @@ export type FollowersStats = {
   targetFid: number;
   user: FarcasterUser;
 };
+
+export type Poll = {
+  hash: string;
+  prompt: string;
+  results: {
+    option: string;
+    votes: number;
+  }[];
+};

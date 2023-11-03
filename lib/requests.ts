@@ -7,6 +7,7 @@ import {
   FarcasterCastTree,
   FollowersStats,
   LinkStats,
+  Poll,
   UserStats,
 } from "./types";
 
@@ -138,5 +139,12 @@ export const getUserFollowing = async (
   const host = headers().get("host");
   const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
   const data = await fetch(`${protocol}://${host}/api/stats/following/${fid}`);
+  return await data.json();
+};
+
+export const getPoll = async (pollId: string): Promise<Poll> => {
+  const host = headers().get("host");
+  const protocol = process?.env.NODE_ENV === "development" ? "http" : "https";
+  const data = await fetch(`${protocol}://${host}/api/polls/${pollId}`);
   return await data.json();
 };
