@@ -80,6 +80,28 @@ export const handleCastMessages = async (
     await extractKeywordsFromCasts(finalCastDatas);
   }
 
+  if (messages.length === 1) {
+    const directParent = parentCastDatas.find(
+      (c) => c.hash === castDatas[0].cast.parentCast
+    );
+    if (directParent) {
+      const urlsToRefetch = directParent.castEmbedUrls.filter((url) =>
+        url.url.includes("flink.fyi/polls")
+      );
+      await Promise.all(
+        urlsToRefetch.map(async (url) => {
+          console.log(`[cast-ingest] refreshing poll ${url.url}`);
+          fetch("https://client.warpcast.com/v2/scrape-embed", {
+            method: "POST",
+            body: JSON.stringify({
+              embed: url.url,
+            }),
+          });
+        })
+      );
+    }
+  }
+
   return finalCastDatas;
 };
 
