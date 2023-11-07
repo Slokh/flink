@@ -188,7 +188,7 @@ export const AuthButton = () => {
         ) : (
           <div />
         )}
-        {primary?.requiresSigner && <AddSigner />}
+        {/* {primary?.requiresSigner && <AddSigner />} */}
         {!primary && (
           <Link
             href={`/signup`}
