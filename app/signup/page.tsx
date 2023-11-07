@@ -101,6 +101,20 @@ export default function Home() {
   }, [custody]);
 
   if (isLoading) return <Loading />;
+
+  return (
+    <div className="w-full flex flex-col space-y-4 py-2 px-4">
+      <div className="text-2xl font-semibold">Signup for Farcaster</div>
+      <div className="max-w-lg">
+        Signups are currently disabled while Farcaster contracts are upgrading.
+        More info at:
+      </div>
+      <a href="https://github.com/farcasterxyz/protocol/discussions/133">
+        https://github.com/farcasterxyz/protocol/discussions/133
+      </a>
+    </div>
+  );
+
   if (disabled) {
     return (
       <div className="w-full flex flex-col space-y-4 py-2 px-4">
