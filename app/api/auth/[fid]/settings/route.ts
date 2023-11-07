@@ -1,3 +1,4 @@
+import { getHubClient } from "@/indexer/farcaster/hub";
 import {
   RouteHandlerWithSession,
   ironSessionWrapper,
@@ -46,6 +47,34 @@ export const POST: RouteHandlerWithSession = ironSessionWrapper(
     }
 
     const body = await request.json();
+
+    if (body.username) {
+      const client = await getHubClient();
+      let tries = 0;
+      do {
+        const proof = await client.client.getUsernameProof({
+          name: Uint8Array.from(Buffer.from(body.username)),
+        });
+        if (proof.isOk()) {
+          break;
+        }
+
+        if (tries >= 5) {
+          return NextResponse.json(
+            {
+              status: 500,
+              statusText: "Internal Server Error",
+              error: "Failed to get username proof.",
+            },
+            { status: 500 }
+          );
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        tries++;
+      } while (true);
+    }
+
     const data = await fetch("https://api.neynar.com/v2/farcaster/user", {
       method: "PATCH",
       headers: {
