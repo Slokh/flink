@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { encodeAbiParameters, isAddress, parseAbiItem } from "viem";
 import {
   useAccount,
+  useChainId,
   useContractRead,
   useContractWrite,
   useNetwork,
@@ -159,6 +160,7 @@ const SetRecoveryAddress = ({
   const { signTypedDataAsync } = useSignTypedData();
   const { switchNetworkAsync } = useSwitchNetwork();
   const { address } = useAccount();
+  const chainId = useChainId();
   const [recoveryAddress, setRecoveryAddress] = useState(address || "");
   const [error, setError] = useState("");
   const [done, setDone] = useState(markDone);
@@ -183,7 +185,9 @@ const SetRecoveryAddress = ({
 
     try {
       setIsLoading(true);
-      await switchNetworkAsync(CONTRACTS.NETWORK);
+      if (chainId !== CONTRACTS.NETWORK) {
+        await switchNetworkAsync(CONTRACTS.NETWORK);
+      }
 
       const registerDeadline = Math.floor(Date.now() / 1000) + 86400;
       const registerSignature = await signTypedDataAsync({
@@ -259,6 +263,7 @@ const EnableFlink = ({
   const [isLoading, setIsLoading] = useState(false);
   const { signTypedDataAsync } = useSignTypedData();
   const { switchNetworkAsync } = useSwitchNetwork();
+  const chainId = useChainId();
   const { address } = useAccount();
   const [error, setError] = useState("");
   const [done, setDone] = useState(markDone);
@@ -278,7 +283,9 @@ const EnableFlink = ({
 
     try {
       setIsLoading(true);
-      await switchNetworkAsync(CONTRACTS.NETWORK);
+      if (chainId !== CONTRACTS.NETWORK) {
+        await switchNetworkAsync(CONTRACTS.NETWORK);
+      }
 
       const res = await fetch(`/api/auth/signer/generate`);
       const {
@@ -406,6 +413,7 @@ const RegisterWithIdRegistry = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { switchNetworkAsync } = useSwitchNetwork();
+  const chainId = useChainId();
   const { address } = useAccount();
   const [error, setError] = useState("");
   const { addNewUser } = useUser();
@@ -449,7 +457,7 @@ const RegisterWithIdRegistry = ({
               },
             ],
             internalType: "struct IBundler.RegistrationParams",
-            name: "registration",
+            name: "registerParams",
             type: "tuple",
           },
           {
@@ -486,17 +494,23 @@ const RegisterWithIdRegistry = ({
               },
             ],
             internalType: "struct IBundler.SignerParams[]",
-            name: "signers",
+            name: "signerParams",
             type: "tuple[]",
           },
           {
             internalType: "uint256",
-            name: "storageUnits",
+            name: "extraStorage",
             type: "uint256",
           },
         ],
         name: "register",
-        outputs: [],
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
         stateMutability: "payable",
         type: "function",
       },
@@ -509,7 +523,9 @@ const RegisterWithIdRegistry = ({
 
     try {
       setIsLoading(true);
-      await switchNetworkAsync(CONTRACTS.NETWORK);
+      if (chainId !== CONTRACTS.NETWORK) {
+        await switchNetworkAsync(CONTRACTS.NETWORK);
+      }
 
       await writeAsync({
         args: [
@@ -524,7 +540,7 @@ const RegisterWithIdRegistry = ({
               enable.signature,
             ],
           ],
-          1,
+          0,
         ],
         value: data,
       });
