@@ -25,10 +25,10 @@ import { CONTRACTS } from "@/lib/contracts";
 
 // Define the EIP-712 domain
 const domain = {
-  name: "Farcaster IdRegistry",
+  name: "Farcaster IdGateway",
   version: "1",
   chainId: CONTRACTS.NETWORK,
-  verifyingContract: CONTRACTS.ID_REGISTRY_ADDRESS,
+  verifyingContract: CONTRACTS.ID_GATEWAY_ADDRESS,
 } as const;
 
 // Create the EIP-712 typed data
@@ -42,10 +42,10 @@ const types = {
 };
 
 const signerDomain = {
-  name: "Farcaster KeyRegistry",
+  name: "Farcaster KeyGateway",
   version: "1",
   chainId: CONTRACTS.NETWORK,
-  verifyingContract: CONTRACTS.KEY_REGISTRY_ADDRESS,
+  verifyingContract: CONTRACTS.KEY_GATEWAY_ADDRESS,
 };
 
 const signerTypes = {
@@ -101,20 +101,6 @@ export default function Home() {
   }, [custody]);
 
   if (isLoading) return <Loading />;
-
-  return (
-    <div className="w-full flex flex-col space-y-4 py-2 px-4">
-      <div className="text-2xl font-semibold">Signup for Farcaster</div>
-      <div className="max-w-lg">
-        Signups are currently disabled while Farcaster contracts are upgrading.
-        More info at:
-      </div>
-      <a href="https://github.com/farcasterxyz/protocol/discussions/133">
-        https://github.com/farcasterxyz/protocol/discussions/133
-      </a>
-    </div>
-  );
-
   if (disabled) {
     return (
       <div className="w-full flex flex-col space-y-4 py-2 px-4">
@@ -171,7 +157,7 @@ const SetRecoveryAddress = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { signTypedDataAsync } = useSignTypedData();
-  const { switchNetwork } = useSwitchNetwork();
+  const { switchNetworkAsync } = useSwitchNetwork();
   const { address } = useAccount();
   const [recoveryAddress, setRecoveryAddress] = useState(address || "");
   const [error, setError] = useState("");
@@ -189,7 +175,7 @@ const SetRecoveryAddress = ({
   });
 
   const handleSetRecoveryAddress = async () => {
-    if (!switchNetwork) return;
+    if (!switchNetworkAsync) return;
     if (!isAddress(recoveryAddress)) {
       setError("Invalid address");
       return;
@@ -197,7 +183,7 @@ const SetRecoveryAddress = ({
 
     try {
       setIsLoading(true);
-      await switchNetwork(CONTRACTS.NETWORK);
+      await switchNetworkAsync(CONTRACTS.NETWORK);
 
       const registerDeadline = Math.floor(Date.now() / 1000) + 86400;
       const registerSignature = await signTypedDataAsync({
@@ -272,7 +258,7 @@ const EnableFlink = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { signTypedDataAsync } = useSignTypedData();
-  const { switchNetwork } = useSwitchNetwork();
+  const { switchNetworkAsync } = useSwitchNetwork();
   const { address } = useAccount();
   const [error, setError] = useState("");
   const [done, setDone] = useState(markDone);
@@ -288,11 +274,11 @@ const EnableFlink = ({
   }, [markDone]);
 
   const handleEnableFlink = async () => {
-    if (!switchNetwork) return;
+    if (!switchNetworkAsync) return;
 
     try {
       setIsLoading(true);
-      await switchNetwork(CONTRACTS.NETWORK);
+      await switchNetworkAsync(CONTRACTS.NETWORK);
 
       const res = await fetch(`/api/auth/signer/generate`);
       const {
@@ -419,7 +405,7 @@ const RegisterWithIdRegistry = ({
   markDone: boolean;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { switchNetwork } = useSwitchNetwork();
+  const { switchNetworkAsync } = useSwitchNetwork();
   const { address } = useAccount();
   const [error, setError] = useState("");
   const { addNewUser } = useUser();
@@ -519,11 +505,11 @@ const RegisterWithIdRegistry = ({
   });
 
   const handleRegisterWithIdRegistry = async () => {
-    if (!switchNetwork || !writeAsync || !recovery || !enable) return;
+    if (!switchNetworkAsync || !writeAsync || !recovery || !enable) return;
 
     try {
       setIsLoading(true);
-      await switchNetwork(CONTRACTS.NETWORK);
+      await switchNetworkAsync(CONTRACTS.NETWORK);
 
       await writeAsync({
         args: [

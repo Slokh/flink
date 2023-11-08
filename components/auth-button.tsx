@@ -188,7 +188,7 @@ export const AuthButton = () => {
         ) : (
           <div />
         )}
-        {/* {primary?.requiresSigner && <AddSigner />} */}
+        {primary?.requiresSigner && <AddSigner />}
         {!primary && (
           <Link
             href={`/signup`}
@@ -270,7 +270,7 @@ export const AddSigner = () => {
   const { addNewUser } = useUser();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { switchNetwork } = useSwitchNetwork();
+  const { switchNetworkAsync } = useSwitchNetwork();
 
   const { writeAsync } = useContractWrite({
     address: CONTRACTS.KEY_REGISTRY_ADDRESS,
@@ -283,11 +283,11 @@ export const AddSigner = () => {
   });
 
   const write = async () => {
-    if (!switchNetwork || !writeAsync) return;
+    if (!switchNetworkAsync || !writeAsync) return;
 
     try {
       setIsLoading(true);
-      await switchNetwork(CONTRACTS.NETWORK);
+      await switchNetworkAsync(CONTRACTS.NETWORK);
 
       const res = await fetch(`/api/auth/signer/generate`);
       const {

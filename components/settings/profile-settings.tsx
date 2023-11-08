@@ -316,7 +316,7 @@ export const ChangeUsername = ({
   const [loading, setLoading] = useState(false);
   const { user, custody } = useUser();
   const [input, setInput] = useState(custody?.fname || "");
-  const { switchNetwork } = useSwitchNetwork();
+  const { switchNetworkAsync } = useSwitchNetwork();
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -360,11 +360,11 @@ export const ChangeUsername = ({
   }, []);
 
   const handleSubmit = async () => {
-    if (!address || input === custody?.fname || !switchNetwork) return;
+    if (!address || input === custody?.fname || !switchNetworkAsync) return;
     setError("");
     setLoading(true);
     try {
-      await switchNetwork(1);
+      await switchNetworkAsync(1);
 
       const current = await fetch(
         `https://fnames.farcaster.xyz/transfers/current?name=${custody?.fname}`
