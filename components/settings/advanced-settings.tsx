@@ -49,6 +49,8 @@ export const AdvancedSettings = () => {
 
   if (isLoading) return <Loading />;
 
+  console.log(custody, user);
+
   return (
     <div className="flex flex-col md:flex-row px-4 py-2 space-y-4 md:space-x-4 md:space-y-0 space-x-0">
       <div className="flex flex-col space-y-1 max-w-xl">
@@ -91,7 +93,7 @@ export const AdvancedSettings = () => {
       </div>
       <div className="max-w-xl">
         {custody ? (
-          custody?.fid !== user?.fid ? (
+          user && custody?.fid !== user.fid ? (
             <div className="text-red-500 text-sm">
               This account can&apos;t be transfered as it&apos;s not custodied
               by this wallet.
