@@ -16,13 +16,13 @@ import {
 } from "../db/reaction";
 import { handleUserUpdate } from "../farcaster/users";
 
-const START_TIMESTAMP = 1696999839;
-const END_TIMESTAMP = 1697604639;
+const START_TIMESTAMP = 1701789856;
+const END_TIMESTAMP = 17017898560;
 
 const backfill = async () => {
   const client = await getHubClient();
   let currentFid = 1;
-  for (let fid = currentFid; fid <= 25000; fid++) {
+  for (let fid = currentFid; fid <= 200000; fid++) {
     console.log(`[backfill] [${fid}]`);
     // await handleUserUpdate(client, fid);
 
@@ -33,9 +33,9 @@ const backfill = async () => {
     await upsertFarcaster(farcasterUser);
 
     await Promise.all([
-      await handleFidCasts(client, fid),
+      // await handleFidCasts(client, fid),
       await handleReactions(client, fid),
-      await handleLinks(client, fid),
+      // await handleLinks(client, fid),
     ]);
 
     // await prisma.backfill.create({
