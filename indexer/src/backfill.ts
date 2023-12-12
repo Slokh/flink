@@ -22,7 +22,7 @@ const END_TIMESTAMP = 17017898560;
 const backfill = async () => {
   const client = await getHubClient();
   let currentFid = 211000;
-  for (let fid = currentFid; fid >= 1; fid++) {
+  for (let fid = currentFid; fid >= 1; fid--) {
     console.log(`[backfill] [${fid}]`);
     // await handleUserUpdate(client, fid);
 
@@ -33,9 +33,9 @@ const backfill = async () => {
     await upsertFarcaster(farcasterUser);
 
     await Promise.all([
-      // await handleFidCasts(client, fid),
+      await handleFidCasts(client, fid),
       await handleReactions(client, fid),
-      // await handleLinks(client, fid),
+      await handleLinks(client, fid),
     ]);
 
     // await prisma.backfill.create({
