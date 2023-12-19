@@ -504,7 +504,6 @@ const getEmbedsForCasts = async (casts: any) => {
     ({ url, contentMetadata, transactionMetadata, contentType }: any) => {
       if (!url) return false;
       if (!contentMetadata) return true;
-      if (url.includes("imgur") && Object.keys(contentMetadata).length === 0) return true;
       // transaction metadata
       if (
         (url.includes("app.manifold.xyz/c/") ||
