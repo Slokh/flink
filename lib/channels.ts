@@ -35,5 +35,7 @@ export const CHANNELS = channels
   .sort((a, b) => a.name.localeCompare(b.name))
   .map((channel) => ({
     ...channel,
+    channelId: channel.id,
+    parentUrl: channel.url,
     image: `/channels/${channel.id}.jpg`,
   }));
