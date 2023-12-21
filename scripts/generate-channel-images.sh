@@ -11,7 +11,7 @@ mkdir $folder
 json=$(cat ../lib/channels.json)
 
 # Parse JSON to get image URLs and channel IDs
-data=$(echo $json | jq -r '.[] | "\(.image) \(.channelId)"')
+data=$(echo $json | jq -r '.[] | "\(.imageUrl) \(.id)"')
 
 # Loop through data, download each image, rename it to channel_id and resize it to 256x256
 while read -r url id; do
