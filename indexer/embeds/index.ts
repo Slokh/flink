@@ -16,7 +16,8 @@ export const getEmbedMetadata = async (url: string) => {
   const [metadata, headMetadata, transactionMetadata] = await Promise.all([
     getMetadata(formattedUrl),
     getHeadMetadata(formattedUrl),
-    getTransactionMetadata(formattedUrl),
+    Promise.resolve(undefined),
+    // getTransactionMetadata(formattedUrl),
   ]);
 
   return {
@@ -113,11 +114,11 @@ const getMetadata = async (url: string) => {
     } else {
       const [, , chainId, contractAddress, tokenId] = url.split("/");
       contentMetadata = await Promise.race<any>([
-        getNftMetadata(
-          CHAIN_ID_TO_NAME[chainId],
-          contractAddress.split(":")[1],
-          tokenId
-        ),
+        // getNftMetadata(
+        //   CHAIN_ID_TO_NAME[chainId],
+        //   contractAddress.split(":")[1],
+        //   tokenId
+        // ),
         timeout(10000),
       ]);
     }
