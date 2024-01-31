@@ -5,7 +5,7 @@ import { Inter } from "next/font/google";
 import "@rainbow-me/rainbowkit/styles.css";
 import WalletProvider from "./wallet";
 import { Nav } from "@/components/nav";
-// import { ChannelSidebar } from "@/components/channels/channel-sidebar";
+import { ChannelSidebar } from "@/components/channels/channel-sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import { StrictMode } from "react";
 
@@ -84,7 +84,7 @@ export default function RootLayout({
 								>
 									<div className="flex flex-row w-full">
 										{children}
-										{/* <ChannelSidebar /> */}
+										<ChannelSidebar />
 									</div>
 								</div>
 							</div>
