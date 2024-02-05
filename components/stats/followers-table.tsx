@@ -98,7 +98,7 @@ export const FollowersTable = ({
 			cell: ({ row }) => {
 				return (
 					<div className="flex flex-row justify-center">
-						{row.original.user.following}
+						{row.original.user?.following}
 					</div>
 				);
 			},
@@ -112,7 +112,7 @@ export const FollowersTable = ({
 			cell: ({ row }) => {
 				return (
 					<div className="flex flex-row justify-center">
-						{row.original.user.followers}
+						{row.original.user?.followers}
 					</div>
 				);
 			},
