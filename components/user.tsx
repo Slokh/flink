@@ -27,7 +27,7 @@ export const WithUserTooltip = ({
 				<TooltipContent className="bg-background flex flex-col space-y-2 border text-foreground text-md w-80 p-2">
 					<div className="flex flex-row justify-between">
 						<Link
-							href={`/${user.fname}`}
+							href={`/${user?.fname}`}
 							className="flex flex-row space-x-2 items-center"
 						>
 							<Avatar className="h-10 w-10">
@@ -36,22 +36,22 @@ export const WithUserTooltip = ({
 							</Avatar>
 							<div>
 								<div className="text-lg font-medium line-clamp-1">
-									{user.display || user.fname}
+									{user?.display || user?.fname}
 								</div>
-								<div>{`@${user.fname}`}</div>
+								<div>{`@${user?.fname}`}</div>
 							</div>
 						</Link>
-						<FollowUser fid={user.fid} />
+						<FollowUser fid={user?.fid} />
 					</div>
-					<div>{user.bio}</div>
-					{user.followers && user.following && (
+					<div>{user?.bio}</div>
+					{user?.followers && user?.following && (
 						<div className="flex flex-col">
 							<div className="flex flex-row space-x-2">
 								<div className="flex flex-row space-x-1 items-center">
 									<span className="font-semibold">
-										{user.following > 9999
-											? `${Math.floor(user.following / 1000)}k`
-											: user.following.toLocaleString("en-US")}
+										{user?.following > 9999
+											? `${Math.floor(user?.following / 1000)}k`
+											: user?.following.toLocaleString("en-US")}
 									</span>
 									<span className="text-sm text-muted-foreground">
 										following
@@ -59,9 +59,9 @@ export const WithUserTooltip = ({
 								</div>
 								<div className="flex flex-row space-x-1 items-center">
 									<span className="font-semibold">
-										{user.followers > 9999
-											? `${Math.floor(user.followers / 1000)}k`
-											: user.followers.toLocaleString("en-US")}
+										{user?.followers > 9999
+											? `${Math.floor(user?.followers / 1000)}k`
+											: user?.followers.toLocaleString("en-US")}
 									</span>
 									<span className="text-sm text-muted-foreground">
 										followers
@@ -101,7 +101,7 @@ export const User = ({
 					<AvatarFallback>?</AvatarFallback>
 				</Avatar>
 				<div className="text-muted-foreground">
-					{user?.fid ? `fid:${user.fid}` : "unknown"}
+					{user?.fid ? `fid:${user?.fid}` : "unknown"}
 				</div>
 			</div>
 		);
@@ -123,8 +123,8 @@ export const User = ({
 						<AvatarFallback>?</AvatarFallback>
 					</Avatar>
 				)}
-				{showDisplay && user.display && (
-					<div className="font-medium">{user.display || user.fname}</div>
+				{showDisplay && user?.display && (
+					<div className="font-medium">{user?.display || user?.fname}</div>
 				)}
 				{showUsername && (
 					<div
@@ -132,7 +132,7 @@ export const User = ({
 							isHighlighted ? "pr-[2px]" : ""
 						}`}
 					>
-						{user.fname}
+						{user?.fname}
 					</div>
 				)}
 				{isHighlighted && (

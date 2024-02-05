@@ -80,7 +80,7 @@ export const FollowersTable = ({
 										{user?.display || user?.fname}
 									</div>
 									<div className="text-muted-foreground">
-										{user.fname || `fid:${user.fid}`}
+										{user?.fname || `fid:${user?.fid}`}
 									</div>
 								</div>
 							</Link>

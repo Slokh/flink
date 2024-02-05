@@ -48,6 +48,7 @@ const UserDisplay = ({ bookmarks }: { bookmarks: FarcasterCast[] }) => {
 	const userBookmarks = bookmarks.reduce(
 		(acc, bookmark) => {
 			const user = bookmark.user;
+			if (!user) return acc;
 			if (!acc[user.fid]) {
 				acc[user.fid] = [];
 			}
@@ -70,8 +71,8 @@ const UserDisplay = ({ bookmarks }: { bookmarks: FarcasterCast[] }) => {
 								/>
 								<AvatarFallback>?</AvatarFallback>
 							</Avatar>
-							<div>{casts[0].user.display}</div>
-							<div className="text-purple-600 dark:text-purple-400">{`@${casts[0].user.fname}`}</div>
+							<div>{casts[0].user?.display}</div>
+							<div className="text-purple-600 dark:text-purple-400">{`@${casts[0].user?.fname}`}</div>
 							<div>{`(${casts.length})`}</div>
 						</div>
 					</AccordionTrigger>
@@ -143,7 +144,7 @@ export default function Home() {
 
 	useEffect(() => {
 		if (!user) return;
-		fetchBookmarks(user.fid);
+		fetchBookmarks(user?.fid);
 	}, [user]);
 
 	if (!user) return <div className="w-full"></div>;

@@ -71,7 +71,7 @@ export const formatText = (
   const sortedMentions = mentions.sort((a, b) => b.position - a.position);
 
   for (let i = 0; i < sortedMentions.length; i++) {
-    if (!sortedMentions[i].mention) continue;
+    if (!sortedMentions[i].mention?.fname) continue;
     // Assuming mentionsPositions consider newlines as bytes, so no newline adjustment
     const adjustedMentionPosition = sortedMentions[i].position;
     const mentionUsername = sortedMentions[i].mention.fname;
